@@ -37,6 +37,13 @@ function applyOne(name, value) {
     case 'upper': return Ok(value.toUpperCase());
     case 'lower': return Ok(value.toLowerCase());
     case 'digitsOnly': return Ok(value.replace(/\D+/g, ''));
+    case 'yesNo': {
+      // MCA's radio answers. Suite sends booleans; `toText` makes them "true" / "false".
+      const v = value.trim().toLowerCase();
+      if (['true', 'yes', 'y'].includes(v)) return Ok('Yes');
+      if (['false', 'no', 'n'].includes(v)) return Ok('No');
+      return Err('validation', 'value is not a yes / no answer for transform yesNo');
+    }
     case 'dateDDMMYYYY': {
       const p = parseDate(value);
       if (!p) return Err('validation', `value is not a recognisable date for transform dateDDMMYYYY`);

@@ -12,6 +12,7 @@ import { lookupValue, selectorsFor } from './context.js';
 import { OPS } from './ops/index.js';
 import { flag } from './waits.js';
 import { valuesMatch, readValue } from './verify.js';
+import { selectorsLabel } from '../shared/selectors.js';
 
 /** @typedef {import('../shared/schema.js').RunState} RunState */
 /** @typedef {import('../shared/schema.js').Recipe} Recipe */
@@ -374,7 +375,7 @@ async function collectInFlightEvidence(ctx, step) {
   } else if ((step.op === 'fill' || step.op === 'select' || step.op === 'check') && step.key) {
     const found = findField(ctx.fieldMap, step.key);
     if (found) {
-      ev.target = found.field.selectors.primary;
+      ev.target = selectorsLabel(found.field.selectors);
       const r = await ctx.send('exists', { selectors: found.field.selectors }, TIMEOUTS.OP_MS);
       ev.targetFound = r.ok ? flag(r.value, 'found') : null;
       if (ev.targetFound) ev.holdsExpected = await holds(found.field);

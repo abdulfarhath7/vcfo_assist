@@ -168,6 +168,58 @@
   }
 
   /**
+   * Text a person reads beside a radio or checkbox: its wrapping label, a
+   * `label[for]`, or its parent — the order the reference build's filler.js
+   * uses on AEM forms.
+   * @param {HTMLInputElement} input
+   * @returns {string}
+   */
+  function choiceLabel(input) {
+    const byFor = input.id ? document.querySelector(`label[for="${CSS.escape(input.id)}"]`) : null;
+    const host = input.closest('label') ?? byFor ?? input.parentElement;
+    return (host?.textContent ?? '').replace(/\s+/g, ' ').trim();
+  }
+
+  /**
+   * The radios answering the same question as `input`: the ones inside its
+   * AEM `.guideFieldNode`, else the ones sharing its name.
+   * @param {HTMLInputElement} input
+   * @returns {HTMLInputElement[]}
+   */
+  function radioGroup(input) {
+    const node = input.closest('.guideFieldNode');
+    if (node) return Array.from(node.querySelectorAll('input[type="radio"]'));
+    if (!input.name) return [input];
+    return Array.from(document.querySelectorAll(`input[type="radio"][name="${CSS.escape(input.name)}"]`));
+  }
+
+  /** Yes / No aliases, as the reference build matched them. */
+  const CHOICE_ALIASES = /** @type {Record<string, string[]>} */ ({ yes: ['yes', 'y', 'true'], no: ['no', 'n', 'false'] });
+
+  /**
+   * Pick one radio of a group by option value or label, exactly (Yes / No
+   * aliases allowed). Never a prefix match.
+   * @param {HTMLInputElement[]} group
+   * @param {string} value
+   * @returns {{ ok: true, actual: string } | { ok: false, error: AssistError }}
+   */
+  function pickRadio(group, value) {
+    const want = norm(value);
+    const wanted = CHOICE_ALIASES[want] ?? [want];
+    const hit = group.find((i) => wanted.includes(norm(i.value))) ?? group.find((i) => wanted.includes(norm(choiceLabel(i))));
+    if (!hit) {
+      return {
+        ok: false,
+        error: { class: 'verification', message: `none of the ${group.length} options (${group.map((i) => choiceLabel(i) || i.value).join(' | ')}) matches the value` },
+      };
+    }
+    if (hit.disabled) return { ok: false, error: { class: 'verification', message: 'the matching option is disabled' } };
+    if (!hit.checked) click(hit);
+    const checked = group.find((i) => i.checked);
+    return { ok: true, actual: checked ? (choiceLabel(checked) || checked.value) : '' };
+  }
+
+  /**
    * What the page holds now. `actual` is what a person sees; `alt` is the
    * underlying value where the two differ (select option value, data-value).
    * Removes the marker.
@@ -182,6 +234,11 @@
       return { actual: (o?.textContent ?? '').trim(), alt: o?.value ?? el.value };
     }
     if (el instanceof HTMLInputElement) {
+      // A radio group answered as a choice (Yes / No) reads as its checked option.
+      if (el.type === 'radio' && type === 'select') {
+        const checked = radioGroup(el).find((i) => i.checked);
+        return { actual: checked ? choiceLabel(checked) : '', alt: checked?.value ?? '' };
+      }
       if (el.type === 'checkbox' || el.type === 'radio') return { actual: String(el.checked), alt: el.value };
       return { actual: el.value, alt: el.value };
     }
@@ -279,9 +336,19 @@
    */
   async function pickWidget(el, value, entry, timeoutMs) {
     if (el instanceof HTMLSelectElement || entry.widgetKind === 'native') {
+      // Options that load after an earlier choice or a PIN lookup: poll for the
+      // exact option until the timeout, as the reference build did.
+      if (entry.waitForOptions && el instanceof HTMLSelectElement) {
+        const deadline = Date.now() + Math.max(POLL_MS, timeoutMs);
+        while (!findOption(el, value) && Date.now() < deadline) await sleep(POLL_MS * 3);
+      }
       const set = setNative(el, value, 'select');
       if (!set.ok) return set;
       return { ok: true, actual: readBack(el, 'select').actual };
+    }
+    if (entry.widgetKind === 'radio' && el instanceof HTMLInputElement && el.type === 'radio') {
+      const group = radioGroup(el);
+      if (group.length > 1) return pickRadio(group, value);
     }
     if (entry.widgetKind === 'checkbox' || entry.widgetKind === 'radio') {
       const wanted = ['true', '1', 'yes', 'on'].includes(norm(value));

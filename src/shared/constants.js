@@ -99,6 +99,8 @@ export const TIMEOUTS = Object.freeze({
   SUITE_FETCH_MS: 20000,
   /** Widget listbox appearance. */
   WIDGET_OPEN_MS: 5000,
+  /** A dropdown whose options load after an earlier choice (field map `waitForOptions`). */
+  OPTIONS_LOAD_MS: 8000,
 });
 
 /**
@@ -144,7 +146,7 @@ export const PRECONDITION_OPS = Object.freeze(['assertUrlMatches', 'assertLogged
 
 /** Allowed transform names, applied left to right. */
 export const TRANSFORMS = Object.freeze([
-  'trim', 'upper', 'lower', 'digitsOnly', 'dateDDMMYYYY', 'dateYYYYMMDD',
+  'trim', 'upper', 'lower', 'digitsOnly', 'dateDDMMYYYY', 'dateYYYYMMDD', 'yesNo',
 ]);
 
 /** Allowed field `entry.mode` values. */

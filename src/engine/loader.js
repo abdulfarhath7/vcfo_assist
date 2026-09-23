@@ -8,6 +8,7 @@ import {
   SUPPORTED_SCHEMA_VERSIONS, CREDENTIAL,
 } from '../shared/constants.js';
 import { isRecord, Problems } from '../shared/check.js';
+import { selectorStrings } from '../shared/selectors.js';
 
 /** @typedef {import('../shared/schema.js').Recipe} Recipe */
 /** @typedef {import('../shared/schema.js').Step} Step */
@@ -105,6 +106,13 @@ function readSelectors(p, raw, path) {
     p.add(path, 'must be an object');
     return undefined;
   }
+  if (raw.strategy !== undefined && raw.strategy !== 'css') {
+    if (raw.strategy !== 'guideFieldNode') {
+      p.add(`${path}.strategy`, 'must be "css" or "guideFieldNode"');
+      return undefined;
+    }
+    return readGuideFieldNodeSelectors(p, raw, path);
+  }
   const primary = p.string(raw, 'primary', `${path}.primary`);
   const fallbacks = p.stringArray(raw, 'fallbacks', `${path}.fallbacks`);
   const shadowPath = p.stringArray(raw, 'shadowPath', `${path}.shadowPath`);
@@ -118,6 +126,38 @@ function readSelectors(p, raw, path) {
     shadowPath,
     stability: /** @type {import('../shared/schema.js').Stability} */ (stability),
   };
+}
+
+/**
+ * `{ strategy: "guideFieldNode", key, instance?, stability? }` — the AEM
+ * semantic-class addressing ported from the reference build. `instance`
+ * addresses a repeat-panel row; `stability` defaults to stable because the
+ * key is the class MCA itself names the field with.
+ * @param {Problems} p
+ * @param {Record<string, unknown>} raw
+ * @param {string} path
+ * @returns {Selectors | undefined}
+ */
+function readGuideFieldNodeSelectors(p, raw, path) {
+  const key = p.string(raw, 'key', `${path}.key`);
+  if (key !== undefined && !/^[A-Za-z_][\w-]*$/.test(key)) {
+    p.add(`${path}.key`, `"${key}" is not a CSS class name`);
+  }
+  /** @type {Selectors} */
+  const out = { strategy: 'guideFieldNode', key: key ?? '', primary: '', fallbacks: [], shadowPath: [], stability: 'stable' };
+  if (raw.instance !== undefined) {
+    const instance = p.int(raw, 'instance', `${path}.instance`);
+    if (instance !== undefined && instance < 0) p.add(`${path}.instance`, 'must be 0 or more');
+    else if (instance !== undefined) out.instance = instance;
+  }
+  if (raw.stability !== undefined) {
+    const stability = p.oneOf(raw, 'stability', STABILITIES, `${path}.stability`);
+    if (stability !== undefined) out.stability = /** @type {import('../shared/schema.js').Stability} */ (stability);
+  }
+  for (const k of ['primary', 'fallbacks', 'shadowPath']) {
+    if (raw[k] !== undefined) p.add(`${path}.${k}`, 'is not used by the guideFieldNode strategy; remove it');
+  }
+  return key === undefined ? undefined : out;
 }
 
 /**
@@ -351,20 +391,30 @@ function readFieldDef(p, raw, path) {
     const ls = p.string(raw, 'loadingSelector', `${path}.loadingSelector`);
     if (ls !== undefined) loadingSelector = ls;
   }
+  /** @type {boolean | undefined} */
+  let waitForOptions;
+  if (raw.waitForOptions !== undefined) waitForOptions = p.bool(raw, 'waitForOptions', `${path}.waitForOptions`);
+  /** @type {string | undefined} */
+  let note;
+  if (raw.note !== undefined) note = p.string(raw, 'note', `${path}.note`);
   if (key === undefined || label === undefined || sourceField === undefined || optional === undefined
     || type === undefined || entry === undefined || selectors === undefined || dependsOn === undefined) {
     return undefined;
   }
-  const credentialCandidates = [key, label, sourceField, selectors.primary, ...selectors.fallbacks];
+  const credentialCandidates = [key, label, sourceField, ...selectorStrings(selectors)];
   if (looksLikeCredential(credentialCandidates)) {
     p.add(path, `names a credential-like field ("${key}"); credentials are never filled`);
     return undefined;
   }
-  return {
+  /** @type {FieldDef} */
+  const def = {
     key, label, sourceField, optional,
     type: /** @type {import('../shared/schema.js').FieldType} */ (type),
     maxLength, transform, entry, selectors, dependsOn, loadingSelector,
   };
+  if (waitForOptions) def.waitForOptions = true;
+  if (note) def.note = note;
+  return def;
 }
 
 /**

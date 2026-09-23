@@ -86,11 +86,26 @@
  */
 
 /**
+ * How a field is found on the page.
+ * - `css` (default): `primary`, then each of `fallbacks`, under `shadowPath`.
+ * - `guideFieldNode`: MCA's AEM Adaptive Forms put a semantic class on each
+ *   `.guideFieldNode` (`proposedname1`, `type-of-company`, `din7a`). The field
+ *   is the node carrying class `key`; the control is the input, select or
+ *   textarea inside it. `instance` picks the nth node (0-based) for
+ *   repeat-panel rows; without it exactly one visible node must match.
+ *   Ported from the reference build's `content/filler.js`.
+ * @typedef {'css' | 'guideFieldNode'} SelectorStrategy
+ */
+
+/**
  * @typedef {object} Selectors
- * @property {string} primary
- * @property {string[]} fallbacks
- * @property {string[]} shadowPath   Hosts to descend through, outermost first
+ * @property {SelectorStrategy} [strategy]  Default `css`
+ * @property {string} primary        css: the first selector tried. guideFieldNode: ''
+ * @property {string[]} fallbacks    css only
+ * @property {string[]} shadowPath   css only. Hosts to descend through, outermost first
  * @property {Stability} stability
+ * @property {string} [key]          guideFieldNode: the semantic class
+ * @property {number} [instance]     guideFieldNode: repeat-panel instance, 0-based
  */
 
 /**
@@ -107,6 +122,7 @@
  * @property {WidgetKind | null} [widgetKind]
  * @property {string} [listboxSelector] widget — where options appear once opened
  * @property {string} [optionSelector]  widget — option elements within the listbox
+ * @property {boolean} [waitForOptions] Set by the engine from FieldDef.waitForOptions when sending the op
  */
 
 /**
@@ -126,6 +142,9 @@
  * @property {Selectors} selectors
  * @property {string[]} dependsOn     Keys that must be filled first
  * @property {string | null} loadingSelector Loader to wait out after dependencies change
+ * @property {boolean} [waitForOptions]  Options load after an earlier choice (or a PIN lookup):
+ *   poll for the matching option instead of failing at once
+ * @property {string} [note]           Shown to the lead beside the field, e.g. a manual step
  */
 
 /**
@@ -354,6 +373,7 @@
  * @property {EntryMode} entryMode
  * @property {number | null} maxLength
  * @property {string | null} warning  e.g. exceeds maxLength
+ * @property {string | null} note     The field map's note for the lead, e.g. a manual step
  */
 
 /**

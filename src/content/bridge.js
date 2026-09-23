@@ -66,7 +66,16 @@
    */
   function selectorsArg(args) {
     const raw = args.selectors;
-    if (!isRecord(raw) || typeof raw.primary !== 'string') return null;
+    if (!isRecord(raw)) return null;
+    if (raw.strategy === 'guideFieldNode') {
+      if (typeof raw.key !== 'string' || !raw.key) return null;
+      const stability = raw.stability === 'fragile' || raw.stability === 'likely' ? raw.stability : 'stable';
+      /** @type {Selectors} */
+      const out = { strategy: 'guideFieldNode', key: raw.key, primary: '', fallbacks: [], shadowPath: [], stability };
+      if (typeof raw.instance === 'number' && Number.isInteger(raw.instance) && raw.instance >= 0) out.instance = raw.instance;
+      return out;
+    }
+    if (typeof raw.primary !== 'string') return null;
     const fallbacks = Array.isArray(raw.fallbacks) ? raw.fallbacks.filter((x) => typeof x === 'string') : [];
     const shadowPath = Array.isArray(raw.shadowPath) ? raw.shadowPath.filter((x) => typeof x === 'string') : [];
     const stability = raw.stability === 'fragile' || raw.stability === 'likely' ? raw.stability : 'stable';
@@ -100,6 +109,7 @@
     }
     if (typeof raw.listboxSelector === 'string') entry.listboxSelector = raw.listboxSelector;
     if (typeof raw.optionSelector === 'string') entry.optionSelector = raw.optionSelector;
+    if (raw.waitForOptions === true) entry.waitForOptions = true;
     return entry;
   }
 

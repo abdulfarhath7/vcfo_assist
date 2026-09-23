@@ -4,6 +4,7 @@
 
 import { Ok, Err } from '../shared/result.js';
 import { DANGER, CREDENTIAL } from '../shared/constants.js';
+import { selectorStrings } from '../shared/selectors.js';
 
 /** @typedef {import('../shared/schema.js').ElementDescriptor} ElementDescriptor */
 /** @typedef {import('../shared/schema.js').FieldDef} FieldDef */
@@ -68,12 +69,12 @@ function dangerMatch(d) {
  */
 export function checkFieldIsNotCredential(field) {
   const re = new RegExp(CREDENTIAL.pattern, CREDENTIAL.flags);
-  const candidates = [field.key, field.label, field.sourceField, field.selectors.primary, ...field.selectors.fallbacks];
+  const candidates = [field.key, field.label, field.sourceField, ...selectorStrings(field.selectors)];
   const hit = candidates.find((c) => re.test(c));
   if (hit !== undefined) {
     return Err('credential',
       `field \`${field.key}\`: refused, it looks like a credential field ("${hit}" matches the credential set). Credentials are never filled.`,
-      { field: field.key, selectors: [field.selectors.primary, ...field.selectors.fallbacks] });
+      { field: field.key, selectors: selectorStrings(field.selectors) });
   }
   return Ok(true);
 }

@@ -265,3 +265,31 @@ the `.example` stubs load in development mode only.
   with a warning, schema mismatch still blocks, trimmed/upper-cased page
   value reads as a match, choice compare unchanged.
 - `npm run check`: pass
+
+## 2026-09-23 — Consolidation onto the side-panel build
+- Built: the popup build moved to `legacy/extension/` with its manifest renamed
+  `manifest.json.disabled`; `legacy/README.md` names it the reference build (kept
+  until this build fills a real SPICe+ form) and `lib/mapping.js` the source of
+  truth for MCA field knowledge. `tools/test_filler.js` and `docs/spice-autofill.md`
+  point at the new path.
+  The `guideFieldNode` selector strategy (ported from `filler.js`) in
+  `src/content/lib/resolve.js`: `{ strategy, key, instance? }`, loader-validated,
+  accepted by the bridge, counted by `exists` / `waitFor`; CSS primary / fallbacks
+  unchanged. Supporting: `FieldDef.waitForOptions` (native select polls for the exact
+  option, `TIMEOUTS.OPTIONS_LOAD_MS`), `FieldDef.note` (shown in panel 2), transform
+  `yesNo`, Yes / No radio groups picked by value or label and read back as the
+  checked option. `src/shared/selectors.js` for labels and the credential check.
+  `tools/build-fieldmaps.mjs` runs mapping.js against a probe profile and emits
+  `fieldmaps/{spice-part-a,spice-part-b,agile-pro-s,inc-9,inc-33-emoa,inc-34-eaoa}.json`
+  (7 / 610 / 48 / 0 / 14 / 13 fields), each validated by the extension's own loader
+  before writing. `recipes/spice-part-a.json`: four humanGates for the menu (Q20),
+  captured spice.html URL, `#okInfoModalBtn` (Q21), `.guideFieldNode.type-of-company`,
+  `fillGroup partA`, halt. `.example` recipe and field map stubs deleted.
+- Files: `legacy/**`, `src/content/lib/{resolve,setvalue}.js`, `src/content/bridge.js`,
+  `src/engine/{loader,guard,runner,fieldfill,transform}.js`, `src/shared/{schema,constants,selectors}.js`,
+  `src/worker.js`, `src/sidepanel/views/verify.js`, `tools/build-fieldmaps.mjs`,
+  `fieldmaps/*.json`, `recipes/spice-part-a.json`, `docs/04-recipe-and-fieldmap.md`,
+  `README.md`, `QUESTIONS.md` Q20–Q25
+- Left out: mapping.js defaults and computed counts (Q22); Part B / AGILE / INC recipes
+  (panel still offers Part A only).
+- `npm run check`: pass. Not loaded in Chrome.

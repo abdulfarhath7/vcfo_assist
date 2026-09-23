@@ -4,8 +4,8 @@ Chrome extension (Manifest V3) that fills the MCA V3 SPICe+ incorporation forms 
 Built from DOM/network captures of the live portal (`~/mca-capture`, 2026-09-23).
 
 ```
-extension/            load this folder in chrome://extensions (Developer mode → Load unpacked)
-  manifest.json
+legacy/extension/     reference build (manifest disabled); load in chrome://extensions (Developer mode → Load unpacked)
+  manifest.json.disabled   rename to manifest.json to load
   content/filler.js   fill engine: locates AEM Adaptive Form fields, sets values, scans, discovers
   lib/mapping.js      vCFO profile → per-form field keys
   popup/              UI: profile JSON, Preview, Fill, Scan, Discover
@@ -27,7 +27,7 @@ Values are set through the native value setter and `input/change/blur` events so
 
 ## Usage
 
-1. Load `extension/` unpacked. Log in to MCA yourself (captcha + OTP are never automated).
+1. Load `legacy/extension/` unpacked (rename `manifest.json.disabled` to `manifest.json` first). Log in to MCA yourself (captcha + OTP are never automated).
 2. Open a form page: SPICe+ Part A (`spice.html`), Part B (`SpicePartB.html`), AGILE-PRO-S, INC-33, INC-34, INC-9.
 3. Click the extension icon → paste / import the client profile JSON (start from **load sample**) → **Save profile**.
 4. **Preview mapping** shows what will be written. **Fill this page** writes it and logs per-field status:
@@ -42,7 +42,7 @@ Values are set through the native value setter and `input/change/blur` events so
 
 ## Profile model
 
-See `extension/sample/profile.sample.json`. Top-level: `company`, `registeredOffice`, `subscribers[]`,
+See `legacy/extension/sample/profile.sample.json`. Top-level: `company`, `registeredOffice`, `subscribers[]`,
 `directors[]` (directors who are not subscribers), `agile`, `moa`, `aoa`, `mcaLogin.userId`.
 Subscriber `kind`: `individual` (with `din` → 6b block, without → 6c block) or `bodyCorporate` (6a).
 Dropdown values must match the portal's option text (case-insensitive, prefix/contains match is tried).
@@ -62,6 +62,6 @@ Captcha, mobile/email OTP, DSC signing, file attachments, payment, NIC-code pick
 ## Regenerate schemas
 
 ```
-python3 tools/extract_schema.py ~/mca-capture extension/schemas
+python3 tools/extract_schema.py ~/mca-capture legacy/extension/schemas
 node tools/test_filler.js
 ```

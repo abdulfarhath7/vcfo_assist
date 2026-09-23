@@ -184,3 +184,70 @@ default, record it, keep building. The human answers after the build.
   header in addition to the body; Suite may ignore it and key on the body.
 - **Alternative:** PUT to a resource path that includes the SRN.
 - **Answer:** Confirmed as built (2026-09-16).
+
+## Q20 — SPICe+ menu items have no verified selector
+- **Context:** the Part A recipe navigates MCA Services → Company e-Filing →
+  Incorporation & Changes → SPICe+. The capture (`~/mca-capture/steps/2026-09-23T11-35-39-714Z`)
+  recorded no click on the first three: they are hover menus. It recorded the final
+  click on an `<a>` with no id, class or href, one of several links inside
+  `#nav-submenu-10 li.level-3`, so no unique selector exists for it either.
+- **Default chosen:** four `humanGate` steps, one per menu level, each telling the
+  lead what to click. The run resumes with `waitForUrl` on the captured
+  `/e-filing/incorporation-change-services/spice.html`.
+- **Alternative:** re-capture with hrefs recorded and click `a[href*="spice.html"]`,
+  or navigate straight to the SPICe+ URL.
+- **Answer:**
+
+## Q21 — The SPICe+ information pop-up
+- **Context:** every capture of `spice.html` and `SpicePartB.html` shows an
+  information modal whose OK button is `#okInfoModalBtn`.
+- **Default chosen:** `waitFor` (20s) then `click` on the captured `#okInfoModalBtn`.
+  If MCA stops showing the pop-up, the run fails loudly at that step.
+- **Alternative:** a `humanGate` ("close the pop-up if shown").
+- **Answer:**
+
+## Q22 — mapping.js defaults are not carried into the field maps
+- **Context:** the reference `mapping.js` fills values the profile does not hold:
+  type "New Company (Others)", class "Equity", designation "Director", category
+  "Promoter", nationality "India", country code "+91", MoA Table A / AoA Table F,
+  AGILE declarations ticked, Part B section 3 counts. A field map entry has no
+  default, and the Suite contract says an omitted value is not filled.
+- **Default chosen:** not ported. The generator lists computed keys under
+  `_skipped`; a field with no Suite value shows "no value" in panel 2 and is skipped
+  (optional) or reported (required). Suite's `notes` tell the lead which answers are
+  theirs.
+- **Alternative:** add an optional `default` to `FieldDef`, generated from mapping.js.
+- **Answer:**
+
+## Q23 — Repeated semantic classes (`OccupationType__2`)
+- **Context:** the capture names the nth node carrying a class `class__n`. The
+  reference `filler.js` resolves such a key by its class and then takes node
+  `instance || 0`, so `OccupationType__2` hits the *first* OccupationType node —
+  apparently a bug. In repeat rows the right node also shifts with the rows above.
+- **Default chosen:** `instance` = captured occurrence (n − 1) plus the row, and the
+  entry is marked `fragile` when both apply. 81 of 610 Part B fields are fragile.
+- **Alternative:** re-capture with every block populated to learn real positions.
+- **Answer:**
+
+## Q24 — guideFieldNode without `instance`
+- **Context:** `filler.js` took the first node with the class; this build's rule is
+  exactly one visible match or a named failure.
+- **Default chosen:** without `instance`, exactly one *visible* node must carry the
+  class (more is an `ambiguity` failure). With `instance`, the nth node in document
+  order, which must be visible.
+- **Alternative:** first node, as filler.js did.
+- **Answer:**
+
+## Q25 — dependsOn, repeat rows, conflicts
+- **Context:** mapping.js has no explicit dependencies; it fills in order and lets a
+  `waitForOptions` field wait for its options.
+- **Default chosen:** a `waitForOptions` field depends on the field just before it in
+  its section (type → class → category → sub-category; PIN code → area). Probed rows:
+  3 subscribers per block, 5 directors per block, 3 AGILE other directors, 3
+  other-company interests on the first director with DIN only (mapping.js numbers
+  interest rows form-wide, so a second director's rows collide). INC-34 `place__3` is
+  written by both subscriber 3 and the witness in mapping.js; the subscriber wins and
+  the conflict is listed in `_conflicts`. INC-9's map is empty because mapping.js
+  maps nothing for INC-9. Framework is `aem`; the jQuery trigger still runs.
+- **Alternative:** hand-declare dependencies per form.
+- **Answer:**

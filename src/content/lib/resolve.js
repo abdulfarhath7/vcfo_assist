@@ -17,6 +17,8 @@
 
   const TEXT_LIMIT = 80;
   const BUTTON_LIKE = new Set(['button', 'submit', 'reset', 'image']);
+  /** The control inside an AEM `.guideFieldNode`, as the reference build's filler.js finds it. */
+  const GUIDE_WIDGET = 'select, textarea, input:not([type=hidden]):not([type=button]):not([type=submit])';
 
   /**
    * Descend through shadow hosts. Returns the root to query, or null when a
@@ -114,11 +116,91 @@
   }
 
   /**
+   * `guideFieldNode "proposedname1" #1` — the label used in messages.
+   * @param {Selectors} selectors
+   * @returns {string}
+   */
+  function guideLabel(selectors) {
+    return `guideFieldNode "${selectors.key ?? ''}" #${(selectors.instance ?? 0) + 1}`;
+  }
+
+  /**
+   * Every `.guideFieldNode` carrying the semantic class, in document order.
+   * Throws on a key that is not a valid class name.
+   * @param {string} key
+   * @returns {Element[]}
+   */
+  function guideNodes(key) {
+    return Array.from(document.querySelectorAll(`.guideFieldNode.${CSS.escape(key)}`));
+  }
+
+  /**
+   * AEM semantic-key resolution, ported from the reference build's
+   * `content/filler.js` (`nodesForKey` + `widgetOf`). With `instance` the nth
+   * node is the field (repeat-panel rows share one class); without it exactly
+   * one visible node must carry the class. The element returned is the
+   * control inside the node.
+   * @param {Selectors} selectors
+   * @param {string} field
+   * @returns {import('../../shared/schema.js').ResolveResult}
+   */
+  function resolveGuideFieldNode(selectors, field) {
+    const key = selectors.key ?? '';
+    const label = guideLabel(selectors);
+    const prefix = field ? `field \`${field}\`: ` : '';
+    /**
+     * @param {'resolution' | 'ambiguity'} cls
+     * @param {string} message
+     * @param {number} count
+     * @returns {import('../../shared/schema.js').ResolveResult}
+     */
+    const failWith = (cls, message, count) => ({
+      ok: false,
+      error: { class: cls, message: `${prefix}${label}: ${message}`, field: field || undefined, selectors: [label], matchCounts: [count] },
+    });
+    if (!key) return failWith('resolution', 'the map gives no semantic key', 0);
+    /** @type {Element[]} */
+    let nodes;
+    try {
+      nodes = guideNodes(key);
+    } catch {
+      return failWith('resolution', `"${key}" is not a valid class name (map bug)`, -1);
+    }
+    /** @type {Element | undefined} */
+    let node;
+    if (selectors.instance !== undefined) {
+      node = nodes[selectors.instance];
+      if (!node) {
+        return failWith('resolution', nodes.length
+          ? `only ${nodes.length} instance${nodes.length === 1 ? '' : 's'} on the page; open Add/Edit for #${selectors.instance + 1} first`
+          : 'no field with this key on this page or section', nodes.length);
+      }
+      if (!isVisible(node)) return failWith('resolution', 'the field is hidden (another section, or a condition not met yet)', 0);
+    } else {
+      const shown = nodes.filter(isVisible);
+      if (shown.length > 1) return failWith('ambiguity', `${shown.length} visible fields carry this key`, shown.length);
+      node = shown[0];
+      if (!node) {
+        return failWith('resolution', nodes.length
+          ? 'the field is hidden (another section, or a condition not met yet)'
+          : 'no field with this key on this page or section', 0);
+      }
+    }
+    const control = node.querySelector(GUIDE_WIDGET);
+    if (!control) return failWith('resolution', 'no input, select or textarea inside the field', 1);
+    return { ok: true, element: control, selector: label };
+  }
+
+  /**
    * Visible match count per candidate selector. -1 marks an invalid selector.
+   * A guideFieldNode target counts as one entry: 1 when it resolves, else 0.
    * @param {Selectors} selectors
    * @returns {number[]}
    */
   function countAll(selectors) {
+    if (selectors.strategy === 'guideFieldNode') {
+      return [resolveGuideFieldNode(selectors, '').ok ? 1 : 0];
+    }
     return candidates(selectors).map((sel) => {
       try {
         return queryAll(sel, selectors.shadowPath).filter(isVisible).length;
@@ -135,6 +217,7 @@
    * @returns {import('../../shared/schema.js').ResolveResult}
    */
   function resolve(selectors, field = '') {
+    if (selectors.strategy === 'guideFieldNode') return resolveGuideFieldNode(selectors, field);
     const tried = candidates(selectors);
     /** @type {number[]} */
     const counts = [];

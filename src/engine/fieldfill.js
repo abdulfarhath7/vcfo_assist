@@ -82,10 +82,12 @@ async function typedAttempt(ctx, field, value) {
  * @returns {Promise<import('../shared/result.js').Result<{ actual: string, alt: string }>>}
  */
 async function widgetAttempt(ctx, field, value) {
+  const waitMs = field.waitForOptions ? TIMEOUTS.OPTIONS_LOAD_MS : TIMEOUTS.WIDGET_OPEN_MS;
   const picked = await ctx.send('pickWidget', {
-    selectors: field.selectors, field: field.key, value, entry: field.entry,
-    timeoutMs: TIMEOUTS.WIDGET_OPEN_MS, credential: credentialPatternSet(),
-  }, TIMEOUTS.WIDGET_OPEN_MS + TIMEOUTS.SLICE_MARGIN_MS);
+    selectors: field.selectors, field: field.key, value,
+    entry: field.waitForOptions ? { ...field.entry, waitForOptions: true } : field.entry,
+    timeoutMs: waitMs, credential: credentialPatternSet(),
+  }, waitMs + TIMEOUTS.SLICE_MARGIN_MS);
   if (!picked.ok) return picked;
   const read = await ctx.send('readBack', { selectors: field.selectors, field: field.key, type: field.type });
   if (!read.ok) return read;

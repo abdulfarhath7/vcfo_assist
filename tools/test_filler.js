@@ -1,7 +1,7 @@
 // Offline test: load a captured page.html, inject the extension scripts with a stub chrome API, run FILL.
 const { chromium } = require('/usr/share/nodejs/playwright');
 const fs = require('fs'); const path = require('path');
-const EXT = path.join(__dirname, '..', 'extension');
+const EXT = path.join(__dirname, '..', 'legacy', 'extension');
 const CASES = [
   ['spice-part-a', process.env.HOME + '/mca-capture/steps/2026-09-23T11-35-39-714Z/0019/page.html', 'spice.html'],
   ['spice-part-b', process.env.HOME + '/mca-capture/steps/2026-09-23T12-01-22-114Z/0045/page.html', 'SpicePartB.html'],

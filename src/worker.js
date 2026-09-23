@@ -241,6 +241,7 @@ async function prepareForm(formId) {
         entryMode: field.entry.mode,
         maxLength: field.maxLength,
         warning: null,
+        note: field.note ?? null,
       };
       switch (lookup.status) {
         case 'value':
