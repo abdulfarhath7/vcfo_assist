@@ -37,7 +37,7 @@
 /**
  * @typedef {'click' | 'fill' | 'fillGroup' | 'select' | 'check'
  *   | 'waitFor' | 'waitForGone' | 'waitForUrl' | 'assert'
- *   | 'humanGate' | 'halt'} StepOp
+ *   | 'humanGate' | 'halt' | 'navigate'} StepOp
  */
 
 /**
@@ -50,6 +50,7 @@
  * @property {string} [section]    fillGroup — a field map section
  * @property {string | boolean} [value] check — desired state
  * @property {string} [pattern]    waitForUrl — RegExp source
+ * @property {string} [url]        navigate — absolute URL on https://www.mca.gov.in only
  * @property {number} [timeoutMs]  waits
  * @property {string} [message]    assert, humanGate
  * @property {string} [reason]     halt

@@ -68,6 +68,55 @@ export function waitForTabComplete(tabId, timeoutMs = TIMEOUTS.TAB_SETTLE_MS) {
 }
 
 /**
+ * Load a URL in a tab and wait until that load (not the previous page's) has
+ * finished. The caller has already checked the origin.
+ * @param {number} tabId
+ * @param {string} url
+ * @param {number} timeoutMs
+ * @returns {Promise<import('../shared/result.js').Result<true>>}
+ */
+export function navigateTab(tabId, url, timeoutMs = TIMEOUTS.TAB_SETTLE_MS) {
+  const started = Date.now();
+  const target = new URL(url);
+  return new Promise((resolve) => {
+    let done = false;
+    let loading = false;
+    /**
+     * @param {number} id
+     * @param {chrome.tabs.OnUpdatedInfo} info
+     * @param {chrome.tabs.Tab} tab
+     */
+    const onUpdated = (id, info, tab) => {
+      if (id !== tabId) return;
+      if (info.status === 'loading') loading = true;
+      if (loading && info.status === 'complete') {
+        const now = tab.url ?? '';
+        if (now.startsWith(target.origin)) finish(Ok(true));
+        else finish(Err('precondition', `Loading ${url} ended on ${now || 'an unknown page'}. Is the MCA session still logged in?`));
+      }
+    };
+    /** @param {number} id */
+    const onRemoved = (id) => {
+      if (id === tabId) finish(Err('transport', `Tab ${tabId} was closed while ${url} was loading.`));
+    };
+    /** @param {import('../shared/result.js').Result<true>} r */
+    const finish = (r) => {
+      if (done) return;
+      done = true;
+      clearTimeout(timer);
+      chrome.tabs.onUpdated.removeListener(onUpdated);
+      chrome.tabs.onRemoved.removeListener(onRemoved);
+      resolve(r);
+    };
+    const timer = setTimeout(() => finish(Err('timeout',
+      `${url} did not finish loading within ${Math.round((Date.now() - started) / 1000)}s.`, { elapsedMs: Date.now() - started })), timeoutMs);
+    chrome.tabs.onUpdated.addListener(onUpdated);
+    chrome.tabs.onRemoved.addListener(onRemoved);
+    chrome.tabs.update(tabId, { url }).catch((e) => finish(fromThrown('transport', e, `Could not load ${url} in tab ${tabId}`)));
+  });
+}
+
+/**
  * Inject the content scripts into a tab that has none (opened before the
  * extension was loaded). The bridge guards against double installation.
  * @param {number} tabId

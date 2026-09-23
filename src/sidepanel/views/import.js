@@ -155,7 +155,7 @@ function formCard(ctx) {
     h('div', { class: 'field' },
       h('label', { for: 'form' }, 'Which form to fill'),
       select,
-      locked ? h('span', { class: 'hint' }, 'Change the engagement to pick a different form.') : h('span', { class: 'hint' }, 'Only SPICe+ Part A is enabled in this build.'),
+      locked ? h('span', { class: 'hint' }, 'Change the engagement to pick a different form.') : h('span', { class: 'hint' }, 'SPICe+ Part A has been built for first; the other forms are generated from the same capture.'),
     ),
   );
 }

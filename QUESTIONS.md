@@ -348,3 +348,38 @@ default, record it, keep building. The human answers after the build.
   stop if mapping.js ever bound one.
 - **Alternative:** none — OTP is the lead's.
 - **Answer:**
+
+## Q36 — The SPICe+ information pop-up is no longer clicked
+- **Context:** the earlier Part A recipe waited for and clicked `#okInfoModalBtn`. The
+  revised pack's recipe is navigate → wait for the form → fill → halt, with no other
+  clicks.
+- **Default chosen:** dropped. Fills set values directly, so the modal overlay does not
+  block them; the lead closes it. If it turns out to block the form's scripts, add the
+  captured `#okInfoModalBtn` click back after the navigate step.
+- **Alternative:** keep the captured click (fails the run if MCA stops showing it).
+- **Answer:**
+
+## Q37 — The result-recipe stub is gone
+- **Context:** "no `.example` file remains in `recipes/`". The return leg (read the SRN
+  after submission) only had `spice-part-a.result.example.json`; no SRN selector was
+  captured.
+- **Default chosen:** deleted. Panel 5's "Read SRN" now reports that no result recipe
+  exists for the form. Capture the post-submit page to write a real one.
+- **Alternative:** keep the stub as an exception.
+- **Answer:**
+
+## Q38 — Forms other than Part A are enabled
+- **Context:** recipes and maps now exist for all six forms; only Part A must work first.
+- **Default chosen:** all six are selectable in panel 1, labelled "not yet tried on the
+  portal" (INC-9: "nothing bound yet"). The one button runs Part A only.
+- **Alternative:** keep them disabled until each is exercised.
+- **Answer:**
+
+## Q39 — waitFor targets per form (answers Q31)
+- **Default chosen:** the first mandatory captured input outside a repeat panel,
+  whatever its capture-time `disabled` state (prefilled fields still render): Part A
+  `type-of-company`, Part B `aoaEntrenched`, AGILE `block1-companyName`, INC-33
+  `tableApplicableToCompany`, INC-34 `serial_number`, INC-9
+  `nonIndSubWithPANDeclaration1` (may be conditional; INC-9 is unbound anyway). No
+  stable `guideContainer` id was used: it can exist before the fields render.
+- **Answer:**

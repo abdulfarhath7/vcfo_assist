@@ -371,3 +371,21 @@ the `.example` stubs load in development mode only.
 - Left out: INC-9 has no mapping.js bindings (its mapper returns nothing); all 161
   inputs are unbound.
 - `npm run check`: pass
+
+## 2026-09-23 — P4 Generate recipes
+- Built: `navigate` op (`src/engine/ops/navigate.js`): `chrome.tabs.update` on the run's
+  tab, waits for *that* load to complete (`navigateTab` in transport, timeout names the
+  URL and elapsed time), re-handshakes the content script. Only
+  `https://www.mca.gov.in` — refused by the loader when the recipe loads and again by
+  `guard.checkNavigateTarget` at run time; no override. `tools/build-fieldmaps.mjs`
+  now also writes `recipes/<form>.json` for all six forms from `schemas-full/index.json`:
+  `assertLoggedIn #welcomeUser` → `navigate <captured URL>` → `waitFor` first mandatory
+  field (Q39) → `fillGroup all` → `halt`. No menu clicks, no humanGate, no guessed
+  selector. Each recipe is validated and compatibility-checked against its map before
+  writing. The hand-written Part A recipe (menu humanGates) is replaced;
+  `spice-part-a.result.example.json` deleted (Q37). All six forms selectable (Q38).
+- Files: `src/engine/ops/{navigate,index}.js`, `src/engine/{transport,guard,loader}.js`,
+  `src/shared/{constants,schema}.js`, `src/sidepanel/views/import.js`,
+  `tools/build-fieldmaps.mjs`, `recipes/*.json`
+- Left out: the info pop-up click (Q36).
+- `npm run check`: pass

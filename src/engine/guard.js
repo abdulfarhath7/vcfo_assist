@@ -3,7 +3,7 @@
 // override path: no flag, no recipe key, no argument that widens this.
 
 import { Ok, Err } from '../shared/result.js';
-import { DANGER, CREDENTIAL } from '../shared/constants.js';
+import { DANGER, CREDENTIAL, NAVIGATE_ORIGIN } from '../shared/constants.js';
 import { selectorStrings } from '../shared/selectors.js';
 
 /** @typedef {import('../shared/schema.js').ElementDescriptor} ElementDescriptor */
@@ -42,6 +42,28 @@ export function checkClickTarget(d, selector, label = '') {
     return Err('guard',
       `Step "${label || selector}" refused: \`${selector}\` targets a control matching the danger set (${hit}). Login, captcha, OTP, DSC, payment and submission stay with the human. This is a recipe bug.`,
       { selectors: [selector], step: label || undefined });
+  }
+  return Ok(true);
+}
+
+/**
+ * Refuse a navigation anywhere but the MCA portal. Exact origin match: no
+ * subdomain, no http, no other host, whatever the recipe says.
+ * @param {string} url
+ * @param {string} [label]
+ * @returns {import('../shared/result.js').Result<true>}
+ */
+export function checkNavigateTarget(url, label = '') {
+  let origin = '';
+  try {
+    origin = new URL(url).origin;
+  } catch {
+    origin = '';
+  }
+  if (origin !== NAVIGATE_ORIGIN) {
+    return Err('guard',
+      `Step "${label || url}" refused: navigate may only load ${NAVIGATE_ORIGIN}, not ${origin || `"${url}"`}. This is a recipe bug.`,
+      { step: label || undefined });
   }
   return Ok(true);
 }

@@ -5,7 +5,7 @@
 import { Ok, Err } from '../shared/result.js';
 import {
   OPS, PRECONDITION_OPS, TRANSFORMS, ENTRY_MODES, STABILITIES, FRAMEWORKS,
-  SUPPORTED_SCHEMA_VERSIONS, CREDENTIAL,
+  SUPPORTED_SCHEMA_VERSIONS, CREDENTIAL, NAVIGATE_ORIGIN,
 } from '../shared/constants.js';
 import { isRecord, Problems } from '../shared/check.js';
 import { selectorStrings } from '../shared/selectors.js';
@@ -260,6 +260,19 @@ function readStep(p, raw, path) {
     case 'halt': {
       const reason = p.string(raw, 'reason', `${path}.reason`);
       if (reason !== undefined) step.reason = reason;
+      break;
+    }
+    case 'navigate': {
+      const url = p.string(raw, 'url', `${path}.url`);
+      if (url === undefined) break;
+      let origin = '';
+      try {
+        origin = new URL(url).origin;
+      } catch {
+        origin = '';
+      }
+      if (origin !== NAVIGATE_ORIGIN) p.add(`${path}.url`, `must be on ${NAVIGATE_ORIGIN}; "${url}" is not`);
+      else step.url = url;
       break;
     }
   }

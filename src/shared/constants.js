@@ -20,14 +20,17 @@ export const KNOWN_SUITE_RANGE = Object.freeze({ from: '2026.09.0', to: '2026.12
 export const MCA_ORIGIN_PATTERN = /^https:\/\/www\.mca\.gov\.in\//;
 
 /**
- * Forms the panel can offer. Only the first is enabled. The loader looks for
- * `recipes/<id>.json`; in development mode it falls back to
- * `recipes/<id>.example.json`.
+ * Forms the panel can offer, one generated recipe and field map each
+ * (tools/build-fieldmaps.mjs). Part A is the one the one-button flow runs; the
+ * rest are generated from the same capture but not yet exercised on the portal.
  */
 export const FORMS = Object.freeze([
   Object.freeze({ id: 'spice-part-a', label: 'SPICe+ Part A — name reservation', enabled: true }),
-  Object.freeze({ id: 'spice-part-b', label: 'SPICe+ Part B', enabled: false }),
-  Object.freeze({ id: 'agile-pro', label: 'AGILE-PRO', enabled: false }),
+  Object.freeze({ id: 'spice-part-b', label: 'SPICe+ Part B (not yet tried on the portal)', enabled: true }),
+  Object.freeze({ id: 'agile-pro-s', label: 'AGILE-PRO-S (not yet tried on the portal)', enabled: true }),
+  Object.freeze({ id: 'inc-9', label: 'INC-9 (nothing bound yet)', enabled: true }),
+  Object.freeze({ id: 'inc-33-emoa', label: 'INC-33 e-MoA (not yet tried on the portal)', enabled: true }),
+  Object.freeze({ id: 'inc-34-eaoa', label: 'INC-34 e-AoA (not yet tried on the portal)', enabled: true }),
 ]);
 
 /** chrome.storage.session keys. PII lives only here. */
@@ -128,8 +131,11 @@ export const CREDENTIAL = Object.freeze({
 /** Recipe ops the runner understands. Keep in step with `engine/ops/`. */
 export const OPS = Object.freeze([
   'click', 'fill', 'fillGroup', 'select', 'check',
-  'waitFor', 'waitForGone', 'waitForUrl', 'assert', 'humanGate', 'halt',
+  'waitFor', 'waitForGone', 'waitForUrl', 'assert', 'humanGate', 'halt', 'navigate',
 ]);
+
+/** The only origin a recipe's `navigate` step may load. Checked by the loader and the guard. */
+export const NAVIGATE_ORIGIN = 'https://www.mca.gov.in';
 
 /** Run log cap. Session storage is not unbounded. */
 export const LOG_CAP = 200;
