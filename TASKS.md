@@ -331,3 +331,12 @@ the `.example` stubs load in development mode only.
 - Files: `docs/consolidation/**`, `legacy/README.md`, `QUESTIONS.md` (Q31, Q32)
 - Left out: nothing.
 - `npm run check`: pass
+
+## 2026-09-23 — P2 Port the addressing scheme
+- Built: the `guideFieldNode` strategy itself landed in `0a22dd4` (`src/content/lib/resolve.js`,
+  CSS path kept; exactly one visible match without `instance`, nth node with it, named
+  failures with counts). This pass: the loader accepts semantic keys that start with a
+  digit (INC-9's `2b-ni-pan-dsc`), which `CSS.escape` already handles at resolution.
+- Files: `src/engine/loader.js`
+- Left out: nothing.
+- `npm run check`: pass

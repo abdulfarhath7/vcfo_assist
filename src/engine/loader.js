@@ -140,7 +140,8 @@ function readSelectors(p, raw, path) {
  */
 function readGuideFieldNodeSelectors(p, raw, path) {
   const key = p.string(raw, 'key', `${path}.key`);
-  if (key !== undefined && !/^[A-Za-z_][\w-]*$/.test(key)) {
+  // Escaped with CSS.escape when resolved, so a leading digit (`2b-ni-pan-dsc`) is fine.
+  if (key !== undefined && !/^[\w-]+$/.test(key)) {
     p.add(`${path}.key`, `"${key}" is not a CSS class name`);
   }
   /** @type {Selectors} */
