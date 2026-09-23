@@ -1,0 +1,42 @@
+{
+  "id": "spice-part-a.result.example",
+  "version": 1,
+  "form": "spice-part-a",
+  "label": "SPICe+ Part A — result capture (EXAMPLE STUB)",
+  "origin": "https://www.mca.gov.in",
+  "_note": "Placeholder selectors. Replaced by recipes/spice-part-a.result.json generated from a Flowprint capture of the post-submission page. The loader refuses ids ending in .example outside development mode.",
+  "preconditions": [
+    {
+      "op": "assertUrlMatches",
+      "pattern": "^https://www\\.mca\\.gov\\.in/",
+      "message": "Open the MCA portal page that shows the SRN before capturing."
+    }
+  ],
+  "extract": [
+    {
+      "key": "srn",
+      "label": "SRN",
+      "read": "text",
+      "pattern": "([A-Z]\\d{8})",
+      "optional": false,
+      "selectors": {
+        "primary": "[data-example=\"srn\"]",
+        "fallbacks": ["[data-example=\"acknowledgement-srn\"]"],
+        "shadowPath": [],
+        "stability": "likely"
+      }
+    },
+    {
+      "key": "status",
+      "label": "Status",
+      "read": "text",
+      "optional": true,
+      "selectors": {
+        "primary": "[data-example=\"srn-status\"]",
+        "fallbacks": [],
+        "shadowPath": [],
+        "stability": "fragile"
+      }
+    }
+  ]
+}

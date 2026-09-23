@@ -1,0 +1,31 @@
+{
+  "id": "spice-part-a.example",
+  "version": 1,
+  "label": "SPICe+ Part A — name reservation (EXAMPLE STUB)",
+  "origin": "https://www.mca.gov.in",
+  "requiresFieldMap": "spice-part-a.example",
+  "requiresSchemaVersion": 1,
+  "_note": "Placeholder selectors. Replaced by a real recipe generated from a Flowprint capture. The loader refuses ids ending in .example outside development mode.",
+  "preconditions": [
+    {
+      "op": "assertUrlMatches",
+      "pattern": "^https://www\\.mca\\.gov\\.in/",
+      "message": "Open the MCA portal before running this."
+    },
+    {
+      "op": "assertLoggedIn",
+      "selector": "#welcomeUser",
+      "message": "Log in to MCA first. VCFO Assist does not log in for you."
+    }
+  ],
+  "steps": [
+    { "op": "click", "selector": "[data-example=\"mca-services\"]", "label": "MCA Services" },
+    { "op": "click", "selector": "[data-example=\"company-efiling\"]", "label": "Company e-Filing" },
+    { "op": "click", "selector": "[data-example=\"incorporation\"]", "label": "Incorporation & Changes" },
+    { "op": "click", "selector": "[data-example=\"spice\"]", "label": "SPICe+" },
+    { "op": "waitForUrl", "pattern": "spice", "timeoutMs": 30000, "label": "SPICe+ page loaded" },
+    { "op": "waitFor", "selector": "[data-example=\"part-a-form\"]", "timeoutMs": 20000, "label": "Form rendered" },
+    { "op": "fillGroup", "section": "partA", "label": "Fill Part A" },
+    { "op": "halt", "reason": "Review every field, then submit yourself. VCFO Assist does not submit." }
+  ]
+}

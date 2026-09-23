@@ -7,3 +7,4 @@ capture/profile/
 cmd.txt
 cmd.out
 .DS_Store
+*.zip

@@ -1,0 +1,13 @@
+{
+  "name": "vcfo-assist",
+  "version": "0.1.0",
+  "private": true,
+  "description": "VCFO Assist - Chrome MV3 companion to VCFO Suite that pre-fills the MCA V3 portal from engagement data.",
+  "scripts": {
+    "check": "tsc -p jsconfig.json --noEmit"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.1.12",
+    "typescript": "^5.9.0"
+  }
+}

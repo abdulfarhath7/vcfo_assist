@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light dark" />
+  <title>VCFO Assist</title>
+  <link rel="stylesheet" href="panel.css" />
+</head>
+<body>
+  <header class="hdr" id="hdr">
+    <div class="hdr__brand">
+      <span class="wordmark">VCFO</span>
+      <span class="hdr__app">Assist</span>
+      <span class="meta" id="hdr-version"></span>
+    </div>
+    <div class="hdr__origin meta" id="hdr-origin" title="Connected VCFO Suite origin"></div>
+  </header>
+
+  <div class="shell">
+    <nav class="rail" id="rail" aria-label="Progress"></nav>
+    <main class="view" id="view" aria-live="polite"></main>
+  </div>
+
+  <footer class="foot">
+    <div class="error" id="error" role="alert" hidden></div>
+    <div class="foot__actions">
+      <button type="button" class="btn btn--ghost" id="stop" title="Stop the run at the next step boundary and return to Import">Stop</button>
+      <button type="button" class="btn btn--primary" id="primary"></button>
+    </div>
+  </footer>
+
+  <script type="module" src="panel.js"></script>
+</body>
+</html>

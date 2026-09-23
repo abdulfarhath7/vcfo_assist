@@ -1,0 +1,67 @@
+{
+  "id": "spice-part-a.example",
+  "version": 1,
+  "origin": "https://www.mca.gov.in",
+  "framework": "jquery",
+  "requiresSchemaVersion": 1,
+  "capturedFrom": "STUB — no capture yet",
+  "_note": "Three placeholder fields showing every shape the engine must handle: typed, widget, and dependent. Replaced by a real map generated from a Flowprint capture.",
+  "sections": {
+    "partA": [
+      {
+        "key": "proposedName1",
+        "label": "Proposed name 1",
+        "sourceField": "proposedName1",
+        "optional": false,
+        "type": "text",
+        "maxLength": 120,
+        "transform": "trim|upper",
+        "entry": { "mode": "typed", "widgetKind": null },
+        "selectors": {
+          "primary": "[data-example=\"proposed-name-1\"]",
+          "fallbacks": ["[name=\"proposedName1\"]"],
+          "shadowPath": [],
+          "stability": "stable"
+        },
+        "dependsOn": [],
+        "loadingSelector": null
+      },
+      {
+        "key": "state",
+        "label": "State",
+        "sourceField": "registeredOfficeState",
+        "optional": false,
+        "type": "select",
+        "maxLength": null,
+        "transform": "trim",
+        "entry": { "mode": "widget", "widgetKind": "listbox" },
+        "selectors": {
+          "primary": "[data-example=\"state\"]",
+          "fallbacks": [],
+          "shadowPath": [],
+          "stability": "likely"
+        },
+        "dependsOn": [],
+        "loadingSelector": null
+      },
+      {
+        "key": "district",
+        "label": "District",
+        "sourceField": "registeredOfficeDistrict",
+        "optional": false,
+        "type": "select",
+        "maxLength": null,
+        "transform": "trim",
+        "entry": { "mode": "widget", "widgetKind": "listbox" },
+        "selectors": {
+          "primary": "[data-example=\"district\"]",
+          "fallbacks": [],
+          "shadowPath": [],
+          "stability": "likely"
+        },
+        "dependsOn": ["state"],
+        "loadingSelector": "[data-example=\"district-loading\"]"
+      }
+    ]
+  }
+}

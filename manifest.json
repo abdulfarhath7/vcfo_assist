@@ -1,0 +1,60 @@
+{
+  "manifest_version": 3,
+  "name": "VCFO Assist",
+  "short_name": "VCFO Assist",
+  "version": "0.1.0",
+  "description": "Assisted filling of MCA V3 portal forms from VCFO Suite engagement data. Never logs in, signs, pays, or submits.",
+  "minimum_chrome_version": "116",
+  "icons": {
+    "16": "assets/icons/icon-16.png",
+    "48": "assets/icons/icon-48.png",
+    "128": "assets/icons/icon-128.png"
+  },
+  "action": {
+    "default_title": "Open VCFO Assist",
+    "default_icon": {
+      "16": "assets/icons/icon-16.png",
+      "48": "assets/icons/icon-48.png"
+    }
+  },
+  "background": {
+    "service_worker": "src/worker.js",
+    "type": "module"
+  },
+  "side_panel": {
+    "default_path": "src/sidepanel/panel.html"
+  },
+  "permissions": [
+    "storage",
+    "sidePanel",
+    "scripting",
+    "tabs"
+  ],
+  "host_permissions": [
+    "https://www.mca.gov.in/*",
+    "http://localhost:3000/*"
+  ],
+  "optional_host_permissions": [
+    "https://*/*",
+    "http://localhost/*",
+    "http://127.0.0.1/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.mca.gov.in/*"
+      ],
+      "js": [
+        "src/content/lib/resolve.js",
+        "src/content/lib/observe.js",
+        "src/content/lib/setvalue.js",
+        "src/content/bridge.js"
+      ],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; img-src 'self' data:; style-src 'self'; font-src 'self'; base-uri 'self'; form-action 'none'"
+  }
+}

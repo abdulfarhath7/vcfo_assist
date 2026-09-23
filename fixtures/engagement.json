@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "suiteVersion": "2026.09.1",
+  "form": "spice-part-a",
+  "engagement": {
+    "id": "eng_fixture_001",
+    "companyName": "Example Fixture Ventures Private Limited",
+    "stage": "pre-inc"
+  },
+  "fields": {
+    "proposedName1": "Example Fixture Ventures Private Limited",
+    "proposedName2": "Fixture Example Technologies Private Limited",
+    "registeredOfficeState": "Telangana",
+    "registeredOfficeDistrict": "Hyderabad",
+    "nicCode": "62011",
+    "companyType": "Private Limited Company",
+    "companyClass": "Private",
+    "companyCategory": "Company limited by shares",
+    "companySubCategory": "Non-government company",
+    "mainDivision": "62",
+    "objectsDescription": "Development of computer software and related consultancy services."
+  },
+  "issuedAt": "2026-09-16T09:00:00.000Z"
+}
