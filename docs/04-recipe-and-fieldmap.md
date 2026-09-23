@@ -52,6 +52,7 @@ from a Flowprint capture once the MCA DOM is recorded.
 | `assert` | `selector`, `message` | Fails the run with `message` if absent. |
 | `humanGate` | `message` | Pauses the run; panel shows the message; resumes on explicit click. |
 | `halt` | `reason` | Ends the run cleanly. Always the last step of a fill recipe. |
+| `navigate` | `url`, `label` | Loads the URL in the run's tab and waits for that load to complete. Only `https://www.mca.gov.in`: the loader refuses any other origin and the guard refuses it again at run time. |
 
 No `submit` op exists. Do not add one.
 

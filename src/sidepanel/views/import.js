@@ -3,7 +3,7 @@
 
 import { MSG } from '../../shared/constants.js';
 import { h, chip, replace } from '../dom.js';
-import { requestOriginPermission, normaliseOrigin } from '../../suite/client.js';
+import { requestOriginPermission, normaliseOrigin, SUITE_ORIGIN_DEFAULTS } from '../../suite/client.js';
 
 /** @typedef {import('../context.js').ViewContext} ViewContext */
 
@@ -18,7 +18,32 @@ const local = {
   bundleName: '',
   passphrase: '',
   mode: /** @type {'suite' | 'bundle'} */ ('suite'),
+  /** Engagement found open in a Suite tab; undefined = not looked yet. */
+  /** @type {{ engagementId: string, tabId: number, title: string } | null | undefined} */
+  detected: undefined,
+  detecting: false,
+  startId: '',
+  /** MCA tab waiting for the lead to log in; null when not at the gate. */
+  /** @type {number | null} */
+  gateTabId: null,
+  /** Suite tab to offer after a sign-in failure. */
+  /** @type {number | null} */
+  suiteTabId: null,
 };
+
+/**
+ * Bring a tab and its window to the front.
+ * @param {number} tabId
+ * @returns {Promise<void>}
+ */
+async function focusTab(tabId) {
+  try {
+    const tab = await chrome.tabs.update(tabId, { active: true });
+    if (tab && typeof tab.windowId === 'number') await chrome.windows.update(tab.windowId, { focused: true });
+  } catch {
+    // Closed meanwhile; nothing to focus.
+  }
+}
 
 /**
  * @param {ViewContext} ctx
@@ -76,6 +101,7 @@ function sourceCard(ctx) {
       return;
     }
     local.editingOrigin = false;
+    local.detected = undefined;
     await ctx.refresh();
   };
 
@@ -92,6 +118,12 @@ function sourceCard(ctx) {
         h('button', { type: 'button', class: 'btn btn--sm', onclick: () => { void save(); } }, 'Save'),
       ),
       h('span', { class: 'hint' }, 'Leave empty to use the development fixture. Saving asks you to allow this origin, and only this origin.'),
+    ),
+    h('div', { class: 'btn-row' },
+      SUITE_ORIGIN_DEFAULTS.map((o) => h('button', {
+        type: 'button', class: 'btn btn--ghost btn--sm',
+        onclick: () => { local.originInput = o; void save(); },
+      }, `Use ${o}`)),
     ),
     hasOrigin ? h('button', { type: 'button', class: 'btn btn--ghost btn--sm', onclick: () => { local.editingOrigin = false; ctx.rerender(); } }, 'Cancel') : null,
   );
@@ -215,6 +247,135 @@ function gapsCard(ctx) {
   );
 }
 
+/* ------------------------------------------------------------------------ */
+/* The one button                                                            */
+/* ------------------------------------------------------------------------ */
+
+/**
+ * Look for an engagement open in Suite once per panel lifetime (or on demand).
+ * @param {ViewContext} ctx
+ */
+function detectOnce(ctx) {
+  if (local.detected !== undefined || local.detecting || ctx.snap.suiteOrigin === '') return;
+  local.detecting = true;
+  void ctx.request({ type: MSG.DETECT_SUITE_ENGAGEMENT }).then((r) => {
+    local.detecting = false;
+    local.detected = r.ok ? /** @type {typeof local.detected} */ (r.value) : null;
+    ctx.rerender();
+  });
+}
+
+/**
+ * Start SPICe+ Part A: load the profile, open MCA, wait at the login gate.
+ * @param {ViewContext} ctx
+ * @returns {Promise<void>}
+ */
+async function startPartA(ctx) {
+  ctx.setError(null);
+  local.suiteTabId = null;
+  ctx.setBusy(true);
+  const typed = local.detected ? '' : local.startId.trim();
+  const r = await ctx.request({ type: MSG.START_PART_A, engagementId: typed || undefined });
+  ctx.setBusy(false);
+  if (!r.ok) {
+    const tabId = r.error.details?.tabId;
+    if (r.error.class === 'auth' && typeof tabId === 'number') local.suiteTabId = tabId;
+    ctx.setError(r.error);
+    ctx.rerender();
+    return;
+  }
+  local.gateTabId = /** @type {{ mcaTabId: number }} */ (r.value).mcaTabId;
+  await ctx.refresh();
+}
+
+/**
+ * The lead has logged in: run the Part A recipe on the MCA tab.
+ * @param {ViewContext} ctx
+ * @returns {Promise<void>}
+ */
+async function continueAfterLogin(ctx) {
+  if (local.gateTabId === null) return;
+  ctx.setError(null);
+  ctx.setBusy(true);
+  const r = await ctx.request({ type: MSG.START_RUN, tabId: local.gateTabId });
+  ctx.setBusy(false);
+  if (!r.ok) {
+    ctx.setError(r.error);
+    return;
+  }
+  local.gateTabId = null;
+  await ctx.refresh();
+  ctx.goto('autofill');
+}
+
+/**
+ * @param {ViewContext} ctx
+ * @returns {HTMLElement}
+ */
+function startCard(ctx) {
+  const { snap } = ctx;
+  if (local.gateTabId !== null) {
+    const tabId = local.gateTabId;
+    return h('div', { class: 'card' },
+      h('div', { class: 'card__head' }, h('h3', null, 'Log in to MCA'), chip('Waiting for you', 'waiting')),
+      h('div', { class: 'stack' },
+        h('p', null, 'Log in, clear the captcha and OTP, then click Continue.'),
+        h('p', { class: 'muted' }, 'Assist never types your MCA user id, password, captcha or OTP. After Continue it opens SPICe+ Part A itself and fills it; you review and submit.'),
+        h('div', { class: 'btn-row' },
+          h('button', { type: 'button', class: 'btn btn--primary', onclick: () => { void continueAfterLogin(ctx); } }, 'Continue'),
+          h('button', { type: 'button', class: 'btn btn--ghost btn--sm', onclick: () => { void focusTab(tabId); } }, 'Show the MCA tab'),
+          h('button', { type: 'button', class: 'btn btn--ghost btn--sm', onclick: () => { local.gateTabId = null; ctx.rerender(); } }, 'Cancel'),
+        ),
+      ),
+    );
+  }
+
+  detectOnce(ctx);
+  const fixture = snap.suiteOrigin === '';
+  const found = local.detected;
+  /** @type {HTMLElement} */
+  let which;
+  if (fixture) {
+    which = h('p', { class: 'muted' }, 'No Suite origin is set: the development fixture is used.');
+  } else if (found) {
+    which = h('div', { class: 'stack stack--tight' },
+      h('p', null, 'VCFO Suite is open on ', h('strong', null, found.title || found.engagementId)),
+      h('div', { class: 'meta' }, found.engagementId),
+    );
+  } else {
+    which = h('div', { class: 'stack stack--tight' },
+      h('p', { class: 'muted' }, !local.detecting && found === null
+        ? `No engagement is open in a ${snap.suiteOrigin} tab. Open it in VCFO Suite, or enter its id or slug.`
+        : 'Looking for an engagement open in VCFO Suite…'),
+      h('div', { class: 'field' },
+        h('label', { for: 'start-id' }, 'Engagement id or slug'),
+        h('input', {
+          id: 'start-id', class: 'input input--mono', type: 'text', placeholder: 'acme-india-private-limited', value: local.startId,
+          autocomplete: 'off', spellcheck: 'false',
+          oninput: (/** @type {Event} */ e) => { local.startId = /** @type {HTMLInputElement} */ (e.target).value; },
+          onkeydown: (/** @type {KeyboardEvent} */ e) => { if (e.key === 'Enter') void startPartA(ctx); },
+        }),
+      ),
+    );
+  }
+  const suiteTab = local.suiteTabId;
+  return h('div', { class: 'card' },
+    h('div', { class: 'card__head' }, h('h3', null, 'SPICe+ Part A')),
+    h('div', { class: 'stack' },
+      which,
+      h('div', { class: 'btn-row' },
+        h('button', { type: 'button', class: 'btn btn--primary', onclick: () => { void startPartA(ctx); } }, 'Start SPICe+ Part A'),
+        fixture ? null : h('button', {
+          type: 'button', class: 'btn btn--ghost btn--sm',
+          onclick: () => { local.detected = undefined; ctx.rerender(); },
+        }, 'Look again'),
+        suiteTab !== null ? h('button', { type: 'button', class: 'btn btn--ghost btn--sm', onclick: () => { void focusTab(suiteTab); } }, 'Show the VCFO Suite tab') : null,
+      ),
+      h('p', { class: 'hint' }, 'Loads the engagement from Suite, opens MCA for you to log in, then opens the form and fills it. Nothing is submitted.'),
+    ),
+  );
+}
+
 /**
  * @param {ViewContext} ctx
  * @returns {HTMLElement}
@@ -234,6 +395,8 @@ function engagementCard(ctx) {
             const r = await ctx.request({ type: MSG.RESET });
             ctx.setBusy(false);
             if (!r.ok) ctx.setError(r.error);
+            local.gateTabId = null;
+            local.detected = undefined;
             await ctx.refresh();
           },
         }, 'Change engagement'),
@@ -344,8 +507,10 @@ function engagementCard(ctx) {
   );
 
   return h('div', { class: 'card' },
-    h('div', { class: 'card__head' }, h('h3', null, 'Engagement')),
-    h('div', { class: 'stack' }, tabs, local.mode === 'suite' ? picker : bundle),
+    h('div', { class: 'card__head' }, h('h3', null, 'Another form, or no Suite access')),
+    h('div', { class: 'stack' },
+      h('p', { class: 'muted' }, 'Load an engagement for the form chosen above, then Continue to check it before filling. Without access to Suite, import a bundle exported from it.'),
+      tabs, local.mode === 'suite' ? picker : bundle),
   );
 }
 
@@ -360,11 +525,13 @@ function engagementCard(ctx) {
 export function render(root, ctx) {
   replace(root,
     h('h2', { class: 'panel__title' }, 'Import'),
-    h('p', { class: 'panel__lede' }, 'Pick the engagement and the form. Assist reads the data; you stay in control of the portal.'),
+    h('p', { class: 'panel__lede' }, 'One button for SPICe+ Part A. Assist reads the data; you log in and submit.'),
     sourceCard(ctx),
-    formCard(ctx),
-    engagementCard(ctx),
+    ctx.snap.engagement && local.gateTabId === null ? null : startCard(ctx),
+    ctx.snap.engagement ? engagementCard(ctx) : null,
     gapsCard(ctx),
+    ctx.snap.engagement ? null : formCard(ctx),
+    ctx.snap.engagement ? null : engagementCard(ctx),
   );
 }
 
@@ -373,6 +540,9 @@ export function render(root, ctx) {
  * @returns {import('../context.js').PrimaryAction | null}
  */
 export function primary(ctx) {
+  if (local.gateTabId !== null) {
+    return { label: 'Continue', disabled: false, onClick: () => continueAfterLogin(ctx) };
+  }
   const formId = currentFormId(ctx);
   const ready = ctx.snap.engagement !== null && formId !== '';
   return {

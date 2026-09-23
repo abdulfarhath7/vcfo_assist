@@ -383,3 +383,41 @@ default, record it, keep building. The human answers after the build.
   `nonIndSubWithPANDeclaration1` (may be conditional; INC-9 is unbound anyway). No
   stable `guideContainer` id was used: it can exist before the fields render.
 - **Answer:**
+
+## Q40 — Where the login gate lives
+- **Context:** the one-button flow pauses for the lead to log in before the recipe runs,
+  and the recipes' precondition checks `#welcomeUser` (logged in).
+- **Default chosen:** the gate is in panel 1, not a recipe step: Start loads the profile,
+  prepares Part A and opens MCA; the panel shows "Log in, clear the captcha and OTP,
+  then click Continue"; Continue starts the run, whose precondition then confirms the
+  login. Recipes stay free of humanGate.
+- **Alternative:** a `humanGate` as the recipe's first step (the precondition would then
+  have to move after it).
+- **Answer:**
+
+## Q41 — Preselecting the engagement from an open Suite tab
+- **Context:** "parse the engagement id or slug from its URL and preselect it; show the
+  company name for confirmation."
+- **Default chosen:** Suite tabs matching `/app/{admin|manager|super|intern}/{projects|engagements}/{id-or-slug}`
+  (the active or most recent one wins). Before loading, the panel shows that tab's
+  title as the confirmation; after Start, the engagement card shows the profile's
+  `companyName`. A typed id or slug is offered only when no such tab is open. No picker.
+- **Alternative:** load the profile on detection to show `companyName` before Start.
+- **Answer:**
+
+## Q42 — Every Suite request runs in a Suite tab, including the result post
+- **Context:** the pack requires the profile fetch to run inside a Suite tab. The
+  return-leg POST had the same cross-site cookie problem.
+- **Default chosen:** one helper (`suiteRequest` in `src/suite/client.js`) runs both in
+  the page's MAIN world via `chrome.scripting.executeScript`, in an open Suite tab or a
+  background one opened and closed for the purpose. No request to Suite leaves the
+  extension origin. (The result endpoint still does not exist in Suite, Q29.)
+- **Alternative:** the ISOLATED world, which Chrome also treats as same-origin for
+  fetch; MAIN is the page's own `fetch`, with no doubt about cookies.
+- **Answer:**
+
+## Q43 — Offered Suite origins
+- **Default chosen:** panel 1 offers `https://app.sbctrack.in` and
+  `http://localhost:3000` as one-click choices. Each still triggers the permission
+  prompt for that origin on save; nothing is granted at install.
+- **Answer:**

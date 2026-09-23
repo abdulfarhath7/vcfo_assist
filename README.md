@@ -48,12 +48,14 @@ development mode they are refused.
 
 ## Run a form
 
-1. **Import** — pick the form (only SPICe+ Part A is enabled), then load an
-   engagement: type its id or slug and press **Load** (Assist reads
-   `GET /api/engagements/{id}/assist-profile` with your Suite session), use the
-   fixture, or import a `.vcfoa` bundle exported by Suite for a machine that
-   cannot reach it (you will need the passphrase Suite showed once). What Suite
-   could not supply, and its notes, are listed on the same panel. Press **Continue**.
+1. **Import** — with VCFO Suite open on the engagement in another tab, press
+   **Start SPICe+ Part A**. Assist reads the profile from inside that Suite tab
+   (`GET /api/engagements/{id}/assist-profile`, same-origin, your Suite session),
+   lists what Suite could not supply, and opens `www.mca.gov.in`. Log in, clear the
+   captcha and OTP, then press **Continue**: Assist opens the Part A form by its
+   URL and fills it (panel 3). For another form, or a machine without Suite
+   access, use the card below it: pick the form, load an engagement or import a
+   `.vcfoa` bundle, press **Continue**.
 2. **Verify** — the only place engagement values are shown. Check every row.
    Fields with no value show a "no value" chip. Wrong data is fixed in Suite,
    not here. Open the MCA portal in the active tab, log in yourself, then press

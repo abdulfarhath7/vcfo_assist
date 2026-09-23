@@ -1,10 +1,14 @@
-// VCFO Suite API client. The only outbound requests the extension makes go
-// through this file, to the configured Suite origin. With no origin set, the
-// development fixture is read instead — one file, same validation path.
+// VCFO Suite API client. Every request to Suite runs *inside a Suite tab*
+// (chrome.scripting.executeScript, MAIN world): same-origin, so the Auth.js
+// session cookie (SameSite=Lax) is sent and Suite needs no CORS, token or
+// cookie change (Suite docs/assist-bridge/docs/06-no-cors.md). A fetch from the
+// extension origin would be cross-site and answer 401. With no origin set, the
+// development fixture is read instead — same validation path.
 
 import { Ok, Err } from '../shared/result.js';
 import { LOCAL_KEYS, SUITE_API, TIMEOUTS } from '../shared/constants.js';
 import { fetchPackagedJson } from '../engine/loader.js';
+import { waitForTabComplete } from '../engine/transport.js';
 
 /** @typedef {import('../shared/schema.js').SuiteResult} SuiteResult */
 
@@ -89,67 +93,178 @@ export async function requestOriginPermission(origin) {
   }
 }
 
+/** Origins offered on first setup. Either still needs the lead's permission on save. */
+export const SUITE_ORIGIN_DEFAULTS = Object.freeze(['https://app.sbctrack.in', 'http://localhost:3000']);
+
 /**
- * fetch with a worker-owned timeout and the Suite cookie session.
+ * Suite pages that name an engagement: `/app/{admin|manager|super|intern}/{projects|engagements}/{id or slug}`.
  * @param {string} url
- * @param {RequestInit} init
- * @returns {Promise<import('../shared/result.js').Result<Response>>}
+ * @returns {string | null}
  */
-async function suiteFetch(url, init) {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), TIMEOUTS.SUITE_FETCH_MS);
-  const origin = new URL(url).origin;
+export function engagementFromSuiteUrl(url) {
+  let pathname = '';
   try {
-    const response = await fetch(url, { ...init, credentials: 'include', signal: controller.signal });
-    return Ok(response);
-  } catch (e) {
-    if (e instanceof Error && e.name === 'AbortError') {
+    pathname = new URL(url).pathname;
+  } catch {
+    return null;
+  }
+  const m = /^\/app\/(?:admin|manager|super|intern)\/(?:projects|engagements)\/([^/?#]+)/.exec(pathname);
+  if (!m || m[1] === 'new') return null;
+  return decodeURIComponent(m[1]);
+}
+
+/**
+ * Open tabs on the Suite origin, the active / most recently used first.
+ * @param {string} origin
+ * @returns {Promise<chrome.tabs.Tab[]>}
+ */
+async function suiteTabs(origin) {
+  try {
+    const tabs = await chrome.tabs.query({ url: `${origin}/*` });
+    return tabs.filter((t) => typeof t.id === 'number')
+      .sort((a, b) => Number(b.active) - Number(a.active) || (b.lastAccessed ?? 0) - (a.lastAccessed ?? 0));
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * An engagement the lead already has open in Suite, for preselection.
+ * @param {string} origin
+ * @returns {Promise<{ engagementId: string, tabId: number, title: string } | null>}
+ */
+export async function detectSuiteEngagement(origin) {
+  if (origin === '') return null;
+  for (const tab of await suiteTabs(origin)) {
+    const id = engagementFromSuiteUrl(tab.url ?? '');
+    if (id && typeof tab.id === 'number') return { engagementId: id, tabId: tab.id, title: tab.title ?? '' };
+  }
+  return null;
+}
+
+/**
+ * What the in-page fetch returns. Runs in the Suite page, so it is written
+ * self-contained: no closure over anything in the worker.
+ * @param {string} path
+ * @param {{ method: string, headers: Record<string, string>, body?: string }} init
+ * @returns {Promise<{ status: number, body: unknown, network: boolean }>}
+ */
+async function inPageFetch(path, init) {
+  try {
+    const res = await fetch(path, { ...init, credentials: 'include' });
+    /** @type {unknown} */
+    let body = null;
+    try {
+      body = await res.json();
+    } catch {
+      body = null;
+    }
+    return { status: res.status, body, network: false };
+  } catch {
+    return { status: 0, body: null, network: true };
+  }
+}
+
+/**
+ * Run a request inside a Suite tab: an open one when there is one, else a
+ * background tab opened for the purpose and closed again.
+ * @param {string} origin
+ * @param {string} path   Same-origin path, e.g. `/api/engagements/x/assist-profile`
+ * @param {{ method: string, headers: Record<string, string>, body?: string }} init
+ * @returns {Promise<import('../shared/result.js').Result<{ status: number, body: unknown, tabId: number }>>}
+ */
+async function suiteRequest(origin, path, init) {
+  if (!(await hasOriginPermission(origin))) {
+    return Err('auth', `Allow access to ${origin} to load engagements. Save the Suite origin again to be asked.`);
+  }
+  const open = (await suiteTabs(origin)).find((t) => t.status === 'complete') ?? (await suiteTabs(origin))[0];
+  let tabId = open?.id ?? -1;
+  let opened = false;
+  if (tabId < 0) {
+    try {
+      const tab = await chrome.tabs.create({ url: `${origin}/`, active: false });
+      tabId = tab.id ?? -1;
+      opened = true;
+    } catch {
+      return Err('transport', `Could not open a ${origin} tab. Check the address, or import a bundle instead.`);
+    }
+    const loaded = await waitForTabComplete(tabId, TIMEOUTS.SUITE_FETCH_MS);
+    if (!loaded.ok) {
+      await closeTab(tabId);
+      return Err('transport', `Could not reach ${origin}. Check the address, or import a bundle instead.`);
+    }
+  }
+  try {
+    const run = chrome.scripting.executeScript({ target: { tabId }, world: 'MAIN', func: inPageFetch, args: [path, init] });
+    /** @type {Promise<'timeout'>} */
+    const timeout = new Promise((resolve) => setTimeout(() => resolve('timeout'), TIMEOUTS.SUITE_FETCH_MS));
+    const outcome = await Promise.race([run, timeout]);
+    if (outcome === 'timeout') {
       return Err('transport', `${origin} did not answer within ${TIMEOUTS.SUITE_FETCH_MS / 1000}s. Check the address, or import a bundle instead.`);
     }
-    return Err('transport', `Could not reach ${origin}. Check the address, or import a bundle instead.`);
+    const result = /** @type {{ status: number, body: unknown, network: boolean } | undefined} */ (outcome[0]?.result);
+    if (!result || result.network) {
+      return Err('transport', `Could not reach ${origin}. Check the address, or import a bundle instead.`);
+    }
+    return Ok({ status: result.status, body: result.body, tabId });
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    if (/error page/i.test(msg)) return Err('transport', `Could not reach ${origin}. Check the address, or import a bundle instead.`);
+    if (/permission|Cannot access/i.test(msg)) return Err('auth', `Allow access to ${origin} to load engagements. Save the Suite origin again to be asked.`);
+    return Err('transport', `Could not run the request in the ${origin} tab: ${msg}`);
   } finally {
-    clearTimeout(timer);
+    if (opened) await closeTab(tabId);
   }
 }
 
 /**
- * Translate a non-OK Suite response into a named error. Every message names
- * the origin and, where there is one, the engagement.
- * @param {Response} response
+ * @param {number} tabId
+ * @returns {Promise<void>}
+ */
+async function closeTab(tabId) {
+  try {
+    await chrome.tabs.remove(tabId);
+  } catch {
+    // Already gone.
+  }
+}
+
+/**
+ * Translate a non-OK Suite status into a named error. Every message names the
+ * origin and, where there is one, the engagement. 401 carries the Suite tab so
+ * the panel can offer to focus it.
+ * @param {number} status
  * @param {string} what      e.g. `the profile for engagement "acme"`
  * @param {string} origin
+ * @param {number} tabId
  * @returns {import('../shared/result.js').ErrResult}
  */
-function httpError(response, what, origin) {
-  const details = { details: { status: response.status } };
-  if (response.status === 401) return Err('auth', 'Sign in to VCFO Suite in another tab, then try again.', details);
-  if (response.status === 403) {
+function httpError(status, what, origin, tabId) {
+  const details = { details: { status, tabId } };
+  if (status === 401) return Err('auth', 'Sign in to VCFO Suite, then click Start again.', details);
+  if (status === 403) {
     return Err('auth', `${origin} refused ${what} (403). Only staff assigned to the engagement can load it; clients never can.`, details);
   }
-  if (response.status === 404) {
+  if (status === 404) {
     return Err('transport', `${origin} has no ${what} visible to you (404). Check the engagement id or slug, and that this is the right Suite.`, details);
   }
-  return Err('transport', `${origin} returned ${response.status} for ${what}.`, details);
+  return Err('transport', `${origin} returned ${status} for ${what}.`, details);
 }
 
 /**
- * GET {origin}/api/engagements/{id}/assist-profile with the Suite session
- * cookie. The raw JSON is returned; `suite/profile.js` validates and binds it.
- * The caller checks the host permission first.
+ * GET {origin}/api/engagements/{id}/assist-profile, fetched inside a Suite
+ * tab. The raw JSON is returned; `suite/profile.js` validates and binds it.
  * @param {string} origin
  * @param {string} engagementId   Id or slug, as Suite's route accepts either
  * @returns {Promise<import('../shared/result.js').Result<unknown>>}
  */
 export async function fetchAssistProfile(origin, engagementId) {
   const what = `the assist profile for engagement "${engagementId}"`;
-  const r = await suiteFetch(`${origin}${SUITE_API.assistProfile(engagementId)}`, { method: 'GET', headers: { Accept: 'application/json' } });
+  const r = await suiteRequest(origin, SUITE_API.assistProfile(engagementId), { method: 'GET', headers: { Accept: 'application/json' } });
   if (!r.ok) return r;
-  if (!r.value.ok) return httpError(r.value, what, origin);
-  try {
-    return Ok(await r.value.json());
-  } catch {
-    return Err('transport', `${origin} answered for ${what}, but not with JSON. Is this the VCFO Suite origin?`);
-  }
+  if (r.value.status < 200 || r.value.status >= 300) return httpError(r.value.status, what, origin, r.value.tabId);
+  if (r.value.body === null) return Err('transport', `${origin} answered for ${what}, but not with JSON. Is this the VCFO Suite origin?`);
+  return Ok(r.value.body);
 }
 
 /**
@@ -173,7 +288,7 @@ export async function loadFixture() {
  * @returns {Promise<import('../shared/result.js').Result<{ status: number }>>}
  */
 export async function postResult(origin, engagementId, result) {
-  const r = await suiteFetch(`${origin}${SUITE_API.resultPath(engagementId)}`, {
+  const r = await suiteRequest(origin, SUITE_API.resultPath(engagementId), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -183,6 +298,8 @@ export async function postResult(origin, engagementId, result) {
     body: JSON.stringify(result),
   });
   if (!r.ok) return r;
-  if (!r.value.ok) return httpError(r.value, `the result post for engagement "${engagementId}"`, origin);
+  if (r.value.status < 200 || r.value.status >= 300) {
+    return httpError(r.value.status, `the result post for engagement "${engagementId}"`, origin, r.value.tabId);
+  }
   return Ok({ status: r.value.status });
 }

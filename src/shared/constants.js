@@ -63,6 +63,8 @@ export const MSG = Object.freeze({
   SET_SUITE_ORIGIN: 'va.setSuiteOrigin',
   SET_DEV_MODE: 'va.setDevMode',
   LOAD_ENGAGEMENT: 'va.loadEngagement',
+  DETECT_SUITE_ENGAGEMENT: 'va.detectSuiteEngagement',
+  START_PART_A: 'va.startPartA',
   PREPARE_FORM: 'va.prepareForm',
   START_RUN: 'va.startRun',
   CONTINUE_GATE: 'va.continueGate',

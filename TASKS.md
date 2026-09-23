@@ -389,3 +389,27 @@ the `.example` stubs load in development mode only.
   `tools/build-fieldmaps.mjs`, `recipes/*.json`
 - Left out: the info pop-up click (Q36).
 - `npm run check`: pass
+
+## 2026-09-23 — P5 Suite wiring and the one button
+- Built: `src/suite/client.js` runs every Suite request inside a Suite tab
+  (`chrome.scripting.executeScript`, MAIN world, same-origin fetch with the session
+  cookie): an open tab on the origin, else a background tab it opens and closes. No
+  fetch leaves the extension origin; Suite needs no CORS. `detectSuiteEngagement` reads
+  the engagement id / slug from an open Suite tab's URL. Worker `START_PART_A`: load
+  the profile (the open engagement, or a typed id / slug), prepare Part A, open or
+  focus `www.mca.gov.in`. Panel 1: origin with one-click defaults (permission still
+  asked on save), the **Start SPICe+ Part A** card (shows the Suite tab found, or an id
+  field), then the login gate — "Log in, clear the captcha and OTP, then click
+  Continue" — whose Continue starts the run on the MCA tab (the recipe navigates to
+  the Part A URL and fills; panel 3 shows the read-back diff). Missing / notes card as
+  before. Failures: 401 "Sign in to VCFO Suite, then click Start again." with a **Show
+  the VCFO Suite tab** button; permission; "Could not reach {origin}…"; schema version
+  naming both; selector failures unchanged (field key, every selector, counts). Bundle
+  import and the per-form manual path moved below, under "Another form, or no Suite
+  access".
+- Files: `src/suite/client.js`, `src/worker.js`, `src/sidepanel/views/import.js`,
+  `src/shared/{constants,schema}.js`, `README.md`, `docs/04-recipe-and-fieldmap.md`,
+  `QUESTIONS.md` Q40–Q43
+- Left out: the live test (Suite open, one button, log in, Continue, watch Part A fill)
+  is for the human — `docs/consolidation/docs/06-acceptance.md`.
+- `npm run check`: pass. Not loaded in Chrome.

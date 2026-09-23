@@ -449,6 +449,8 @@
  *   | { type: 'va.setDevMode', devMode: boolean }
  *   | { type: 'va.loadEngagement', source: 'suite' | 'fixture', formId: string, engagementId?: string }
  *   | { type: 'va.loadEngagement', source: 'bundle', formId: string, envelope: unknown, passphrase: string }
+ *   | { type: 'va.detectSuiteEngagement' }
+ *   | { type: 'va.startPartA', engagementId?: string }
  *   | { type: 'va.prepareForm', formId: string }
  *   | { type: 'va.startRun', tabId: number }
  *   | { type: 'va.continueGate' }

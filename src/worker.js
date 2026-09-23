@@ -3,7 +3,7 @@
 // lives in chrome.storage.session only; preferences in chrome.storage.local.
 
 import { Ok, Err } from './shared/result.js';
-import { ASSIST_VERSION, SESSION_KEYS, LOCAL_KEYS, MSG, FORMS, TIMEOUTS } from './shared/constants.js';
+import { ASSIST_VERSION, SESSION_KEYS, LOCAL_KEYS, MSG, FORMS, TIMEOUTS, NAVIGATE_ORIGIN } from './shared/constants.js';
 import { isRecord } from './shared/check.js';
 import { loadForm, loadResultRecipe, orderedFields } from './engine/loader.js';
 import { lookupValue, selectorsFor } from './engine/context.js';
@@ -12,7 +12,7 @@ import { flag } from './engine/waits.js';
 import * as runner from './engine/runner.js';
 import {
   getSuiteOrigin, setSuiteOrigin, normaliseOrigin, fetchAssistProfile,
-  hasOriginPermission, loadFixture, postResult,
+  loadFixture, postResult, detectSuiteEngagement,
 } from './suite/client.js';
 import { validatePayloadShape, validatePayloadForForm, checkPayloadExpiry } from './suite/validate.js';
 import { validateProfileResponse, payloadFromProfile, looksLikeProfileResponse } from './suite/profile.js';
@@ -195,13 +195,63 @@ async function loadEngagement(req) {
     return acceptProfile(fixture.value, 'fixture', { formId: req.formId, engagementId: 'fixture', from: 'the development fixture' });
   }
   const engagementId = (req.engagementId ?? '').trim();
-  if (!engagementId) return Err('validation', 'Enter the engagement id or slug from VCFO Suite.');
-  if (!(await hasOriginPermission(origin))) {
-    return Err('auth', `Allow access to ${origin} to load engagements. Save the Suite origin again to be asked.`);
-  }
+  if (!engagementId) return Err('validation', 'Open the engagement in VCFO Suite, or enter its id or slug.');
   const raw = await fetchAssistProfile(origin, engagementId);
   if (!raw.ok) return raw;
   return acceptProfile(raw.value, 'suite', { formId: req.formId, engagementId, from: origin });
+}
+
+/* ------------------------------------------------------------------------ */
+/* The one button: Start SPICe+ Part A                                        */
+/* ------------------------------------------------------------------------ */
+
+const PART_A = 'spice-part-a';
+
+/**
+ * Bring the MCA portal forward: the open MCA tab, or a new active one. The
+ * lead logs in there; Assist never does.
+ * @returns {Promise<import('./shared/result.js').Result<number>>}
+ */
+async function openMcaTab() {
+  try {
+    const [existing] = await chrome.tabs.query({ url: `${NAVIGATE_ORIGIN}/*` });
+    if (existing && typeof existing.id === 'number') {
+      await chrome.tabs.update(existing.id, { active: true });
+      if (typeof existing.windowId === 'number') await chrome.windows.update(existing.windowId, { focused: true });
+      return Ok(existing.id);
+    }
+    const tab = await chrome.tabs.create({ url: `${NAVIGATE_ORIGIN}/`, active: true });
+    if (typeof tab.id !== 'number') return Err('transport', `Could not open ${NAVIGATE_ORIGIN}.`);
+    return Ok(tab.id);
+  } catch (e) {
+    return Err('transport', `Could not open ${NAVIGATE_ORIGIN}: ${e instanceof Error ? e.message : String(e)}`);
+  }
+}
+
+/**
+ * Steps 1–2 of the one-button flow: load the profile (the engagement open in
+ * Suite unless one is given), prepare Part A, and open MCA for the lead to log
+ * in. The run itself starts when the lead presses Continue (START_RUN).
+ * @param {string | undefined} typedId
+ * @returns {Promise<PanelResponse>}
+ */
+async function startPartA(typedId) {
+  const origin = await getSuiteOrigin();
+  let engagementId = (typedId ?? '').trim();
+  if (origin !== '' && !engagementId) {
+    const open = await detectSuiteEngagement(origin);
+    if (!open) return Err('validation', `No engagement is open in a ${origin} tab. Open it in VCFO Suite, or enter its id or slug.`);
+    engagementId = open.engagementId;
+  }
+  const loaded = await loadEngagement({
+    type: MSG.LOAD_ENGAGEMENT, source: origin === '' ? 'fixture' : 'suite', formId: PART_A, engagementId,
+  });
+  if (!loaded.ok) return loaded;
+  const prepared = await prepareForm(PART_A);
+  if (!prepared.ok) return prepared;
+  const mca = await openMcaTab();
+  if (!mca.ok) return mca;
+  return Ok({ mcaTabId: mca.value });
 }
 
 /* ------------------------------------------------------------------------ */
@@ -444,6 +494,11 @@ async function handle(req) {
     case MSG.LOAD_ENGAGEMENT:
       if (await runner.isRunLive()) return Err('internal', 'A run is in progress. Stop it before loading another engagement.');
       return loadEngagement(req);
+    case MSG.DETECT_SUITE_ENGAGEMENT:
+      return Ok(await detectSuiteEngagement(await getSuiteOrigin()));
+    case MSG.START_PART_A:
+      if (await runner.isRunLive()) return Err('internal', 'A run is in progress. Stop it before starting another.');
+      return startPartA(req.engagementId);
     case MSG.PREPARE_FORM:
       return prepareForm(req.formId);
     case MSG.START_RUN:
