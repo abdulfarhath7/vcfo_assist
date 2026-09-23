@@ -303,3 +303,19 @@ default, record it, keep building. The human answers after the build.
   Suite-built profile bound through `src/suite/profile.js` fills Part A 6 of 7 fields.
 - **Alternative:** make the check fail on any unnamed path.
 - **Answer:**
+
+## Q31 — Form container selector for the waitFor step (consolidation pack Q1)
+- **Context:** `docs/consolidation/docs/03-recipes.md` says take the form container
+  from the captured schema; if none is stable, a fallback is needed.
+- **Default chosen:** see the P4 entry — the first mandatory field's `guideFieldNode`.
+- **Alternative:** wait on the AEM `guideContainer` root, which may exist before the
+  form's fields render.
+- **Answer:**
+
+## Q32 — Unbound schema fields (consolidation pack Q2)
+- **Context:** many captured fields have no `mapping.js` binding, especially Part B.
+- **Default chosen:** emitted with `sourceField: null`, `optional: true`, so they are
+  visible and bindable later without a recapture. Panel 2 counts them but does not
+  list them; the engine never fills them.
+- **Alternative:** omit them, keeping the field maps small.
+- **Answer:**

@@ -320,3 +320,14 @@ the `.example` stubs load in development mode only.
 - `npm run check`: pass. Scratch check (not committed): a Suite-built profile and the
   fixture bind through `profile.js`; Part A fills 6 of 7 fields, the seventh
   (sub-category) is a named warning. Not loaded in Chrome.
+
+## 2026-09-23 — Consolidation pack (docs/consolidation/) — P1 Retire the popup build
+- Built: done in `0a22dd4` (move to `legacy/extension/`, manifest disabled). This pass:
+  the pack placed in `docs/consolidation/` (its `docs/00–06` supersede the repo's older
+  `docs/00–10` where they disagree); `legacy/README.md` now names `filler.js` the
+  authority on addressing, says why the manifest is disabled, and logs the mapping.js
+  key fix (P3). Removed my copies of the previous pack's `docs/01-build.md` and
+  `docs/02-acceptance.md`. Root `manifest.json` references nothing under `legacy/`.
+- Files: `docs/consolidation/**`, `legacy/README.md`, `QUESTIONS.md` (Q31, Q32)
+- Left out: nothing.
+- `npm run check`: pass
