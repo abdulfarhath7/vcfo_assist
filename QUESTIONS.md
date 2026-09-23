@@ -319,3 +319,32 @@ default, record it, keep building. The human answers after the build.
   list them; the engine never fills them.
 - **Alternative:** omit them, keeping the field maps small.
 - **Answer:**
+
+## Q33 — Part A has 42 entries, not ~105
+- **Context:** the acceptance list expects ~105 entries for Part A. `schemas-full`
+  counts every captured AEM node: 39 text blocks and 23 buttons are not inputs, and one
+  is a file upload.
+- **Default chosen:** a field map lists inputs only (42 for Part A). A button in a fill
+  map would be a click target with no guard context; text blocks take no value. The
+  per-form summary prints what was left out and why.
+- **Alternative:** list every node, with non-inputs marked unfillable.
+- **Answer:**
+
+## Q34 — mapping.js keys were truncated
+- **Context:** eight bindings in `legacy/extension/lib/mapping.js` (four in Part B, four
+  in AGILE-PRO-S) were cut at 34 characters, e.g. `totalUnclassifiedAuthorizedShareCa`
+  for `totalUnclassifiedAuthorizedShareCapitalMandatory`. No portal field has those
+  classes, so the reference build never filled them. The generator's drift check
+  stopped on them, as it must.
+- **Default chosen:** corrected the eight keys in mapping.js to the captured names (the
+  file stays the authority, now a correct one). Logged in `legacy/README.md`.
+- **Alternative:** an alias table in the generator, leaving mapping.js untouched.
+- **Answer:**
+
+## Q35 — OTP inputs in the capture
+- **Context:** Part B and AGILE-PRO-S have OTP entry fields (`enterOTP_Mobile_4A`,
+  `MobileOTP`, …). The loader refuses any map naming a credential-like field.
+- **Default chosen:** the generator leaves them out (counted in the summary) and would
+  stop if mapping.js ever bound one.
+- **Alternative:** none — OTP is the lead's.
+- **Answer:**

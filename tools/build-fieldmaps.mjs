@@ -6,7 +6,8 @@
 // Inputs (never edited here):
 //   legacy/extension/lib/mapping.js            which AEM semantic key takes which profile value,
 //                                              waitForOptions, notes, repeat-panel instances
-//   legacy/extension/schemas/<form>.compact.json   captured label, type, max length, required
+//   schemas-full/<form>.json                   every captured field: key, label, AEM type,
+//                                              semantic classes, mandatory, widget, panels
 //
 // How: mapping.js is run against a *probe* profile whose every leaf is a marker
 // naming its own path (`§company.nicCode§`). Whatever key mapping.js pushes with
@@ -37,16 +38,6 @@ import { CREDENTIAL } from '../src/shared/constants.js';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const LEGACY = path.join(ROOT, 'legacy', 'extension');
 const OUT_DIR = path.join(ROOT, 'fieldmaps');
-
-/** Forms to generate, with the section name used for fields outside repeat panels. */
-const FORMS = [
-  { form: 'spice-part-a', section: 'partA' },
-  { form: 'spice-part-b', section: 'partB' },
-  { form: 'agile-pro-s', section: 'agile' },
-  { form: 'inc-9', section: 'inc9' },
-  { form: 'inc-33-emoa', section: 'moa' },
-  { form: 'inc-34-eaoa', section: 'aoa' },
-];
 
 /** Rows probed per repeat block. The portal shows one until the lead clicks Add. */
 const ROWS = { subscribers: 3, directors: 5, interests: 3, otherDirectors: 3 };
@@ -170,46 +161,63 @@ function toSourceField(p, instanced) {
 }
 
 /* ------------------------------------------------------------------------ */
-/* Captured schema                                                           */
+/* Captured schema (schemas-full)                                            */
 /* ------------------------------------------------------------------------ */
+
+/** AEM node types that take a value. Text draws and buttons are not fields. */
+const INPUT_TYPES = new Set([
+  'guideTextBox', 'guideNumericBox', 'guideDropDownList', 'guideDatePicker', 'guideCheckBox', 'guideCheckBoxGroup',
+]);
+/** Captured, but a person does these: attach a file. */
+const MANUAL_TYPES = new Set(['guideFileUpload', 'guidePasswordBox']);
+/** Classes AEM adds beside the semantic one. */
+const GENERIC_CLASS = /^(guide|af-|defaultFieldLayout|mca-|mb-\d|container$|input-search)/;
 
 /**
  * @param {string} form
- * @returns {{ byKey: Map<string, any>, url: string }}
  */
 function loadSchema(form) {
-  const file = path.join(LEGACY, 'schemas', `${form}.compact.json`);
-  const raw = JSON.parse(fs.readFileSync(file, 'utf8'));
-  return { byKey: new Map(raw.fields.map((f) => [f.key, f])), url: raw.url ?? '' };
+  const raw = JSON.parse(fs.readFileSync(path.join(ROOT, 'schemas-full', `${form}.json`), 'utf8'));
+  /** @type {any[]} */
+  const all = raw.fields;
+  return {
+    url: raw.url ?? '',
+    source: raw.source ?? '',
+    inputs: all.filter((f) => INPUT_TYPES.has(f.type)),
+    byKey: new Map(all.map((f) => [f.key, f])),
+    counts: {
+      notFields: all.filter((f) => f.type === 'guideTextDraw' || f.type === 'guideButton').length,
+      manual: all.filter((f) => MANUAL_TYPES.has(f.type)).length,
+    },
+  };
 }
 
 /**
- * Field type and entry from the captured AEM widget type.
- * @param {any} f   schema field, or undefined when not captured
- * @param {string} key
+ * Field type, entry mode and transform from the captured AEM node type.
+ * @param {any} f
+ * @param {string} key   mapping.js key, for the Yes / No decision
  */
 function kindOf(f, key) {
-  if (!f) return { type: 'text', entry: { mode: 'unknown', widgetKind: null }, transform: 'trim' };
+  const w = f.widget ?? {};
   switch (f.type) {
-    case 'dropdownlist':
+    case 'guideDropDownList':
       return { type: 'select', entry: { mode: 'widget', widgetKind: 'native' }, transform: 'trim' };
-    case 'datepicker':
+    case 'guideDatePicker':
       return { type: 'date', entry: { mode: 'widget', widgetKind: 'datepicker' }, transform: 'dateDDMMYYYY' };
-    case 'checkbox':
-      // AEM renders MCA's Yes / No questions as a radio group in a "checkbox" node.
-      return f.itype === 'radio'
+    case 'guideCheckBox':
+      // MCA's Yes / No questions: a radio group in a "checkbox" node.
+      return w.type === 'radio'
         ? { type: 'select', entry: { mode: 'widget', widgetKind: 'radio' }, transform: YES_NO_KEYS.has(key) ? 'yesNo' : 'trim' }
         : { type: 'checkbox', entry: { mode: 'typed', widgetKind: null }, transform: '' };
-    case 'checkboxgroup':
+    case 'guideCheckBoxGroup':
       return { type: 'checkbox', entry: { mode: 'typed', widgetKind: null }, transform: '' };
-    case 'numericbox':
+    case 'guideNumericBox':
       return { type: 'number', entry: { mode: 'typed', widgetKind: null }, transform: 'trim' };
-    case 'textbox':
-      if (f.itype === 'email') return { type: 'email', entry: { mode: 'typed', widgetKind: null }, transform: 'trim' };
-      if (!f.itype) return { type: 'textarea', entry: { mode: 'typed', widgetKind: null }, transform: 'trim' };
-      return { type: 'text', entry: { mode: 'typed', widgetKind: null }, transform: 'trim' };
     default:
-      return null; // fileupload, passwordbox: never filled
+      if (w.tag === 'select') return { type: 'select', entry: { mode: 'widget', widgetKind: 'native' }, transform: 'trim' };
+      if (w.tag === 'textarea') return { type: 'textarea', entry: { mode: 'typed', widgetKind: null }, transform: 'trim' };
+      if (w.type === 'email') return { type: 'email', entry: { mode: 'typed', widgetKind: null }, transform: 'trim' };
+      return { type: 'text', entry: { mode: 'typed', widgetKind: null }, transform: 'trim' };
   }
 }
 
@@ -224,26 +232,13 @@ function labelOf(f, key) {
 }
 
 /**
- * A `name__4` key mapping.js builds by index but the capture only saw as
- * `name__1`: borrow the captured sibling's widget, keep this key's position.
- * @param {{ byKey: Map<string, any> }} schema
- * @param {string} key
- */
-function siblingOf(schema, key) {
-  const m = /^(.+)__(\d+)$/.exec(key);
-  const first = m ? schema.byKey.get(`${m[1]}__1`) : undefined;
-  return first ? { ...first, key, label: `${first.label ?? m?.[1]} (${m?.[2]})`, inferred: true } : undefined;
-}
-
-/**
- * `OccupationType__2` → semantic class `OccupationType`, second occurrence.
- * @param {string} key
+ * The semantic class and, for a `name__n` key, which occurrence of it this is.
  * @param {any} f
  */
-function semanticOf(key, f) {
-  const sem = f?.sem ?? key;
-  const dup = /__(\d+)$/.exec(key);
-  return { sem, occurrence: sem !== key && dup ? Number(dup[1]) - 1 : null };
+function semanticOf(f) {
+  const sem = (f.semantic ?? []).find((c) => !GENERIC_CLASS.test(c)) ?? f.key;
+  const dup = /__(\d+)$/.exec(f.key);
+  return { sem, occurrence: sem !== f.key && dup ? Number(dup[1]) - 1 : null };
 }
 
 /* ------------------------------------------------------------------------ */
@@ -253,119 +248,186 @@ function semanticOf(key, f) {
 const credentialRe = new RegExp(CREDENTIAL.pattern, CREDENTIAL.flags);
 
 /**
- * @param {{ form: string, section: string }} spec
+ * Every captured input becomes an entry; mapping.js supplies the binding
+ * where it has one. A binding whose key the capture never saw is drift.
+ * @param {string} form
  */
-function buildForm({ form, section }) {
+function buildForm(form) {
   const schema = loadSchema(form);
-  /** @type {Map<string, any>} key|instance → item, first wins */
+  /** @type {Map<string, any>} key|instance → mapping item, first wins */
   const items = new Map();
+  /** @type {any[]} mapping order of the first probe run, for dependsOn */
+  const order = [];
   /** @type {{ key: string, reason: string }[]} */
   const skipped = [];
   /** @type {Set<string>} */
   const conflicts = new Set();
+  /** @type {Set<string>} */
+  const drift = new Set();
 
-  for (const variant of [{ presentAddressSame: undefined }, { presentAddressSame: false }]) {
+  [{ presentAddressSame: undefined }, { presentAddressSame: false }].forEach((variant, run) => {
     for (const item of MAPPING.map(form, probeProfile(variant))) {
       if (typeof item.key !== 'string' || !item.key) {
         // address() asks for a key its caller's key table does not define (e.g. `fax`).
         const from = clean(String(item.value).replace(PATH_OF, '$1')).replace(/\.\d+\./g, '[].');
         const reason = `mapping.js pushes ${from} with no field key`;
-        if (!skipped.some((s) => s.reason === reason)) skipped.push({ key: '(none)', reason });
+        if (!skipped.some((x) => x.reason === reason)) skipped.push({ key: '(none)', reason });
         continue;
       }
       const id = `${item.key}|${item.instance ?? ''}`;
       const m = PATH_OF.exec(String(item.value));
       if (!m) {
-        if (!items.has(id) && !skipped.some((s) => s.key === item.key)) {
+        if (!items.has(id) && !skipped.some((x) => x.key === item.key)) {
           skipped.push({ key: item.key, reason: 'computed by mapping.js (a count, a constant or a fallback), not read from one profile field' });
         }
         continue;
       }
       const source = clean(m[1]);
       const prev = items.get(id);
-      if (prev && prev.source !== source) {
-        conflicts.add(`${item.key}${item.instance !== undefined ? ` #${item.instance + 1}` : ''}: mapping.js writes both ${prev.source} and ${source}; kept ${prev.source}`);
+      if (prev) {
+        if (prev.source !== source) conflicts.add(`${item.key}${item.instance !== undefined ? ` #${item.instance + 1}` : ''}: mapping.js writes both ${prev.source} and ${source}; kept ${prev.source}`);
         continue;
       }
-      if (!prev) items.set(id, { ...item, source });
+      const entry = { ...item, source };
+      items.set(id, entry);
+      if (run === 0) order.push(entry);
     }
+  });
+
+  // Drift: a mapping.js key the capture does not have. `name__4` is fine when
+  // the capture has `name__1` — mapping.js numbers rows beyond the one captured.
+  /** @type {Map<string, any>} key → schema field it rides on */
+  const siblings = new Map();
+  for (const item of items.values()) {
+    const f = schema.byKey.get(item.key);
+    if (f) {
+      if (!INPUT_TYPES.has(f.type)) drift.add(`${item.key}: mapping.js binds it, but the capture has it as ${f.type}`);
+      continue;
+    }
+    const m = /^(.+)__(\d+)$/.exec(item.key);
+    const first = m ? schema.byKey.get(`${m[1]}__1`) : undefined;
+    if (first && INPUT_TYPES.has(first.type)) siblings.set(item.key, first);
+    else drift.add(`${item.key}: mapping.js binds it, but schemas-full/${form}.json has no such field`);
   }
 
-  /** @type {Record<string, any[]>} */
-  const sections = { [section]: [] };
-  const seenKeys = new Set();
-  for (const item of items.values()) {
-    const f = schema.byKey.get(item.key) ?? siblingOf(schema, item.key);
-    const kind = kindOf(f, item.key);
-    if (!kind) {
-      skipped.push({ key: item.key, reason: `captured as ${f.type}; not filled` });
-      continue;
-    }
-    const instanced = item.instance !== undefined;
-    const { sourceField, block, row } = toSourceField(item.source, instanced);
-    const label = labelOf(f, item.key);
-    if ([item.key, label, sourceField].some((c) => credentialRe.test(c))) {
-      skipped.push({ key: item.key, reason: 'looks like a credential field; never filled' });
-      continue;
-    }
-    const { sem, occurrence } = semanticOf(item.key, f);
-    const instance = (occurrence ?? 0) + (instanced ? item.instance : 0);
-    const addressed = instanced || occurrence !== null;
-    const sectionName = block === null ? section : `${block}_${row + 1}`;
-    const key = instanced ? `${item.key}#${item.instance + 1}` : item.key;
-    if (seenKeys.has(key)) {
-      conflicts.add(`${key}: emitted twice; kept the first`);
-      continue;
-    }
-    seenKeys.add(key);
+  /**
+   * Entry key for a mapping item: the captured key for the first row, `#n` after.
+   * @param {any} item
+   */
+  const entryKey = (item) => (item.instance ? `${item.key}#${item.instance + 1}` : item.key);
 
+  /**
+   * @param {any} f          schema field
+   * @param {string} key     entry key
+   * @param {any | null} item mapping item, or null when unbound
+   * @param {{ inferred?: boolean, occurrenceOverride?: number }} [opt]
+   */
+  const makeEntry = (f, key, item, opt = {}) => {
+    const kind = kindOf(f, item?.key ?? f.key);
+    const { sem, occurrence: captured } = semanticOf(f);
+    const occurrence = opt.occurrenceOverride ?? captured;
+    const instanced = item?.instance !== undefined;
+    const bound = item ? toSourceField(item.source, instanced).sourceField : null;
     /** @type {Record<string, unknown>} */
     const selectors = { strategy: 'guideFieldNode', key: sem };
-    if (addressed) selectors.instance = instance;
-    // Not in the capture, or a duplicate class whose position depends on how many rows sit above it.
-    if (!f || f.inferred || (occurrence !== null && instanced)) selectors.stability = 'fragile';
-
-    const entry = {
+    if (instanced || occurrence !== null) selectors.instance = (occurrence ?? 0) + (instanced ? item.instance : 0);
+    // Not captured as such, or a repeated class whose position depends on the rows above it.
+    if (opt.inferred || (occurrence !== null && instanced && item.instance > 0)) selectors.stability = 'fragile';
+    const maxLength = Number(f.widget?.maxlength ?? 0);
+    return {
       key,
-      label,
-      sourceField,
-      // A repeat row the engagement does not have is simply absent.
-      optional: instanced || !f?.req,
+      label: opt.inferred ? `${labelOf(f, key)} (${key})` : labelOf(f, key),
+      sourceField: bound,
+      // Unbound: real and fillable, just not bound yet. A repeat row the engagement lacks is absent.
+      optional: bound === null || instanced || !f.mandatory,
       type: kind.type,
-      maxLength: f?.max ? Number(f.max) : null,
+      maxLength: maxLength > 0 ? maxLength : null,
       transform: kind.transform,
       entry: kind.entry,
       selectors,
       dependsOn: [],
       loadingSelector: null,
-      ...(item.waitForOptions ? { waitForOptions: true } : {}),
-      ...(item.note ? { note: item.note } : {}),
+      waitForOptions: Boolean(item?.waitForOptions),
+      note: item?.note ?? null,
+      ...(f.panels?.length ? { panels: f.panels } : {}),
     };
-    (sections[sectionName] ??= []).push(entry);
+  };
+
+  /** @type {any[]} */
+  const entries = [];
+  /** @type {Map<any, string>} mapping item → entry key */
+  const keyOfItem = new Map();
+  const byKey = [...items.values()].reduce((acc, it) => acc.set(it.key, [...(acc.get(it.key) ?? []), it]), new Map());
+  let credentialFields = 0;
+  for (const f of schema.inputs) {
+    // OTP, captcha, password: the lead's alone. Never listed, never filled.
+    if ([f.key, f.label ?? '', ...(f.semantic ?? [])].some((c) => credentialRe.test(c))) {
+      credentialFields += 1;
+      if ((byKey.get(f.key) ?? []).length) drift.add(`${f.key}: mapping.js binds a credential-like field`);
+      continue;
+    }
+    const rowsOf = (byKey.get(f.key) ?? []).sort((x, y) => (x.instance ?? 0) - (y.instance ?? 0));
+    if (rowsOf.length === 0) {
+      entries.push(makeEntry(f, f.key, null));
+      continue;
+    }
+    for (const it of rowsOf) {
+      const key = entryKey(it);
+      if (credentialRe.test(key) || credentialRe.test(it.source)) {
+        skipped.push({ key, reason: 'looks like a credential field; never filled' });
+        continue;
+      }
+      entries.push(makeEntry(f, key, it));
+      keyOfItem.set(it, key);
+    }
+    // Rows mapping.js numbers past the captured `name__1` ride on it.
+    for (const [k, first] of siblings) {
+      if (first !== f) continue;
+      for (const it of byKey.get(k) ?? []) {
+        const n = Number(/__(\d+)$/.exec(k)?.[1] ?? 1);
+        entries.push(makeEntry(first, entryKey(it), it, { inferred: true, occurrenceOverride: n - 1 }));
+        keyOfItem.set(it, entryKey(it));
+      }
+    }
   }
 
   // mapping.js fills in order and lets a waitForOptions field wait for whatever
   // it filled just before (type → class → category; PIN code → area). Say so.
-  for (const fields of Object.values(sections)) {
-    fields.forEach((f, i) => {
-      if (f.waitForOptions && i > 0) f.dependsOn = [fields[i - 1].key];
-    });
-  }
+  const byEntryKey = new Map(entries.map((e) => [e.key, e]));
+  order.forEach((it, i) => {
+    if (!it.waitForOptions || i === 0) return;
+    const self = byEntryKey.get(keyOfItem.get(it));
+    const before = keyOfItem.get(order[i - 1]);
+    if (self && before && byEntryKey.has(before)) self.dependsOn = [before];
+  });
 
-  const captured = [...items.values()].filter((i) => schema.byKey.has(i.key)).length;
-  const fragile = Object.values(sections).flat().filter((f) => f.selectors.stability === 'fragile').length;
-  return {
+  const bound = entries.filter((e) => e.sourceField !== null).length;
+  const summary = {
+    total: entries.length,
+    bound,
+    unbound: entries.length - bound,
+    notes: entries.filter((e) => e.note).length,
+    waitForOptions: entries.filter((e) => e.waitForOptions).length,
+    fragile: entries.filter((e) => e.selectors.stability === 'fragile').length,
+    notFields: schema.counts.notFields,
+    manual: schema.counts.manual,
+    credential: credentialFields,
+    computed: skipped.length,
+  };
+  const map = {
     id: form,
-    version: 1,
+    version: 2,
     origin: 'https://www.mca.gov.in',
     framework: 'aem',
     requiresSchemaVersion: 1,
-    capturedFrom: `legacy/extension/schemas/${form}.compact.json (${schema.url || 'MCA V3'}, captured 2026-09-23) + legacy/extension/lib/mapping.js`,
-    _note: `Generated by tools/build-fieldmaps.mjs — do not edit by hand; fix legacy/extension/lib/mapping.js and regenerate. ${captured} of ${items.size} mapped keys are in the captured schema; ${fragile} fields are marked fragile (not captured, or a repeated class whose position depends on the rows above it).`,
+    capturedFrom: `schemas-full/${form}.json (${schema.url}; ${schema.source}) + legacy/extension/lib/mapping.js`,
+    _note: `Generated by tools/build-fieldmaps.mjs — do not edit by hand. ${summary.total} captured inputs, ${summary.bound} bound to a profile field, ${summary.unbound} unbound (sourceField null, optional). ${summary.notFields} text blocks and buttons, ${summary.manual} file uploads and ${summary.credential} OTP / credential inputs are not listed.`,
+    _summary: summary,
     ...(skipped.length ? { _skipped: skipped } : {}),
     ...(conflicts.size ? { _conflicts: [...conflicts] } : {}),
-    sections,
+    sections: { all: entries },
   };
+  return { map, drift: [...drift], summary };
 }
 
 /* ------------------------------------------------------------------------ */
@@ -433,6 +495,7 @@ function checkContract(built) {
     /** @type {Set<string>} */
     const unnamed = new Set();
     for (const f of Object.values(map.sections).flat()) {
+      if (f.sourceField === null) continue;
       const p = normalisePath(f.sourceField);
       const root = p.split(/[.[]/)[0];
       if (!sections.has(root)) {
@@ -454,23 +517,35 @@ function checkContract(built) {
   return ok;
 }
 
+const FORM_IDS = ['spice-part-a', 'spice-part-b', 'agile-pro-s', 'inc-9', 'inc-33-emoa', 'inc-34-eaoa'];
+
 fs.mkdirSync(OUT_DIR, { recursive: true });
 let failed = false;
 /** @type {Array<{ form: string, map: any }>} */
 const built = [];
-for (const spec of FORMS) {
-  const map = buildForm(spec);
-  const checked = validateFieldMapShape(map, `fieldmaps/${spec.form}.json`);
-  if (!checked.ok) {
+console.log('form            total  bound  unbound  notes  waitForOptions  fragile  | not fields  file uploads  OTP/credential  computed');
+for (const form of FORM_IDS) {
+  const { map, drift, summary: s } = buildForm(form);
+  if (drift.length) {
     failed = true;
-    console.error(`✗ ${spec.form}: ${checked.error.message}`);
+    console.error(`✗ ${form}: mapping.js and the capture have drifted — ${drift.length} binding${drift.length === 1 ? '' : 's'} with no captured field:`);
+    for (const d of drift) console.error(`    ${d}`);
     continue;
   }
-  fs.writeFileSync(path.join(OUT_DIR, `${spec.form}.json`), `${JSON.stringify(map, null, 2)}\n`);
-  built.push({ form: spec.form, map });
-  const count = Object.values(map.sections).reduce((n, list) => n + list.length, 0);
-  console.log(`✓ fieldmaps/${spec.form}.json — ${count} fields in ${Object.keys(map.sections).length} sections, ${map._skipped?.length ?? 0} skipped, ${map._conflicts?.length ?? 0} conflicts`);
+  const checked = validateFieldMapShape(map, `fieldmaps/${form}.json`);
+  if (!checked.ok) {
+    failed = true;
+    console.error(`✗ ${form}: ${checked.error.message}`);
+    continue;
+  }
+  fs.writeFileSync(path.join(OUT_DIR, `${form}.json`), `${JSON.stringify(map, null, 2)}\n`);
+  built.push({ form, map });
+  const pad = (v, n) => String(v).padStart(n);
+  console.log(`${form.padEnd(14)} ${pad(s.total, 6)} ${pad(s.bound, 6)} ${pad(s.unbound, 8)} ${pad(s.notes, 6)} ${pad(s.waitForOptions, 15)} ${pad(s.fragile, 8)}  | ${pad(s.notFields, 10)} ${pad(s.manual, 13)} ${pad(s.credential, 15)} ${pad(s.computed, 9)}`);
 }
 console.log('Suite contract (docs/00-profile-contract.md):');
-if (!checkContract(built)) failed = true;
-if (failed) process.exit(1);
+if (built.length && !checkContract(built)) failed = true;
+if (failed) {
+  console.error('Field maps not written for the forms above. Fix legacy/extension/lib/mapping.js or re-capture, then rerun.');
+  process.exit(1);
+}

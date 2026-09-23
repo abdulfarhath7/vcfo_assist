@@ -53,6 +53,7 @@ import { toText, applyTransforms } from './transform.js';
  * @returns {ValueLookup}
  */
 export function lookupValue(field, payload) {
+  if (field.sourceField === null) return { status: 'missing' };
   const text = toText(payload.fields[field.sourceField]);
   if (text === null) return { status: 'missing' };
   const transformed = applyTransforms(field.transform, text);

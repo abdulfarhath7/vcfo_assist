@@ -133,7 +133,8 @@
  * @typedef {object} FieldDef
  * @property {string} key             Assist's identity for the field
  * @property {string} label
- * @property {string} sourceField     Suite's key in `payload.fields`
+ * @property {string | null} sourceField  Suite's key in `payload.fields`; null = captured but
+ *   not bound to any profile value yet (always optional, never filled)
  * @property {boolean} optional
  * @property {FieldType} type
  * @property {number | null} maxLength
@@ -405,6 +406,7 @@
  * @property {string[]} fragileKeys
  * @property {string[]} warnings      Non-blocking, e.g. Suite version skew
  * @property {number} fillableCount
+ * @property {number} unboundCount   Captured fields with no profile binding, not shown or filled
  * @property {{ index: number, op: StepOp, label: string }[]} steps
  */
 

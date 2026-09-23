@@ -60,7 +60,7 @@
     push(out, 'aoaEntrenched', YN(c.aoaEntrenched === undefined ? false : c.aoaEntrenched));
     push(out, 'articlesEntrenchment', num(c.entrenchedArticlesCount));
     push(out, 'havingShareCapitalOrNot', c.hasShareCapital === false ? 'Not Having Share Capital' : 'Having Share Capital');
-    push(out, 'totalUnclassifiedAuthorizedShareCa', num(cap.unclassifiedAuthorized ?? 0));
+    push(out, 'totalUnclassifiedAuthorizedShareCapitalMandatory', num(cap.unclassifiedAuthorized ?? 0));
     push(out, 'numberOfClasses', num(eq.classes ?? 1));
     push(out, 'classe1', eq.className || 'Equity');
     push(out, 'numberofeshares_1', num(eq.authorizedShares));
@@ -81,8 +81,8 @@
     push(out, 'correspondenceaddress_MobileNumber', ro.mobile, { note: 'OTP verification must be done manually.' });
     push(out, 'correspondenceaddress_emailID', ro.email, { note: 'OTP verification must be done manually.' });
     push(out, 'correspondenceaddressradiobuttonb2', YN(ro.sameAsCorrespondence === undefined ? true : ro.sameAsCorrespondence));
-    push(out, 'correspondenceaddress_longitudeifY', ro.longitude); push(out, 'correspondenceaddress_latitudeifYe', ro.latitude);
-    push(out, 'facorrespondenceaddress_proposedCo', ro.rocOffice, { waitForOptions: true });
+    push(out, 'correspondenceaddress_longitudeifYes', ro.longitude); push(out, 'correspondenceaddress_latitudeifYes', ro.latitude);
+    push(out, 'facorrespondenceaddress_proposedCompanyRegistered', ro.rocOffice, { waitForOptions: true });
 
     // Section 3 — Subscriber and director counts
     const ind = subs.filter((s) => s.kind !== 'bodyCorporate'), corp = subs.filter((s) => s.kind === 'bodyCorporate');
@@ -161,10 +161,10 @@
     push(out, 'block1-commissionerate', a.commissionerate, { waitForOptions: true }); push(out, 'block1-division', a.division, { waitForOptions: true }); push(out, 'block1-range', a.range, { waitForOptions: true });
     push(out, 'block1-reasonToObtainRegistration', a.reasonToObtainRegistration);
     push(out, 'block1-establishmentOnLease', YN(a.establishmentOnLease ?? false));
-    push(out, 'block1-establishmentOnLeaseFromDat', a.leaseFrom); push(out, 'block1-establishmentOnLeaseToDate', a.leaseTo);
-    push(out, 'block1-natureOfPossessionOfPremise', a.natureOfPossession); push(out, 'block1-ifOtherNatureOfPossessionOf', a.natureOfPossessionOther);
+    push(out, 'block1-establishmentOnLeaseFromDate', a.leaseFrom); push(out, 'block1-establishmentOnLeaseToDate', a.leaseTo);
+    push(out, 'block1-natureOfPossessionOfPremises', a.natureOfPossession); push(out, 'block1-ifOtherNatureOfPossessionOfPremises', a.natureOfPossessionOther);
     push(out, 'block1-proofOfPrincipal', a.proofOfPrincipalPlace);
-    push(out, 'block1-premisesEstablishmentIsOwne', a.premisesOwnedBy);
+    push(out, 'block1-premisesEstablishmentIsOwned', a.premisesOwnedBy);
     push(out, 'block1-ifHiredOrNameChngOfUnit', YN(a.hiredOrNameChange ?? false));
     push(out, 'block2-optionForComposition', YN(a.composition ?? false));
     push(out, 'block2-primary-business-activity', a.primaryBusinessActivity); push(out, 'block2-epforegistration', a.primaryBusinessActivityOther);

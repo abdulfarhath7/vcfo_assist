@@ -144,7 +144,7 @@ export function validatePayloadForForm(payload, formId, recipe, fieldMap) {
   const missing = [];
   for (const fields of Object.values(fieldMap.sections)) {
     for (const f of fields) {
-      if (f.optional) continue;
+      if (f.optional || f.sourceField === null) continue;
       if (!(f.sourceField in payload.fields)) missing.push(`${f.key} ← ${f.sourceField}`);
     }
   }

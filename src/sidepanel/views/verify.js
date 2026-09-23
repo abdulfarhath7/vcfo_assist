@@ -52,6 +52,9 @@ export function render(root, ctx) {
       widget ? chip(`${widget} picked from a list`, 'plain') : null,
       prepared ? chip(`recipe v${prepared.recipeVersion} · map v${prepared.fieldMapVersion}`, 'plain') : null,
     ),
+    prepared && prepared.unboundCount
+      ? h('p', { class: 'muted' }, `${prepared.unboundCount} more captured field${prepared.unboundCount === 1 ? ' is' : 's are'} on this form with no profile value bound yet. Assist leaves ${prepared.unboundCount === 1 ? 'it' : 'them'} alone.`)
+      : null,
     prepared && prepared.warnings.length
       ? prepared.warnings.map((w) => h('div', { class: 'banner banner--waiting' }, h('strong', null, 'Version skew'), w))
       : null,

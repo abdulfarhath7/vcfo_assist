@@ -348,7 +348,9 @@ function readFieldDef(p, raw, path) {
   }
   const key = p.string(raw, 'key', `${path}.key`);
   const label = p.string(raw, 'label', `${path}.label`);
-  const sourceField = p.string(raw, 'sourceField', `${path}.sourceField`);
+  // null: a captured field no profile value is bound to yet. Never filled.
+  /** @type {string | null | undefined} */
+  const sourceField = raw.sourceField === null ? null : p.string(raw, 'sourceField', `${path}.sourceField`);
   const optional = p.bool(raw, 'optional', `${path}.optional`);
   const type = p.oneOf(raw, 'type', FIELD_TYPES, `${path}.type`);
   let maxLength = null;
@@ -397,12 +399,13 @@ function readFieldDef(p, raw, path) {
   if (raw.waitForOptions !== undefined) waitForOptions = p.bool(raw, 'waitForOptions', `${path}.waitForOptions`);
   /** @type {string | undefined} */
   let note;
-  if (raw.note !== undefined) note = p.string(raw, 'note', `${path}.note`);
+  if (raw.note !== undefined && raw.note !== null) note = p.string(raw, 'note', `${path}.note`);
+  if (sourceField === null && optional === false) p.add(`${path}.optional`, 'must be true when sourceField is null');
   if (key === undefined || label === undefined || sourceField === undefined || optional === undefined
     || type === undefined || entry === undefined || selectors === undefined || dependsOn === undefined) {
     return undefined;
   }
-  const credentialCandidates = [key, label, sourceField, ...selectorStrings(selectors)];
+  const credentialCandidates = [key, label, sourceField ?? '', ...selectorStrings(selectors)];
   if (looksLikeCredential(credentialCandidates)) {
     p.add(path, `names a credential-like field ("${key}"); credentials are never filled`);
     return undefined;

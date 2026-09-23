@@ -234,8 +234,14 @@ async function prepareForm(formId) {
   /** @type {string[]} */
   const fragileKeys = [];
   let fillableCount = 0;
+  let unboundCount = 0;
   for (const section of Object.keys(fieldMap.sections)) {
     for (const field of orderedFields(fieldMap, section)) {
+      // Captured but not bound to a profile value: nothing to verify, never filled.
+      if (field.sourceField === null) {
+        unboundCount += 1;
+        continue;
+      }
       const lookup = lookupValue(field, payload);
       if (field.selectors.stability === 'fragile') fragileKeys.push(field.key);
       /** @type {VerifyRow} */
@@ -285,6 +291,7 @@ async function prepareForm(formId) {
     fragileKeys,
     warnings,
     fillableCount,
+    unboundCount,
     steps: recipe.steps.map((s, index) => ({ index, op: s.op, label: s.label ?? (s.op === 'halt' ? 'Stop for review' : s.op) })),
   };
   await chrome.storage.session.set({

@@ -137,11 +137,15 @@ Transform `yesNo` turns Suite booleans into MCA's `Yes` / `No` radio answers.
 ### Generated maps
 
 The real `fieldmaps/<form>.json` are generated, not hand-written:
-`node tools/build-fieldmaps.mjs` reads `legacy/extension/lib/mapping.js` (the source
-of truth for MCA field knowledge) and `legacy/extension/schemas/*.compact.json`.
-Keys mapping.js computes rather than reads from one profile field (counts,
-constants) are listed under `_skipped`; keys it writes twice under `_conflicts`.
-Repeat-panel `sourceField`s name the portal block, e.g. `directors[withDin].0.din`.
+`node tools/build-fieldmaps.mjs` reads `schemas-full/<form>.json` (every captured
+field) and `legacy/extension/lib/mapping.js` (the source of truth for which profile
+value feeds which field). Every captured input becomes an entry in section `all`;
+one mapping.js does not bind has `sourceField: null` and `optional: true` and is
+never filled. A mapping.js binding whose key the capture lacks stops the generator
+(drift). Text blocks, buttons, file uploads and OTP / credential inputs are not
+listed. Keys mapping.js computes rather than reads (counts, constants) are listed
+under `_skipped`. Repeat-panel `sourceField`s name the portal block, e.g.
+`directors[withDin].0.din`. `_summary` holds the per-form counts.
 
 ## Versioning
 

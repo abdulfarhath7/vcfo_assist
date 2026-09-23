@@ -340,3 +340,34 @@ the `.example` stubs load in development mode only.
 - Files: `src/engine/loader.js`
 - Left out: nothing.
 - `npm run check`: pass
+
+## 2026-09-23 — P3 Generate field maps
+- Built: `tools/build-fieldmaps.mjs` now reads `schemas-full/<form>.json` and
+  `legacy/extension/lib/mapping.js`. Every captured input is an entry in section `all`
+  with `key, label, sourceField, optional, type, entry, selectors {guideFieldNode},
+  dependsOn, waitForOptions, note` (+ `panels` where captured); unbound →
+  `sourceField: null, optional: true`. A mapping.js key the capture lacks is a hard
+  error listing each one (it found eight truncated keys, Q34 — fixed in mapping.js; a
+  deliberate rename of `proposedname2` fails as expected). OTP inputs, text blocks,
+  buttons and file uploads are left out and counted (Q33, Q35). Engine: `sourceField:
+  null` accepted by the loader (must be optional), never looked up, skipped by payload
+  validation, not shown on panel 2 (counted instead). Part A recipe's fillGroup
+  section renamed `all`. Contract check against `docs/00-profile-contract.md`: all
+  named keys match; no rename needed.
+  Summary printed by the generator:
+  ```
+  form            total  bound  unbound  notes  waitForOptions  fragile | not fields  file uploads  OTP  computed
+  spice-part-a       42      7       35      1               3        0 |         62             1    0         0
+  spice-part-b     1110    610      500      5              24       50 |        461            20    8        13
+  agile-pro-s       138     48       90      2              15        0 |         63             8    7         0
+  inc-9             161      0      161      0               0        0 |        124             1    0         0
+  inc-33-emoa        52     14       38      0               3        0 |         75             1    0         0
+  inc-34-eaoa        50     13       37      0               0        6 |         83             1    0         0
+  ```
+- Files: `tools/build-fieldmaps.mjs`, `fieldmaps/*.json`, `legacy/extension/lib/mapping.js`,
+  `src/engine/{loader,context,guard}.js`, `src/suite/validate.js`, `src/worker.js`,
+  `src/shared/schema.js`, `src/sidepanel/views/verify.js`, `recipes/spice-part-a.json`,
+  `docs/04-recipe-and-fieldmap.md`
+- Left out: INC-9 has no mapping.js bindings (its mapper returns nothing); all 161
+  inputs are unbound.
+- `npm run check`: pass

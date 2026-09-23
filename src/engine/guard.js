@@ -69,7 +69,7 @@ function dangerMatch(d) {
  */
 export function checkFieldIsNotCredential(field) {
   const re = new RegExp(CREDENTIAL.pattern, CREDENTIAL.flags);
-  const candidates = [field.key, field.label, field.sourceField, ...selectorStrings(field.selectors)];
+  const candidates = [field.key, field.label, field.sourceField ?? '', ...selectorStrings(field.selectors)];
   const hit = candidates.find((c) => re.test(c));
   if (hit !== undefined) {
     return Err('credential',
