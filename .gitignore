@@ -1,0 +1,9 @@
+node_modules/
+capture/steps/
+capture/profile/
+*.log
+*.out
+*.pid
+cmd.txt
+cmd.out
+.DS_Store
