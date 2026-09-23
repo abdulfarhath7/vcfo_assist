@@ -206,6 +206,27 @@
  */
 
 /**
+ * A field Suite could not supply. No `reason`: the Suite step holds it and it
+ * is blank. With a `reason`: Suite cannot supply it at all.
+ * @typedef {object} SuiteMissing
+ * @property {string} key       e.g. `company.nicCode`, `director.2.pan`
+ * @property {string} label
+ * @property {string} stepId    Suite step that would fill it, e.g. `pre-14`
+ * @property {string} [tabId]   Section on that step
+ * @property {number} [directorIndex]
+ * @property {string} [reason]
+ */
+
+/**
+ * @typedef {object} SuiteNote
+ * @property {string} key
+ * @property {string} note
+ */
+
+/**
+ * `fields` is flat and keyed by the field maps' `sourceField`. A payload built
+ * from the Suite assist profile (src/suite/profile.js) also carries Suite's
+ * `missing` and `notes`, and an empty `suiteVersion` (the route reports none).
  * @typedef {object} SuitePayload
  * @property {number} schemaVersion
  * @property {string} suiteVersion
@@ -214,19 +235,14 @@
  * @property {Record<string, FieldValue>} fields
  * @property {string} issuedAt
  * @property {string} [expiresAt]   Present on bundle payloads
+ * @property {SuiteMissing[]} [missing]
+ * @property {SuiteNote[]} [notes]
  */
 
 /**
  * @typedef {'suite' | 'bundle' | 'fixture'} EngagementSource
  */
 
-/**
- * Engagement summary for the picker. Never carries field values.
- * @typedef {object} EngagementSummary
- * @property {string} id
- * @property {string} companyName
- * @property {string} stage
- */
 
 /**
  * Result posted back to Suite.
@@ -410,6 +426,8 @@
  * @property {boolean} unpacked
  * @property {EngagementSource | null} engagementSource
  * @property {SuiteEngagement | null} engagement
+ * @property {SuiteMissing[]} missing   Suite's missing list for the loaded engagement
+ * @property {SuiteNote[]} notes        Suite's notes for the loaded engagement
  * @property {string | null} lastForm
  * @property {Prepared | null} prepared
  * @property {VerifyRow[] | null} verifyRows
@@ -426,7 +444,6 @@
  * @typedef {{ type: 'va.getState' }
  *   | { type: 'va.setSuiteOrigin', origin: string }
  *   | { type: 'va.setDevMode', devMode: boolean }
- *   | { type: 'va.listEngagements', formId: string }
  *   | { type: 'va.loadEngagement', source: 'suite' | 'fixture', formId: string, engagementId?: string }
  *   | { type: 'va.loadEngagement', source: 'bundle', formId: string, envelope: unknown, passphrase: string }
  *   | { type: 'va.prepareForm', formId: string }

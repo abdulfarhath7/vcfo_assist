@@ -293,3 +293,30 @@ the `.example` stubs load in development mode only.
 - Left out: mapping.js defaults and computed counts (Q22); Part B / AGILE / INC recipes
   (panel still offers Part A only).
 - `npm run check`: pass. Not loaded in Chrome.
+
+## 2026-09-23 — Load the profile from VCFO Suite
+- Built: `src/suite/client.js` `fetchAssistProfile` — `GET {suiteOrigin}/api/engagements/{id}/assist-profile`
+  with `credentials: 'include'`, 20s timeout; messages name the origin and engagement
+  (401 "Sign in to VCFO Suite in another tab, then try again.", 403, 404, network
+  "Could not reach {origin}. Check the address, or import a bundle instead."). The
+  worker checks the host permission first ("Allow access to {origin} to load
+  engagements."). `src/suite/profile.js`: validates the response (schemaVersion refused
+  naming both versions; a non-empty `mcaLogin.userId` refused and nothing stored),
+  flattens the profile to `fields` keyed by `sourceField` and builds mapping.js's repeat
+  blocks (`directors[withDin]`, `subscribers[individualWithoutDin]`, …); `mcaLogin` is
+  never bound. Payload keeps Suite's `missing` / `notes`; the snapshot exposes them.
+  Panel 1: Suite origin field (permission requested for that origin on Save, never at
+  install — `localhost:3000` removed from `host_permissions`, Q28), engagement id or
+  slug, Load, and an always-open card listing blank-in-Suite fields, fields Suite cannot
+  supply (with reasons) and Suite's notes. Bundle import kept; a bundle may carry the
+  profile shape or the old flat payload. Fixture rewritten in the Suite response shape.
+  Required fields with no Suite value warn instead of refusing (Q27). Contract check in
+  the generator (Q30); pack docs copied to `docs/00-profile-contract.md`,
+  `01-build.md`, `02-acceptance.md` with a note on where they landed.
+- Files: `src/suite/{client,profile,validate}.js`, `src/worker.js`,
+  `src/sidepanel/views/import.js`, `src/sidepanel/panel.css`, `src/shared/{schema,constants}.js`,
+  `manifest.json`, `fixtures/engagement.json`, `tools/build-fieldmaps.mjs`, `docs/00–03`
+- Left out: engagement list picker (Q26); the result post path (Q29).
+- `npm run check`: pass. Scratch check (not committed): a Suite-built profile and the
+  fixture bind through `profile.js`; Part A fills 6 of 7 fields, the seventh
+  (sub-category) is a named warning. Not loaded in Chrome.

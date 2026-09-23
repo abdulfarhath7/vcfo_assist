@@ -43,15 +43,17 @@ Leave the origin empty to work from `fixtures/engagement.json`, a development
 payload with obviously fake data. The panel says so in the header.
 
 On an unpacked build, **Development mode** can be switched on in panel 1. It
-allows the `.example` recipe and field-map stubs to load. Outside development
-mode they are refused.
+allows `.example` stubs to load (only the result-recipe stub remains). Outside
+development mode they are refused.
 
 ## Run a form
 
 1. **Import** — pick the form (only SPICe+ Part A is enabled), then load an
-   engagement: live from Suite, from the fixture, or from a `.vcfoa` bundle
-   exported by Suite for a machine that cannot reach it (you will need the
-   passphrase Suite showed once). Press **Continue**.
+   engagement: type its id or slug and press **Load** (Assist reads
+   `GET /api/engagements/{id}/assist-profile` with your Suite session), use the
+   fixture, or import a `.vcfoa` bundle exported by Suite for a machine that
+   cannot reach it (you will need the passphrase Suite showed once). What Suite
+   could not supply, and its notes, are listed on the same panel. Press **Continue**.
 2. **Verify** — the only place engagement values are shown. Check every row.
    Fields with no value show a "no value" chip. Wrong data is fixed in Suite,
    not here. Open the MCA portal in the active tab, log in yourself, then press

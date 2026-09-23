@@ -312,3 +312,8 @@ details.log summary { cursor: pointer; font-size: 13px; color: var(--text-muted)
 .complete { text-align: center; padding: 20px 8px; }
 .complete__icon { width: 48px; height: 48px; border-radius: 50%; background: var(--success-soft); color: var(--success); display: grid; place-items: center; margin: 0 auto 10px; }
 .complete__icon svg { width: 24px; height: 24px; }
+
+/* Suite's missing / notes lists on panel 1 — always open. */
+.gaps { list-style: none; margin: 0; padding: 0; }
+.gaps li { padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+.gaps li:last-child { border-bottom: 0; }

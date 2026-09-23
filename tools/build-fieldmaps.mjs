@@ -368,8 +368,96 @@ function buildForm({ form, section }) {
   };
 }
 
+/* ------------------------------------------------------------------------ */
+/* Suite contract check                                                      */
+/* ------------------------------------------------------------------------ */
+
+/**
+ * Keys docs/00-profile-contract.md names, as normalised paths
+ * (`directors[].father.firstName`), plus `.*` prefixes and the top-level
+ * sections from its table.
+ */
+function readContract() {
+  const doc = fs.readFileSync(path.join(ROOT, 'docs', '00-profile-contract.md'), 'utf8');
+  const sections = new Set([...doc.matchAll(/^\|\s*`([A-Za-z]+)(?:\[\])?`\s*\|/gm)].map((m) => m[1]));
+  /** @type {Set<string>} */
+  const named = new Set();
+  /** @type {string[]} */
+  const prefixes = [];
+  for (const block of doc.split(/^## /m).slice(1)) {
+    const heading = block.slice(0, block.indexOf('\n'));
+    const roots = [...heading.matchAll(/([A-Za-z]+)(\[\])?/g)]
+      .filter((m) => sections.has(m[1]))
+      .map((m) => `${m[1]}${m[2] ?? ''}`);
+    if (!roots.length) continue;
+    for (const [, token] of block.matchAll(/`([A-Za-z][\w.|*\[\]]*)`/g)) {
+      const [first, ...alts] = token.split('|');
+      const base = first.includes('.') ? first.slice(0, first.lastIndexOf('.') + 1) : '';
+      for (let t of [first, ...alts.map((a) => base + a)]) {
+        // File names, literals and words about the contract rather than in it.
+        if (/\.(js|ts|json)$/.test(t) || ['true', 'false', 'missing', 'notes', 'instance', 'waitForOptions'].includes(t)) continue;
+        // The company table writes capital classes without their `capital.` parent.
+        if (roots.includes('company') && /^(equity|preference)\./.test(t)) t = `capital.${t}`;
+        for (const root of roots) {
+          if (t.endsWith('.*')) prefixes.push(`${root}.${t.slice(0, -2)}.`);
+          else if (t.endsWith('[]')) prefixes.push(`${root}.${t}.`);
+          named.add(`${root}.${t}`);
+        }
+      }
+    }
+  }
+  return { sections, named, prefixes };
+}
+
+/**
+ * `directors[withDin].0.interests.1.cin` → `directors[].interests[].cin`.
+ * @param {string} sourceField
+ */
+function normalisePath(sourceField) {
+  return sourceField.replace(/\[[^\]]*\]\.\d+/g, '[]').replace(/\.\d+(?=\.|$)/g, '[]');
+}
+
+/**
+ * Every sourceField must sit in a section the contract defines. Report which
+ * use names the contract spells out and which it does not name (Suite never
+ * sends those; they stay unfilled). A contract key no map reads is listed too.
+ * @param {Array<{ form: string, map: any }>} built
+ * @returns {boolean} ok
+ */
+function checkContract(built) {
+  const { sections, named, prefixes } = readContract();
+  let ok = true;
+  const used = new Set();
+  for (const { form, map } of built) {
+    let inContract = 0;
+    /** @type {Set<string>} */
+    const unnamed = new Set();
+    for (const f of Object.values(map.sections).flat()) {
+      const p = normalisePath(f.sourceField);
+      const root = p.split(/[.[]/)[0];
+      if (!sections.has(root)) {
+        ok = false;
+        console.error(`✗ ${form}: ${f.key} reads "${f.sourceField}", outside every section of docs/00-profile-contract.md`);
+        continue;
+      }
+      if (named.has(p) || prefixes.some((pre) => p.startsWith(pre))) {
+        inContract += 1;
+        used.add(p);
+      } else unnamed.add(p);
+    }
+    console.log(`  ${form}: ${inContract} fields read contract-named keys; ${unnamed.size} distinct paths the contract does not name`);
+  }
+  const unread = [...named].filter((k) => !used.has(k) && !k.endsWith('.*') && /^(company|registeredOffice|directors\[\])\.[a-z]/.test(k) && !prefixes.some((pre) => pre === `${k}.`));
+  if (unread.length) {
+    console.log(`  named by the contract but read by no field map (computed by mapping.js, a partition input, or informational): ${unread.join(', ')}`);
+  }
+  return ok;
+}
+
 fs.mkdirSync(OUT_DIR, { recursive: true });
 let failed = false;
+/** @type {Array<{ form: string, map: any }>} */
+const built = [];
 for (const spec of FORMS) {
   const map = buildForm(spec);
   const checked = validateFieldMapShape(map, `fieldmaps/${spec.form}.json`);
@@ -379,7 +467,10 @@ for (const spec of FORMS) {
     continue;
   }
   fs.writeFileSync(path.join(OUT_DIR, `${spec.form}.json`), `${JSON.stringify(map, null, 2)}\n`);
+  built.push({ form: spec.form, map });
   const count = Object.values(map.sections).reduce((n, list) => n + list.length, 0);
   console.log(`✓ fieldmaps/${spec.form}.json — ${count} fields in ${Object.keys(map.sections).length} sections, ${map._skipped?.length ?? 0} skipped, ${map._conflicts?.length ?? 0} conflicts`);
 }
+console.log('Suite contract (docs/00-profile-contract.md):');
+if (!checkContract(built)) failed = true;
 if (failed) process.exit(1);

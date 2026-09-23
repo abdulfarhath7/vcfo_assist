@@ -1,7 +1,8 @@
 // Validation of a Suite payload, whichever path produced it. Refuses to
 // proceed unless the schema version is understood, the form matches, the
 // field map's requirement is satisfied, and every non-optional sourceField the
-// map references exists in `fields`. Failures list the missing keys.
+// map references exists in `fields` (a warning instead for a Suite profile,
+// which lists its own gaps). Failures list the missing keys.
 
 import { Ok, Err } from '../shared/result.js';
 import { SUPPORTED_SCHEMA_VERSIONS, KNOWN_SUITE_RANGE } from '../shared/constants.js';
@@ -98,6 +99,8 @@ export function compareSuiteVersion(a, b) {
  * @returns {string | null}
  */
 export function suiteVersionWarning(payload) {
+  // The assist-profile route reports no version; there is nothing to compare.
+  if (payload.suiteVersion === '') return null;
   if (compareSuiteVersion(payload.suiteVersion, KNOWN_SUITE_RANGE.to) > 0) {
     return `VCFO Suite ${payload.suiteVersion} is newer than this build of Assist was exercised against (up to ${KNOWN_SUITE_RANGE.to}). The schema version matches, so filling continues; check the Verify table with care and update Assist when one is available.`;
   }
@@ -145,7 +148,12 @@ export function validatePayloadForForm(payload, formId, recipe, fieldMap) {
       if (!(f.sourceField in payload.fields)) missing.push(`${f.key} ← ${f.sourceField}`);
     }
   }
-  if (missing.length) {
+  // A profile from Suite has already told the lead what it could not supply
+  // (`payload.missing`, shown in panel 1). Its gaps are warnings here; the run
+  // reports each unfilled required field in the read-back diff.
+  if (missing.length && payload.missing) {
+    warnings.push(`${missing.length} required field${missing.length === 1 ? ' has' : 's have'} no value from VCFO Suite and will not be filled: ${missing.join(', ')}. Fill ${missing.length === 1 ? 'it' : 'them'} on the portal.`);
+  } else if (missing.length) {
     return Err('validation',
       `The Suite payload lacks ${missing.length} field${missing.length === 1 ? '' : 's'} the map requires: ${missing.join(', ')}`,
       { missing });

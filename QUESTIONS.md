@@ -251,3 +251,55 @@ default, record it, keep building. The human answers after the build.
   maps nothing for INC-9. Framework is `aem`; the jQuery trigger still runs.
 - **Alternative:** hand-declare dependencies per form.
 - **Answer:**
+
+## Q26 — Engagement picker (from the load-from-Suite pack, its Q1)
+- **Context:** the panel needs an engagement. Suite exposes no staff-scoped list
+  endpoint; its route accepts an engagement id or slug.
+- **Default chosen:** a typed "Engagement id or slug" field and a Load button. The
+  old list call (`/api/assist/engagements?form=`) and export call are removed.
+- **Alternative:** add a list route to Suite and bring the picker back.
+- **Answer:**
+
+## Q27 — Required fields Suite does not supply
+- **Context:** `validatePayloadForForm` refused a payload missing any required
+  `sourceField`. Suite's contract omits what it does not hold (Part A: sub-category),
+  so every real engagement would be refused.
+- **Default chosen:** for a payload that came with Suite's `missing` list, the gap is a
+  warning on panel 2 naming each field; the run then reports each unfilled required
+  field in the read-back diff. A flat payload (legacy bundle) is still refused.
+- **Alternative:** mark such fields optional in the maps.
+- **Answer:**
+
+## Q28 — The development Suite origin is no longer granted at install
+- **Context:** `http://localhost:3000/*` was a fixed host permission (Q1 default). The
+  rule for this task is: permission at save time, never at install.
+- **Default chosen:** removed from `host_permissions`. `http://localhost/*` stays in
+  `optional_host_permissions` (Chrome match patterns ignore the port), so saving
+  `http://localhost:3000` asks like any other origin.
+- **Alternative:** keep the dev origin pre-granted.
+- **Answer:**
+
+## Q29 — Loads without a Suite version, result post path
+- **Context:** the assist-profile route returns no `suiteVersion`; the result post
+  still targets `/api/assist/engagements/{id}/result`, which Suite does not have.
+- **Default chosen:** a profile payload carries `suiteVersion: ''` and raises no skew
+  warning; `schemaVersion` alone gates (refused naming both versions). The result post
+  is unchanged and will 404 until Suite builds it; the error names the origin.
+- **Alternative:** add `suiteVersion` to Suite's route response.
+- **Answer:**
+
+## Q30 — Contract names vs field maps
+- **Context:** Task: verify the names in `docs/00-profile-contract.md` against the
+  generated maps and fix the maps, never the contract.
+- **Default chosen:** `tools/build-fieldmaps.mjs` now checks every `sourceField` on each
+  run. Result: every key the contract names that a map reads is spelled the same
+  (Part A 7/7; Part B 237 fields; INC-33 1); no map field sits outside a contract
+  section; nothing needed renaming. Contract keys no map reads: `company.nicDescription`
+  (informational), `company.hasShareCapital` (mapping.js computes
+  `havingShareCapitalOrNot` from it, see Q22), `directors[].index`, `lastName` (the
+  contract's alternative to `surName`), `kind` / `isDirector` (inputs to the block
+  split). Paths the contract does not name (AGILE, MoA / AoA leaves, subscriber and
+  address parts) are Assist-only; Suite never sends them, so they stay unfilled. A real
+  Suite-built profile bound through `src/suite/profile.js` fills Part A 6 of 7 fields.
+- **Alternative:** make the check fail on any unnamed path.
+- **Answer:**

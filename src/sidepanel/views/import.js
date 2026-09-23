@@ -6,18 +6,13 @@ import { h, chip, replace } from '../dom.js';
 import { requestOriginPermission, normaliseOrigin } from '../../suite/client.js';
 
 /** @typedef {import('../context.js').ViewContext} ViewContext */
-/** @typedef {import('../../shared/schema.js').EngagementSummary} EngagementSummary */
 
 /** Transient inputs that survive re-renders within one panel lifetime. */
 const local = {
   editingOrigin: false,
   originInput: '',
   formId: '',
-  /** @type {EngagementSummary[] | null} */
-  list: null,
-  listSupported: true,
-  selectedId: '',
-  manualId: '',
+  engagementId: '',
   /** @type {string | null} */
   bundleText: null,
   bundleName: '',
@@ -69,7 +64,7 @@ function sourceCard(ctx) {
     if (n.value !== '') {
       const granted = await requestOriginPermission(n.value);
       if (!granted) {
-        ctx.setError(`Permission for ${n.value} was not granted. Assist can only talk to an origin you allow.`);
+        ctx.setError(`Allow access to ${n.value} to load engagements. Assist only talks to a Suite origin you allow.`);
         return;
       }
     }
@@ -81,7 +76,6 @@ function sourceCard(ctx) {
       return;
     }
     local.editingOrigin = false;
-    local.list = null;
     await ctx.refresh();
   };
 
@@ -97,7 +91,7 @@ function sourceCard(ctx) {
         }),
         h('button', { type: 'button', class: 'btn btn--sm', onclick: () => { void save(); } }, 'Save'),
       ),
-      h('span', { class: 'hint' }, 'Leave empty to use the development fixture. You will be asked to allow the origin.'),
+      h('span', { class: 'hint' }, 'Leave empty to use the development fixture. Saving asks you to allow this origin, and only this origin.'),
     ),
     hasOrigin ? h('button', { type: 'button', class: 'btn btn--ghost btn--sm', onclick: () => { local.editingOrigin = false; ctx.rerender(); } }, 'Cancel') : null,
   );
@@ -153,8 +147,6 @@ function formCard(ctx) {
     class: 'input', id: 'form', disabled: locked || undefined,
     onchange: (/** @type {Event} */ e) => {
       local.formId = /** @type {HTMLSelectElement} */ (e.target).value;
-      local.list = null;
-      local.selectedId = '';
       ctx.rerender();
     },
   }, ctx.snap.forms.map((f) => h('option', { value: f.id, disabled: !f.enabled || undefined, selected: f.id === current || undefined }, f.enabled ? f.label : `${f.label} (not yet available)`)));
@@ -173,6 +165,57 @@ function formCard(ctx) {
 /* ------------------------------------------------------------------------ */
 
 /**
+ * "Director 2 · PAN — Suite step pre-15, directors", or with Suite's reason.
+ * @param {import('../../shared/schema.js').SuiteMissing} m
+ * @returns {HTMLElement}
+ */
+function missingRow(m) {
+  const label = m.directorIndex !== undefined ? `Director ${m.directorIndex} · ${m.label}` : m.label;
+  const where = `Suite step ${m.stepId}${m.tabId ? `, ${m.tabId}` : ''}`;
+  return h('li', null,
+    h('strong', null, label),
+    h('div', { class: 'meta' }, m.reason ? `${m.reason} — ${where}` : `Blank in ${where}`),
+  );
+}
+
+/**
+ * Suite's missing and notes lists, always open. A lead who cannot see what is
+ * missing will assume the form is complete.
+ * @param {ViewContext} ctx
+ * @returns {HTMLElement | null}
+ */
+function gapsCard(ctx) {
+  const { missing, notes } = ctx.snap;
+  if (!ctx.snap.engagement || ctx.snap.engagementSource === null) return null;
+  const blank = missing.filter((m) => !m.reason);
+  const unsupplied = missing.filter((m) => m.reason);
+  return h('div', { class: 'card' },
+    h('div', { class: 'card__head' },
+      h('h3', null, 'What VCFO Suite could not supply'),
+      blank.length ? chip(`${blank.length} blank in Suite`, 'waiting') : chip('Nothing blank in Suite', 'success'),
+    ),
+    h('div', { class: 'stack' },
+      blank.length
+        ? h('div', { class: 'stack stack--tight' },
+          h('p', { class: 'muted' }, 'Blank in Suite — fill these in Suite and load again, or type them on the portal:'),
+          h('ul', { class: 'gaps' }, blank.map(missingRow)))
+        : null,
+      unsupplied.length
+        ? h('div', { class: 'stack stack--tight' },
+          h('p', { class: 'muted' }, 'Suite cannot supply these — they stay empty and are yours to fill on the portal:'),
+          h('ul', { class: 'gaps' }, unsupplied.map(missingRow)))
+        : null,
+      notes.length
+        ? h('div', { class: 'stack stack--tight' },
+          h('p', { class: 'muted' }, 'Notes from Suite:'),
+          h('ul', { class: 'gaps' }, notes.map((n) => h('li', null, n.note, h('div', { class: 'meta' }, n.key)))))
+        : null,
+      !missing.length && !notes.length ? h('p', { class: 'muted' }, 'Suite reported nothing missing and no notes.') : null,
+    ),
+  );
+}
+
+/**
  * @param {ViewContext} ctx
  * @returns {HTMLElement}
  */
@@ -182,7 +225,7 @@ function engagementCard(ctx) {
     return h('div', { class: 'card' },
       h('div', { class: 'card__head' }, h('h3', null, 'Engagement'), sourceChip(snap.engagementSource)),
       h('h1', null, snap.engagement.companyName),
-      h('div', { class: 'meta' }, `${snap.engagement.id} · ${snap.engagement.stage}`),
+      h('div', { class: 'meta' }, snap.engagement.stage ? `${snap.engagement.id} · ${snap.engagement.stage}` : snap.engagement.id),
       h('div', { class: 'btn-row' },
         h('button', {
           type: 'button', class: 'btn btn--ghost btn--sm',
@@ -191,8 +234,6 @@ function engagementCard(ctx) {
             const r = await ctx.request({ type: MSG.RESET });
             ctx.setBusy(false);
             if (!r.ok) ctx.setError(r.error);
-            local.list = null;
-            local.selectedId = '';
             await ctx.refresh();
           },
         }, 'Change engagement'),
@@ -204,27 +245,10 @@ function engagementCard(ctx) {
   const fixture = snap.suiteOrigin === '';
 
   /** @returns {Promise<void>} */
-  const loadList = async () => {
-    ctx.setError(null);
-    ctx.setBusy(true);
-    const r = await ctx.request({ type: MSG.LIST_ENGAGEMENTS, formId });
-    ctx.setBusy(false);
-    if (!r.ok) {
-      ctx.setError(r.error);
-      return;
-    }
-    const v = /** @type {{ engagements: EngagementSummary[], listSupported: boolean }} */ (r.value);
-    local.list = v.engagements;
-    local.listSupported = v.listSupported;
-    local.selectedId = v.engagements.length === 1 ? v.engagements[0].id : '';
-    ctx.rerender();
-  };
-
-  /** @returns {Promise<void>} */
-  const useEngagement = async () => {
-    const id = local.listSupported ? local.selectedId : local.manualId.trim();
+  const load = async () => {
+    const id = local.engagementId.trim();
     if (!fixture && !id) {
-      ctx.setError('Choose or enter an engagement id.');
+      ctx.setError('Enter the engagement id or slug from VCFO Suite.');
       return;
     }
     ctx.setError(null);
@@ -260,43 +284,25 @@ function engagementCard(ctx) {
     await ctx.refresh();
   };
 
-  /** @type {HTMLElement} */
-  let picker;
-  if (local.list === null) {
-    picker = h('div', { class: 'stack stack--tight' },
-      h('p', { class: 'muted' }, fixture ? 'The fixture holds one engagement.' : 'Engagements come from your VCFO Suite session in this browser.'),
-      h('button', { type: 'button', class: 'btn', onclick: () => { void loadList(); } }, fixture ? 'Load fixture engagement' : 'Load engagements'),
-    );
-  } else if (!local.listSupported) {
-    picker = h('div', { class: 'stack stack--tight' },
-      h('p', { class: 'muted' }, 'This Suite has no engagement list endpoint yet. Enter the engagement id.'),
+  const picker = fixture
+    ? h('div', { class: 'stack stack--tight' },
+      h('p', { class: 'muted' }, 'No Suite origin is set, so the development fixture is used.'),
+      h('button', { type: 'button', class: 'btn', onclick: () => { void load(); } }, 'Load fixture engagement'),
+    )
+    : h('div', { class: 'stack stack--tight' },
+      h('p', { class: 'muted' }, `Read from ${snap.suiteOrigin} with your VCFO Suite session in this browser.`),
       h('div', { class: 'field' },
-        h('label', { for: 'eng-id' }, 'Engagement id'),
+        h('label', { for: 'eng-id' }, 'Engagement id or slug'),
         h('input', {
-          id: 'eng-id', class: 'input input--mono', type: 'text', placeholder: 'eng_123', value: local.manualId, autocomplete: 'off',
-          oninput: (/** @type {Event} */ e) => { local.manualId = /** @type {HTMLInputElement} */ (e.target).value; },
+          id: 'eng-id', class: 'input input--mono', type: 'text', placeholder: 'acme-india-private-limited', value: local.engagementId,
+          autocomplete: 'off', spellcheck: 'false',
+          oninput: (/** @type {Event} */ e) => { local.engagementId = /** @type {HTMLInputElement} */ (e.target).value; },
+          onkeydown: (/** @type {KeyboardEvent} */ e) => { if (e.key === 'Enter') void load(); },
         }),
+        h('span', { class: 'hint' }, 'As in the engagement\'s Suite URL.'),
       ),
-      h('button', { type: 'button', class: 'btn', onclick: () => { void useEngagement(); } }, 'Use this engagement'),
+      h('button', { type: 'button', class: 'btn', onclick: () => { void load(); } }, 'Load'),
     );
-  } else if (local.list.length === 0) {
-    picker = h('p', { class: 'muted' }, 'Suite returned no engagements for this form.');
-  } else {
-    const list = local.list;
-    picker = h('div', { class: 'stack stack--tight' },
-      list.length > 1
-        ? h('div', { class: 'radio-list' }, list.map((e) => h('label', null,
-          h('input', {
-            type: 'radio', name: 'engagement', value: e.id, checked: local.selectedId === e.id || undefined,
-            onchange: () => { local.selectedId = e.id; },
-          }),
-          h('span', null, e.companyName),
-          h('span', { class: 'meta' }, e.stage),
-        )))
-        : h('div', null, h('h1', null, list[0].companyName), h('div', { class: 'meta' }, `${list[0].id} · ${list[0].stage}`)),
-      h('button', { type: 'button', class: 'btn', onclick: () => { void useEngagement(); } }, 'Use this engagement'),
-    );
-  }
 
   const bundle = h('div', { class: 'stack stack--tight' },
     h('div', { class: 'field' },
@@ -333,7 +339,7 @@ function engagementCard(ctx) {
   );
 
   const tabs = h('div', { class: 'radio-list' },
-    h('label', null, h('input', { type: 'radio', name: 'mode', checked: local.mode === 'suite' || undefined, onchange: () => { local.mode = 'suite'; ctx.rerender(); } }), fixture ? 'Development fixture' : 'Live from VCFO Suite'),
+    h('label', null, h('input', { type: 'radio', name: 'mode', checked: local.mode === 'suite' || undefined, onchange: () => { local.mode = 'suite'; ctx.rerender(); } }), fixture ? 'Development fixture' : 'Load from VCFO Suite'),
     h('label', null, h('input', { type: 'radio', name: 'mode', checked: local.mode === 'bundle' || undefined, onchange: () => { local.mode = 'bundle'; ctx.rerender(); } }), 'Imported bundle (.vcfoa)'),
   );
 
@@ -358,6 +364,7 @@ export function render(root, ctx) {
     sourceCard(ctx),
     formCard(ctx),
     engagementCard(ctx),
+    gapsCard(ctx),
   );
 }
 

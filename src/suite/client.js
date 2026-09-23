@@ -2,12 +2,10 @@
 // through this file, to the configured Suite origin. With no origin set, the
 // development fixture is read instead — one file, same validation path.
 
-import { Ok, Err, fromThrown } from '../shared/result.js';
+import { Ok, Err } from '../shared/result.js';
 import { LOCAL_KEYS, SUITE_API, TIMEOUTS } from '../shared/constants.js';
 import { fetchPackagedJson } from '../engine/loader.js';
-import { isRecord } from '../shared/check.js';
 
-/** @typedef {import('../shared/schema.js').EngagementSummary} EngagementSummary */
 /** @typedef {import('../shared/schema.js').SuiteResult} SuiteResult */
 
 const FIXTURE_PATH = 'fixtures/engagement.json';
@@ -100,82 +98,57 @@ export async function requestOriginPermission(origin) {
 async function suiteFetch(url, init) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TIMEOUTS.SUITE_FETCH_MS);
+  const origin = new URL(url).origin;
   try {
     const response = await fetch(url, { ...init, credentials: 'include', signal: controller.signal });
     return Ok(response);
   } catch (e) {
     if (e instanceof Error && e.name === 'AbortError') {
-      return Err('transport', `VCFO Suite did not answer within ${TIMEOUTS.SUITE_FETCH_MS / 1000}s (${url}).`);
+      return Err('transport', `${origin} did not answer within ${TIMEOUTS.SUITE_FETCH_MS / 1000}s. Check the address, or import a bundle instead.`);
     }
-    return fromThrown('transport', e, `Could not reach VCFO Suite at ${url}`);
+    return Err('transport', `Could not reach ${origin}. Check the address, or import a bundle instead.`);
   } finally {
     clearTimeout(timer);
   }
 }
 
 /**
- * Translate a non-OK Suite response into a named error. 401 is explicit.
+ * Translate a non-OK Suite response into a named error. Every message names
+ * the origin and, where there is one, the engagement.
  * @param {Response} response
- * @param {string} what
+ * @param {string} what      e.g. `the profile for engagement "acme"`
+ * @param {string} origin
  * @returns {import('../shared/result.js').ErrResult}
  */
-function httpError(response, what) {
-  if (response.status === 401 || response.status === 403) {
-    return Err('auth', 'Sign in to VCFO Suite in another tab, then retry.', { details: { status: response.status } });
+function httpError(response, what, origin) {
+  const details = { details: { status: response.status } };
+  if (response.status === 401) return Err('auth', 'Sign in to VCFO Suite in another tab, then try again.', details);
+  if (response.status === 403) {
+    return Err('auth', `${origin} refused ${what} (403). Only staff assigned to the engagement can load it; clients never can.`, details);
   }
   if (response.status === 404) {
-    return Err('transport', `VCFO Suite has no ${what} endpoint at this origin (404).`, { details: { status: 404 } });
+    return Err('transport', `${origin} has no ${what} visible to you (404). Check the engagement id or slug, and that this is the right Suite.`, details);
   }
-  return Err('transport', `VCFO Suite returned ${response.status} for ${what}.`, { details: { status: response.status } });
+  return Err('transport', `${origin} returned ${response.status} for ${what}.`, details);
 }
 
 /**
- * List engagements that can be filled for a form. Returns an empty list when
- * Suite has no list endpoint, so the panel can fall back to a typed id.
+ * GET {origin}/api/engagements/{id}/assist-profile with the Suite session
+ * cookie. The raw JSON is returned; `suite/profile.js` validates and binds it.
+ * The caller checks the host permission first.
  * @param {string} origin
- * @param {string} formId
- * @returns {Promise<import('../shared/result.js').Result<{ engagements: EngagementSummary[], listSupported: boolean }>>}
- */
-export async function fetchEngagementList(origin, formId) {
-  const r = await suiteFetch(`${origin}${SUITE_API.list(formId)}`, { method: 'GET', headers: { Accept: 'application/json' } });
-  if (!r.ok) return r;
-  if (r.value.status === 404) return Ok({ engagements: [], listSupported: false });
-  if (!r.value.ok) return httpError(r.value, 'engagement list');
-  /** @type {unknown} */
-  let body;
-  try {
-    body = await r.value.json();
-  } catch (e) {
-    return fromThrown('transport', e, 'Engagement list was not valid JSON');
-  }
-  const list = isRecord(body) && Array.isArray(body.engagements) ? body.engagements : (Array.isArray(body) ? body : null);
-  if (!list) return Err('validation', 'Engagement list response did not contain an "engagements" array.');
-  /** @type {EngagementSummary[]} */
-  const engagements = [];
-  for (const item of list) {
-    if (isRecord(item) && typeof item.id === 'string' && typeof item.companyName === 'string') {
-      engagements.push({ id: item.id, companyName: item.companyName, stage: typeof item.stage === 'string' ? item.stage : '' });
-    }
-  }
-  return Ok({ engagements, listSupported: true });
-}
-
-/**
- * Fetch the export payload for one engagement. The raw JSON is returned;
- * validation happens in `validate.js` so both inbound paths share it.
- * @param {string} origin
- * @param {string} engagementId
- * @param {string} formId
+ * @param {string} engagementId   Id or slug, as Suite's route accepts either
  * @returns {Promise<import('../shared/result.js').Result<unknown>>}
  */
-export async function fetchEngagementExport(origin, engagementId, formId) {
-  const r = await suiteFetch(`${origin}${SUITE_API.exportPath(engagementId, formId)}`, { method: 'GET', headers: { Accept: 'application/json' } });
+export async function fetchAssistProfile(origin, engagementId) {
+  const what = `the assist profile for engagement "${engagementId}"`;
+  const r = await suiteFetch(`${origin}${SUITE_API.assistProfile(engagementId)}`, { method: 'GET', headers: { Accept: 'application/json' } });
   if (!r.ok) return r;
-  if (!r.value.ok) return httpError(r.value, 'engagement export');
+  if (!r.value.ok) return httpError(r.value, what, origin);
   try {
     return Ok(await r.value.json());
-  } catch (e) {
-    return fromThrown('transport', e, 'Engagement export was not valid JSON');
+  } catch {
+    return Err('transport', `${origin} answered for ${what}, but not with JSON. Is this the VCFO Suite origin?`);
   }
 }
 
@@ -210,6 +183,6 @@ export async function postResult(origin, engagementId, result) {
     body: JSON.stringify(result),
   });
   if (!r.ok) return r;
-  if (!r.value.ok) return httpError(r.value, 'result post');
+  if (!r.value.ok) return httpError(r.value, `the result post for engagement "${engagementId}"`, origin);
   return Ok({ status: r.value.status });
 }

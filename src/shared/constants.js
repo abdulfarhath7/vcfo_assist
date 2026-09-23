@@ -16,9 +16,6 @@ export const SUPPORTED_SCHEMA_VERSIONS = Object.freeze([1]);
  */
 export const KNOWN_SUITE_RANGE = Object.freeze({ from: '2026.09.0', to: '2026.12.0' });
 
-/** Development Suite origin pre-declared in host_permissions. */
-export const DEV_SUITE_ORIGIN = 'http://localhost:3000';
-
 /** Origin of the portal, used to decide whether a tab is eligible for a run. */
 export const MCA_ORIGIN_PATTERN = /^https:\/\/www\.mca\.gov\.in\//;
 
@@ -62,7 +59,6 @@ export const MSG = Object.freeze({
   GET_STATE: 'va.getState',
   SET_SUITE_ORIGIN: 'va.setSuiteOrigin',
   SET_DEV_MODE: 'va.setDevMode',
-  LIST_ENGAGEMENTS: 'va.listEngagements',
   LOAD_ENGAGEMENT: 'va.loadEngagement',
   PREPARE_FORM: 'va.prepareForm',
   START_RUN: 'va.startRun',
@@ -160,10 +156,8 @@ export const FRAMEWORKS = Object.freeze(['jquery', 'angular', 'react', 'aem', 'u
 
 /** Suite API paths, relative to the configured origin. */
 export const SUITE_API = Object.freeze({
-  /** @param {string} form */
-  list: (form) => `/api/assist/engagements?form=${encodeURIComponent(form)}`,
-  /** @param {string} id @param {string} form */
-  exportPath: (id, form) => `/api/assist/engagements/${encodeURIComponent(id)}/export?form=${encodeURIComponent(form)}`,
+  /** The engagement's assist profile (read-only, staff session). @param {string} id  Engagement id or slug */
+  assistProfile: (id) => `/api/engagements/${encodeURIComponent(id)}/assist-profile`,
   /** @param {string} id */
   resultPath: (id) => `/api/assist/engagements/${encodeURIComponent(id)}/result`,
 });

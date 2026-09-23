@@ -1,24 +1,76 @@
 {
+  "ok": true,
   "schemaVersion": 1,
-  "suiteVersion": "2026.09.1",
-  "form": "spice-part-a",
-  "engagement": {
-    "id": "eng_fixture_001",
-    "companyName": "Example Fixture Ventures Private Limited",
-    "stage": "pre-inc"
+  "companyName": "Example Fixture Ventures India Private Limited",
+  "profile": {
+    "mcaLogin": { "userId": "" },
+    "company": {
+      "hasShareCapital": true,
+      "aoaEntrenched": false,
+      "proposedNames": [
+        "Example Fixture Ventures India Private Limited",
+        "Fixture Example Technologies India Private Limited"
+      ],
+      "type": "New Company (Others)",
+      "class": "Private",
+      "category": "Company limited by shares",
+      "nicCode": "62011",
+      "nicDescription": "Writing, modifying, testing of computer program",
+      "capital": {
+        "authorized": 1000000,
+        "subscribed": 100000,
+        "equity": { "classes": 1, "authorizedShares": 100000, "subscribedShares": 10000, "faceValue": 10 },
+        "preference": { "classes": 0 }
+      }
+    },
+    "registeredOffice": {
+      "country": "India",
+      "email": "office@example.test",
+      "mobile": "9999999999",
+      "countryCode": "+91"
+    },
+    "directors": [
+      {
+        "id": "fixture-dir-1",
+        "index": 1,
+        "firstName": "Alpha",
+        "surName": "Example",
+        "gender": "Female",
+        "dob": "01/01/1980",
+        "residentInIndia": false,
+        "occupationType": "Business",
+        "education": "Bachelor's degree",
+        "email": "alpha@example.test",
+        "countryCode": "+1",
+        "mobile": "4155550100"
+      },
+      {
+        "id": "fixture-dir-2",
+        "index": 2,
+        "firstName": "Beta",
+        "surName": "Example",
+        "gender": "Male",
+        "dob": "02/02/1982",
+        "residentInIndia": true,
+        "occupationType": "Professional",
+        "education": "Master degree",
+        "pan": "ABCDE1234F",
+        "din": "01234567",
+        "email": "beta@example.test",
+        "countryCode": "+91",
+        "mobile": "9999999998"
+      }
+    ],
+    "agile": { "numberOfDirectors": 2 },
+    "moa": {},
+    "aoa": {}
   },
-  "fields": {
-    "proposedName1": "Example Fixture Ventures Private Limited",
-    "proposedName2": "Fixture Example Technologies Private Limited",
-    "registeredOfficeState": "Telangana",
-    "registeredOfficeDistrict": "Hyderabad",
-    "nicCode": "62011",
-    "companyType": "Private Limited Company",
-    "companyClass": "Private",
-    "companyCategory": "Company limited by shares",
-    "companySubCategory": "Non-government company",
-    "mainDivision": "62",
-    "objectsDescription": "Development of computer software and related consultancy services."
-  },
-  "issuedAt": "2026-09-16T09:00:00.000Z"
+  "missing": [
+    { "key": "company.subCategory", "label": "Sub-category of company", "stepId": "pre-1", "tabId": "proposed-company-names", "reason": "Suite does not collect this yet" },
+    { "key": "director.2.fatherName", "label": "Father's name", "stepId": "pre-15", "tabId": "directors", "directorIndex": 2 },
+    { "key": "subscribers", "label": "Subscribers and the shares each takes", "stepId": "pre-16", "tabId": "subscribers", "reason": "Suite does not collect this yet" }
+  ],
+  "notes": [
+    { "key": "company.nicCode", "note": "Pick the NIC row from the popup table manually; MainNICCode is read-only." }
+  ]
 }

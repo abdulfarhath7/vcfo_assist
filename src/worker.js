@@ -11,10 +11,11 @@ import { sendOp, ensureBridge } from './engine/transport.js';
 import { flag } from './engine/waits.js';
 import * as runner from './engine/runner.js';
 import {
-  getSuiteOrigin, setSuiteOrigin, normaliseOrigin, fetchEngagementList,
-  fetchEngagementExport, loadFixture, postResult,
+  getSuiteOrigin, setSuiteOrigin, normaliseOrigin, fetchAssistProfile,
+  hasOriginPermission, loadFixture, postResult,
 } from './suite/client.js';
 import { validatePayloadShape, validatePayloadForForm, checkPayloadExpiry } from './suite/validate.js';
+import { validateProfileResponse, payloadFromProfile, looksLikeProfileResponse } from './suite/profile.js';
 import { parseEnvelope, decryptBundle } from './suite/bundle.js';
 
 /** @typedef {import('./shared/schema.js').PanelRequest} PanelRequest */
@@ -108,6 +109,8 @@ async function snapshot() {
     unpacked: isUnpacked(),
     engagementSource: /** @type {EngagementSource | null} */ (source),
     engagement: p ? p.engagement : null,
+    missing: p?.missing ?? [],
+    notes: p?.notes ?? [],
     lastForm: typeof lastForm === 'string' ? lastForm : null,
     prepared: /** @type {Prepared | null} */ (prepared),
     verifyRows: /** @type {VerifyRow[] | null} */ (verifyRows),
@@ -142,6 +145,22 @@ async function acceptPayload(raw, source, formId) {
 }
 
 /**
+ * Validate a Suite assist-profile response, bind it to flat fields and store
+ * it. `mcaLogin` is refused if it carries anything and never stored.
+ * @param {unknown} raw
+ * @param {EngagementSource} source
+ * @param {{ formId: string, engagementId: string, from: string }} ctx
+ * @returns {Promise<PanelResponse>}
+ */
+async function acceptProfile(raw, source, ctx) {
+  const checked = validateProfileResponse(raw, ctx.from);
+  if (!checked.ok) return checked;
+  const payload = payloadFromProfile(checked.value, { engagementId: ctx.engagementId, formId: ctx.formId });
+  await storeEngagement(payload, source);
+  return Ok({ engagement: payload.engagement, source, missing: payload.missing?.length ?? 0 });
+}
+
+/**
  * @param {Extract<PanelRequest, { type: 'va.loadEngagement' }>} req
  * @returns {Promise<PanelResponse>}
  */
@@ -154,6 +173,11 @@ async function loadEngagement(req) {
     }
     const plain = await decryptBundle(envelope.value, req.passphrase);
     if (!plain.ok) return plain;
+    if (looksLikeProfileResponse(plain.value)) {
+      return acceptProfile(plain.value, 'bundle', {
+        formId: req.formId, engagementId: envelope.value.manifest.engagementId, from: 'the bundle',
+      });
+    }
     const accepted = await acceptPayload(plain.value, 'bundle', req.formId);
     if (!accepted.ok) return accepted;
     const stored = await sessionGet(SESSION_KEYS.ENGAGEMENT);
@@ -168,30 +192,16 @@ async function loadEngagement(req) {
   if (origin === '' || req.source === 'fixture') {
     const fixture = await loadFixture();
     if (!fixture.ok) return fixture;
-    return acceptPayload(fixture.value, 'fixture', req.formId);
+    return acceptProfile(fixture.value, 'fixture', { formId: req.formId, engagementId: 'fixture', from: 'the development fixture' });
   }
-  if (!req.engagementId) return Err('validation', 'Choose or enter an engagement id.');
-  const raw = await fetchEngagementExport(origin, req.engagementId, req.formId);
+  const engagementId = (req.engagementId ?? '').trim();
+  if (!engagementId) return Err('validation', 'Enter the engagement id or slug from VCFO Suite.');
+  if (!(await hasOriginPermission(origin))) {
+    return Err('auth', `Allow access to ${origin} to load engagements. Save the Suite origin again to be asked.`);
+  }
+  const raw = await fetchAssistProfile(origin, engagementId);
   if (!raw.ok) return raw;
-  return acceptPayload(raw.value, 'suite', req.formId);
-}
-
-/**
- * @param {string} formId
- * @returns {Promise<PanelResponse>}
- */
-async function listEngagements(formId) {
-  const origin = await getSuiteOrigin();
-  if (origin === '') {
-    const fixture = await loadFixture();
-    if (!fixture.ok) return fixture;
-    const shaped = validatePayloadShape(fixture.value);
-    if (!shaped.ok) return shaped;
-    return Ok({ engagements: [shaped.value.engagement], listSupported: true, source: 'fixture' });
-  }
-  const list = await fetchEngagementList(origin, formId);
-  if (!list.ok) return list;
-  return Ok({ ...list.value, source: 'suite' });
+  return acceptProfile(raw.value, 'suite', { formId: req.formId, engagementId, from: origin });
 }
 
 /* ------------------------------------------------------------------------ */
@@ -424,8 +434,6 @@ async function handle(req) {
       if (!isUnpacked() && req.devMode) return Err('validation', 'Development mode is only available for an unpacked build.');
       await chrome.storage.local.set({ [LOCAL_KEYS.DEV_MODE]: req.devMode });
       return Ok({ devMode: req.devMode });
-    case MSG.LIST_ENGAGEMENTS:
-      return listEngagements(req.formId);
     case MSG.LOAD_ENGAGEMENT:
       if (await runner.isRunLive()) return Err('internal', 'A run is in progress. Stop it before loading another engagement.');
       return loadEngagement(req);

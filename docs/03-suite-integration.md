@@ -1,5 +1,9 @@
 # 03 — VCFO Suite integration
 
+> **Superseded for the inbound path (2026-09-23).** Suite exposes
+> `GET /api/engagements/{id}/assist-profile` (see `docs/00-profile-contract.md`), not the
+> list and export endpoints below. The bundle and the result post are unchanged.
+
 Two paths into the extension, one path back. Both inbound paths produce the same
 validated object, so the engine never knows which was used.
 
