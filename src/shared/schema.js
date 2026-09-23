@@ -51,6 +51,9 @@
  * @property {string | boolean} [value] check — desired state
  * @property {string} [pattern]    waitForUrl — RegExp source
  * @property {string} [url]        navigate — absolute URL on https://www.mca.gov.in only
+ * @property {boolean} [optional]  click — wait up to timeoutMs for the target; if it never
+ *   appears, continue. The guard still checks it when it does.
+ * @property {number} [settleMs]   waitFor — once found, wait for the page to go quiet this long
  * @property {number} [timeoutMs]  waits
  * @property {string} [message]    assert, humanGate
  * @property {string} [reason]     halt

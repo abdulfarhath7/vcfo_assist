@@ -413,3 +413,19 @@ the `.example` stubs load in development mode only.
 - Left out: the live test (Suite open, one button, log in, Continue, watch Part A fill)
   is for the human — `docs/consolidation/docs/06-acceptance.md`.
 - `npm run check`: pass. Not loaded in Chrome.
+
+## 2026-09-23 — Owner answers Q31–Q43 applied
+- Built: Q36 `click` step `optional` (wait `timeoutMs`, click if shown — guarded — else
+  a logged skip); Part A / B recipes close `#okInfoModalBtn` if it shows. Q39 `waitFor`
+  `settleMs`; Part A waits on `type-of-company` (seen rendered in the capture), the
+  other five on `#guideContainer-rootPanel__` + 400 ms settle. Q38 `FORMS` = Part A
+  only. Q37 / Q42 panel 5 hidden: stages end at the gate, which records "I have
+  submitted" then offers "Done — start another". Q41 a detected Suite engagement is
+  loaded at once and confirmed by Suite's `companyName`; Start uses it. Q44 records the
+  owner's notes on INC-9 (unwritten bindings), Part B's 50 fragile selectors and
+  Part A's 7 / 42.
+- Files: `src/engine/ops/{click,waitFor}.js`, `src/engine/loader.js`,
+  `src/shared/{constants,schema}.js`, `src/sidepanel/{panel.js,views/import.js,views/human-gate.js}`,
+  `src/worker.js`, `tools/build-fieldmaps.mjs`, `recipes/*.json`, `QUESTIONS.md`
+- Left out: INC-9 bindings and Part B re-capture (Q44).
+- `npm run check`: pass. Not loaded in Chrome.

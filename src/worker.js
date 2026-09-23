@@ -238,6 +238,15 @@ async function openMcaTab() {
 async function startPartA(typedId) {
   const origin = await getSuiteOrigin();
   let engagementId = (typedId ?? '').trim();
+  const loadedAlready = /** @type {SuitePayload | null} */ (await sessionGet(SESSION_KEYS.ENGAGEMENT));
+  if (!engagementId && loadedAlready) {
+    // Loaded and confirmed by name on panel 1: start it as it is.
+    const prepared = await prepareForm(PART_A);
+    if (!prepared.ok) return prepared;
+    const mca = await openMcaTab();
+    if (!mca.ok) return mca;
+    return Ok({ mcaTabId: mca.value });
+  }
   if (origin !== '' && !engagementId) {
     const open = await detectSuiteEngagement(origin);
     if (!open) return Err('validation', `No engagement is open in a ${origin} tab. Open it in VCFO Suite, or enter its id or slug.`);

@@ -220,6 +220,14 @@ function readStep(p, raw, path) {
     case 'assert': {
       const selector = p.string(raw, 'selector', `${path}.selector`);
       if (selector !== undefined) step.selector = selector;
+      if (op === 'click' && raw.optional !== undefined) {
+        const optional = p.bool(raw, 'optional', `${path}.optional`);
+        if (optional) step.optional = true;
+      }
+      if (op === 'waitFor' && raw.settleMs !== undefined) {
+        const settleMs = p.int(raw, 'settleMs', `${path}.settleMs`);
+        if (settleMs !== undefined) step.settleMs = settleMs;
+      }
       if (op === 'assert') {
         const message = p.string(raw, 'message', `${path}.message`);
         if (message !== undefined) step.message = message;

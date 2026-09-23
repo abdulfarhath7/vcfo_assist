@@ -310,7 +310,7 @@ default, record it, keep building. The human answers after the build.
 - **Default chosen:** see the P4 entry — the first mandatory field's `guideFieldNode`.
 - **Alternative:** wait on the AEM `guideContainer` root, which may exist before the
   form's fields render.
-- **Answer:**
+- **Answer:** Rolled into Q39. Keep (owner, 2026-09-23).
 
 ## Q32 — Unbound schema fields (consolidation pack Q2)
 - **Context:** many captured fields have no `mapping.js` binding, especially Part B.
@@ -318,7 +318,7 @@ default, record it, keep building. The human answers after the build.
   visible and bindable later without a recapture. Panel 2 counts them but does not
   list them; the engine never fills them.
 - **Alternative:** omit them, keeping the field maps small.
-- **Answer:**
+- **Answer:** Keep — binding later needs no recapture (owner, 2026-09-23).
 
 ## Q33 — Part A has 42 entries, not ~105
 - **Context:** the acceptance list expects ~105 entries for Part A. `schemas-full`
@@ -328,7 +328,7 @@ default, record it, keep building. The human answers after the build.
   map would be a click target with no guard context; text blocks take no value. The
   per-form summary prints what was left out and why.
 - **Alternative:** list every node, with non-inputs marked unfillable.
-- **Answer:**
+- **Answer:** Keep — 105 counted text blocks and buttons (owner, 2026-09-23).
 
 ## Q34 — mapping.js keys were truncated
 - **Context:** eight bindings in `legacy/extension/lib/mapping.js` (four in Part B, four
@@ -339,7 +339,7 @@ default, record it, keep building. The human answers after the build.
 - **Default chosen:** corrected the eight keys in mapping.js to the captured names (the
   file stays the authority, now a correct one). Logged in `legacy/README.md`.
 - **Alternative:** an alias table in the generator, leaving mapping.js untouched.
-- **Answer:**
+- **Answer:** Keep; the fix is recorded in `legacy/README.md` (owner, 2026-09-23).
 
 ## Q35 — OTP inputs in the capture
 - **Context:** Part B and AGILE-PRO-S have OTP entry fields (`enterOTP_Mobile_4A`,
@@ -347,7 +347,7 @@ default, record it, keep building. The human answers after the build.
 - **Default chosen:** the generator leaves them out (counted in the summary) and would
   stop if mapping.js ever bound one.
 - **Alternative:** none — OTP is the lead's.
-- **Answer:**
+- **Answer:** Keep — non-negotiable (owner, 2026-09-23).
 
 ## Q36 — The SPICe+ information pop-up is no longer clicked
 - **Context:** the earlier Part A recipe waited for and clicked `#okInfoModalBtn`. The
@@ -357,7 +357,7 @@ default, record it, keep building. The human answers after the build.
   block them; the lead closes it. If it turns out to block the form's scripts, add the
   captured `#okInfoModalBtn` click back after the navigate step.
 - **Alternative:** keep the captured click (fails the run if MCA stops showing it).
-- **Answer:**
+- **Answer:** Changed (owner, 2026-09-23): put back as a conditional step — short wait, click if present, continue if not; an info modal is not a danger control. Built: `click` takes `optional: true` + `timeoutMs`; absent after the wait is a logged skip, present it still faces the guard. Part A and Part B recipes carry `#okInfoModalBtn` optional (5s) after `navigate`.
 
 ## Q37 — The result-recipe stub is gone
 - **Context:** "no `.example` file remains in `recipes/`". The return leg (read the SRN
@@ -366,14 +366,14 @@ default, record it, keep building. The human answers after the build.
 - **Default chosen:** deleted. Panel 5's "Read SRN" now reports that no result recipe
   exists for the form. Capture the post-submit page to write a real one.
 - **Alternative:** keep the stub as an exception.
-- **Answer:**
+- **Answer:** Changed (owner, 2026-09-23): deleting was right; the Read SRN control goes too. Built: with Q42, panel 5 (and its Read SRN button) is no longer reachable.
 
 ## Q38 — Forms other than Part A are enabled
 - **Context:** recipes and maps now exist for all six forms; only Part A must work first.
 - **Default chosen:** all six are selectable in panel 1, labelled "not yet tried on the
   portal" (INC-9: "nothing bound yet"). The one button runs Part A only.
 - **Alternative:** keep them disabled until each is exercised.
-- **Answer:**
+- **Answer:** Changed (owner, 2026-09-23): show only Part A. Built: `FORMS` lists Part A only; the other five recipes and maps stay generated in the package but are not offered.
 
 ## Q39 — waitFor targets per form (answers Q31)
 - **Default chosen:** the first mandatory captured input outside a repeat panel,
@@ -382,7 +382,7 @@ default, record it, keep building. The human answers after the build.
   `tableApplicableToCompany`, INC-34 `serial_number`, INC-9
   `nonIndSubWithPANDeclaration1` (may be conditional; INC-9 is unbound anyway). No
   stable `guideContainer` id was used: it can exist before the fields render.
-- **Answer:**
+- **Answer:** Changed (owner, 2026-09-23): first mandatory field that is unconditionally visible; where unsure, the guide container plus a 400 ms settle. Built: Part A waits on `.guideFieldNode.type-of-company` (clicked on a freshly loaded form in the capture). The other five wait on the captured AEM root panel `#guideContainer-rootPanel__` with `settleMs: 400` (new `waitFor` option: once found, wait for the page to be quiet that long).
 
 ## Q40 — Where the login gate lives
 - **Context:** the one-button flow pauses for the lead to log in before the recipe runs,
@@ -393,7 +393,7 @@ default, record it, keep building. The human answers after the build.
   login. Recipes stay free of humanGate.
 - **Alternative:** a `humanGate` as the recipe's first step (the precondition would then
   have to move after it).
-- **Answer:**
+- **Answer:** Keep — UI state, not a portal step (owner, 2026-09-23).
 
 ## Q41 — Preselecting the engagement from an open Suite tab
 - **Context:** "parse the engagement id or slug from its URL and preselect it; show the
@@ -403,7 +403,7 @@ default, record it, keep building. The human answers after the build.
   title as the confirmation; after Start, the engagement card shows the profile's
   `companyName`. A typed id or slug is offered only when no such tab is open. No picker.
 - **Alternative:** load the profile on detection to show `companyName` before Start.
-- **Answer:**
+- **Answer:** Changed (owner, 2026-09-23): confirm with `companyName` from the fetched payload, not the tab title. Built: when a Suite engagement tab is found, panel 1 loads its profile at once (read-only) and shows Suite's company name; Start then uses that loaded engagement. The tab title is no longer shown.
 
 ## Q42 — Every Suite request runs in a Suite tab, including the result post
 - **Context:** the pack requires the profile fetch to run inside a Suite tab. The
@@ -414,10 +414,26 @@ default, record it, keep building. The human answers after the build.
   extension origin. (The result endpoint still does not exist in Suite, Q29.)
 - **Alternative:** the ISOLATED world, which Chrome also treats as same-origin for
   fetch; MAIN is the page's own `fetch`, with no doubt about cookies.
-- **Answer:**
+- **Answer:** Changed (owner, 2026-09-23): drop the return leg; hide panel 5 until Suite has the route. Built: `STAGES` ends at the Sign / pay / file gate; after "I have submitted" the gate shows "Recorded" and offers "Done — start another" (reset). The capture view, `captureResult` and `postResult` stay in the tree, unreachable.
 
 ## Q43 — Offered Suite origins
 - **Default chosen:** panel 1 offers `https://app.sbctrack.in` and
   `http://localhost:3000` as one-click choices. Each still triggers the permission
   prompt for that origin on save; nothing is granted at install.
+- **Answer:** Keep (owner, 2026-09-23).
+
+## Q44 — Field-count follow-ups (owner notes, 2026-09-23)
+- **Context:** from the generator summary.
+  - INC-9: 0 of 161 bound — it fills nothing. `mapping.js` never had INC-9 bindings,
+    so the old build did not fill it either. Suite holds the data as director records:
+    these are unwritten bindings, not missing data.
+  - Part B: 50 fragile selectors. Not urgent while Part B is not offered, but each is
+    a field resolved by position among repeated classes — the kind that can fill the
+    wrong box silently.
+  - Part A: 7 of 42 bound is correct: type, class, category, sub-category, NIC and
+    two proposed names. Nothing to fix.
+- **Default chosen:** recorded, not built. INC-9 bindings are the next mapping work
+  (add them to `mapping.js`, then regenerate). Part B's fragile entries need a
+  re-capture with repeat blocks populated before Part B is offered.
+- **Alternative:** —
 - **Answer:**

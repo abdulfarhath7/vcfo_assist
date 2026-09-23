@@ -118,7 +118,7 @@ async function activeTabId() {
  * @returns {Stage}
  */
 function maxStage(s) {
-  if (s.captured || (s.run && s.run.status === 'halted' && s.run.submittedByHuman)) return 'capture';
+  if (s.run && s.run.status === 'halted' && s.run.submittedByHuman) return 'gate';
   if (s.run && s.run.status === 'halted') {
     const mismatches = s.run.diff ? s.run.diff.mismatches.length : 0;
     return mismatches === 0 || s.run.mismatchOverride ? 'gate' : 'autofill';
@@ -134,9 +134,8 @@ function maxStage(s) {
  * @returns {Stage}
  */
 function deriveStage(s) {
-  if (s.captured) return 'capture';
   if (s.run) {
-    if (s.run.status === 'halted' && s.run.submittedByHuman) return 'capture';
+    if (s.run.status === 'halted' && s.run.submittedByHuman) return 'gate';
     return 'autofill';
   }
   if (s.prepared && s.verifyRows && s.engagement) return 'verify';
@@ -160,7 +159,7 @@ function clampStage() {
   // A run that exists always pulls the panel to at least Autofill, so the
   // lead sees the step list rather than a stale earlier panel.
   if (snap.run && cmp(ui.stage, 'autofill') < 0) ui.stage = 'autofill';
-  if (!snap.engagement && !snap.run && !snap.captured) ui.stage = 'import';
+  if (!snap.engagement && !snap.run) ui.stage = 'import';
 }
 
 /**

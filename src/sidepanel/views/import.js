@@ -187,7 +187,7 @@ function formCard(ctx) {
     h('div', { class: 'field' },
       h('label', { for: 'form' }, 'Which form to fill'),
       select,
-      locked ? h('span', { class: 'hint' }, 'Change the engagement to pick a different form.') : h('span', { class: 'hint' }, 'SPICe+ Part A has been built for first; the other forms are generated from the same capture.'),
+      locked ? h('span', { class: 'hint' }, 'Change the engagement to pick a different form.') : h('span', { class: 'hint' }, 'Only SPICe+ Part A is offered until it has filled a real form.'),
     ),
   );
 }
@@ -256,13 +256,40 @@ function gapsCard(ctx) {
  * @param {ViewContext} ctx
  */
 function detectOnce(ctx) {
-  if (local.detected !== undefined || local.detecting || ctx.snap.suiteOrigin === '') return;
+  if (local.detected !== undefined || local.detecting || ctx.snap.suiteOrigin === '' || ctx.snap.engagement) return;
   local.detecting = true;
-  void ctx.request({ type: MSG.DETECT_SUITE_ENGAGEMENT }).then((r) => {
+  void ctx.request({ type: MSG.DETECT_SUITE_ENGAGEMENT }).then(async (r) => {
+    /** @type {{ engagementId: string, tabId: number, title: string } | null} */
+    const found = r.ok ? /** @type {any} */ (r.value) : null;
+    local.detected = found;
+    // Confirm by the company name Suite returns, not the tab title (titles go
+    // stale): load the profile for the open engagement straight away.
+    if (found) await loadForStart(ctx, found.engagementId);
     local.detecting = false;
-    local.detected = r.ok ? /** @type {typeof local.detected} */ (r.value) : null;
     ctx.rerender();
   });
+}
+
+/**
+ * Load the Part A profile for an engagement so the panel can show Suite's
+ * company name before Start. Read-only; nothing is opened on MCA yet.
+ * @param {ViewContext} ctx
+ * @param {string} engagementId
+ * @returns {Promise<void>}
+ */
+async function loadForStart(ctx, engagementId) {
+  ctx.setError(null);
+  local.suiteTabId = null;
+  ctx.setBusy(true);
+  const r = await ctx.request({ type: MSG.LOAD_ENGAGEMENT, source: 'suite', formId: 'spice-part-a', engagementId });
+  ctx.setBusy(false);
+  if (!r.ok) {
+    const tabId = r.error.details?.tabId;
+    if (r.error.class === 'auth' && typeof tabId === 'number') local.suiteTabId = tabId;
+    ctx.setError(r.error);
+    return;
+  }
+  await ctx.refresh();
 }
 
 /**
@@ -274,7 +301,8 @@ async function startPartA(ctx) {
   ctx.setError(null);
   local.suiteTabId = null;
   ctx.setBusy(true);
-  const typed = local.detected ? '' : local.startId.trim();
+  // An engagement already loaded (and confirmed by name) is the one started.
+  const typed = ctx.snap.engagement ? '' : local.startId.trim();
   const r = await ctx.request({ type: MSG.START_PART_A, engagementId: typed || undefined });
   ctx.setBusy(false);
   if (!r.ok) {
@@ -332,21 +360,23 @@ function startCard(ctx) {
 
   detectOnce(ctx);
   const fixture = snap.suiteOrigin === '';
+  /** @type {{ engagementId: string, tabId: number, title: string } | null | undefined} */
   const found = local.detected;
   /** @type {HTMLElement} */
   let which;
-  if (fixture) {
+  if (snap.engagement) {
+    which = h('p', null, 'Fill SPICe+ Part A for ', h('strong', null, snap.engagement.companyName), ', as named by VCFO Suite above.');
+  } else if (fixture) {
     which = h('p', { class: 'muted' }, 'No Suite origin is set: the development fixture is used.');
-  } else if (found) {
-    which = h('div', { class: 'stack stack--tight' },
-      h('p', null, 'VCFO Suite is open on ', h('strong', null, found.title || found.engagementId)),
-      h('div', { class: 'meta' }, found.engagementId),
-    );
+  } else if (found && local.detecting) {
+    which = h('p', { class: 'muted' }, `Loading ${found.engagementId} from VCFO Suite…`);
   } else {
     which = h('div', { class: 'stack stack--tight' },
-      h('p', { class: 'muted' }, !local.detecting && found === null
-        ? `No engagement is open in a ${snap.suiteOrigin} tab. Open it in VCFO Suite, or enter its id or slug.`
-        : 'Looking for an engagement open in VCFO Suite…'),
+      h('p', { class: 'muted' }, local.detecting
+        ? 'Looking for an engagement open in VCFO Suite…'
+        : found
+          ? `${found.engagementId} could not be loaded (see the message above). Enter another id or slug, or fix it in Suite and look again.`
+          : `No engagement is open in a ${snap.suiteOrigin} tab. Open it in VCFO Suite, or enter its id or slug.`),
       h('div', { class: 'field' },
         h('label', { for: 'start-id' }, 'Engagement id or slug'),
         h('input', {
@@ -527,8 +557,8 @@ export function render(root, ctx) {
     h('h2', { class: 'panel__title' }, 'Import'),
     h('p', { class: 'panel__lede' }, 'One button for SPICe+ Part A. Assist reads the data; you log in and submit.'),
     sourceCard(ctx),
-    ctx.snap.engagement && local.gateTabId === null ? null : startCard(ctx),
     ctx.snap.engagement ? engagementCard(ctx) : null,
+    startCard(ctx),
     gapsCard(ctx),
     ctx.snap.engagement ? null : formCard(ctx),
     ctx.snap.engagement ? null : engagementCard(ctx),

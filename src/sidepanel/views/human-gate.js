@@ -37,7 +37,9 @@ export function render(root, ctx) {
         h('div', null, h('div', null, h('strong', null, title)), h('div', { class: 'muted' }, detail)),
       ))),
     ),
-    h('p', { class: 'muted' }, 'When the portal has accepted the filing, press "I have submitted" below. That records your action; it does not submit anything.'),
+    ctx.snap.run && ctx.snap.run.submittedByHuman
+      ? h('div', { class: 'banner banner--success' }, h('strong', null, 'Recorded'), 'Nothing is sent back to VCFO Suite yet: record the SRN in Suite yourself.')
+      : h('p', { class: 'muted' }, 'When the portal has accepted the filing, press "I have submitted" below. That records your action; it does not submit anything.'),
   );
 }
 
@@ -47,6 +49,23 @@ export function render(root, ctx) {
  */
 export function primary(ctx) {
   const run = ctx.snap.run;
+  // Recorded: the return leg (SRN to Suite) is off until Suite has the route,
+  // so the next thing is a clean slate. Reset clears the engagement from session.
+  if (run && run.submittedByHuman) {
+    return {
+      label: 'Done — start another',
+      disabled: false,
+      onClick: async () => {
+        const r = await ctx.request({ type: MSG.RESET });
+        if (!r.ok) {
+          ctx.setError(r.error);
+          return;
+        }
+        await ctx.refresh();
+        ctx.goto('import');
+      },
+    };
+  }
   return {
     label: 'I have submitted',
     disabled: !run || run.status !== 'halted',
@@ -57,7 +76,6 @@ export function primary(ctx) {
         return;
       }
       await ctx.refresh();
-      ctx.goto('capture');
     },
   };
 }

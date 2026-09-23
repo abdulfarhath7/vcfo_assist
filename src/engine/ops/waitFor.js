@@ -23,5 +23,9 @@ export async function run(ctx, step) {
     () => Err('timeout', `Step "${step.label ?? selector}": \`${selector}\` did not appear within ${total / 1000}s`, { selectors: [selector], step: step.label }),
   );
   if (!r.ok) return r;
+  if (step.settleMs) {
+    const settled = await ctx.send('settle', { quietMs: step.settleMs, maxMs: step.settleMs + TIMEOUTS.SETTLE_MAX_MS }, step.settleMs + TIMEOUTS.SETTLE_MAX_MS + TIMEOUTS.SLICE_MARGIN_MS);
+    if (!settled.ok) return settled;
+  }
   return Ok({});
 }

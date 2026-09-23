@@ -20,17 +20,13 @@ export const KNOWN_SUITE_RANGE = Object.freeze({ from: '2026.09.0', to: '2026.12
 export const MCA_ORIGIN_PATTERN = /^https:\/\/www\.mca\.gov\.in\//;
 
 /**
- * Forms the panel can offer, one generated recipe and field map each
- * (tools/build-fieldmaps.mjs). Part A is the one the one-button flow runs; the
- * rest are generated from the same capture but not yet exercised on the portal.
+ * Forms the panel offers. Only SPICe+ Part A until it has filled a real form:
+ * the other five recipes and field maps are generated (tools/build-fieldmaps.mjs)
+ * and ship in the package, but are not offered — a label saying "not yet tried"
+ * would not stop someone trying one (QUESTIONS Q38).
  */
 export const FORMS = Object.freeze([
   Object.freeze({ id: 'spice-part-a', label: 'SPICe+ Part A — name reservation', enabled: true }),
-  Object.freeze({ id: 'spice-part-b', label: 'SPICe+ Part B (not yet tried on the portal)', enabled: true }),
-  Object.freeze({ id: 'agile-pro-s', label: 'AGILE-PRO-S (not yet tried on the portal)', enabled: true }),
-  Object.freeze({ id: 'inc-9', label: 'INC-9 (nothing bound yet)', enabled: true }),
-  Object.freeze({ id: 'inc-33-emoa', label: 'INC-33 e-MoA (not yet tried on the portal)', enabled: true }),
-  Object.freeze({ id: 'inc-34-eaoa', label: 'INC-34 e-AoA (not yet tried on the portal)', enabled: true }),
 ]);
 
 /** chrome.storage.session keys. PII lives only here. */
@@ -100,6 +96,8 @@ export const TIMEOUTS = Object.freeze({
   SUITE_FETCH_MS: 20000,
   /** Widget listbox appearance. */
   WIDGET_OPEN_MS: 5000,
+  /** An optional click (a pop-up MCA shows only sometimes) waits this long before moving on. */
+  OPTIONAL_CLICK_MS: 5000,
   /** A dropdown whose options load after an earlier choice (field map `waitForOptions`). */
   OPTIONS_LOAD_MS: 8000,
 });
@@ -177,5 +175,9 @@ export const BUNDLE = Object.freeze({
   extension: '.vcfoa',
 });
 
-/** The panel's five stages, in order. */
-export const STAGES = Object.freeze(['import', 'verify', 'autofill', 'gate', 'capture']);
+/**
+ * The panel's stages, in order. Capture and return (reading the SRN and posting
+ * it to Suite) is hidden until Suite has a result route (QUESTIONS Q42); its
+ * view stays in the tree, unreachable.
+ */
+export const STAGES = Object.freeze(['import', 'verify', 'autofill', 'gate']);
