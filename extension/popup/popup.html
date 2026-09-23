@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>vCFO Assist</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header>
+    <strong>vCFO Assist</strong> <span class="muted">MCA SPICe+ autofill</span>
+    <span id="status" class="pill">detecting…</span>
+  </header>
+
+  <section id="detect" class="card">
+    <div id="detectInfo" class="muted">Open an MCA form page (SPICe+ Part A/B, AGILE-PRO-S, INC-33/34/9).</div>
+  </section>
+
+  <section class="card">
+    <div class="row">
+      <label for="profile">Client profile (JSON)</label>
+      <span class="grow"></span>
+      <button id="loadSample" class="link">load sample</button>
+      <input type="file" id="fileInput" accept="application/json" hidden>
+      <button id="importBtn" class="link">import file</button>
+    </div>
+    <textarea id="profile" spellcheck="false" placeholder='{"company": {...}, "registeredOffice": {...}, "subscribers": [...]}'></textarea>
+    <div class="row">
+      <button id="save">Save profile</button>
+      <button id="preview">Preview mapping</button>
+      <button id="fill" class="primary">Fill this page</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="row">
+      <button id="scan">Scan values</button>
+      <button id="discover">Discover fields</button>
+      <span class="muted small">Scan = read what the page holds now. Discover = export schema of the current page/section (use on Part B sections 6–10).</span>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="row"><label>Log</label><span class="grow"></span><button id="clear" class="link">clear</button></div>
+    <pre id="log"></pre>
+  </section>
+
+  <script src="popup.js"></script>
+</body>
+</html>

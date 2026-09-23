@@ -1,0 +1,194 @@
+{
+  "$comment": "vCFO client profile for SPICe+ incorporation. Values must match MCA dropdown text exactly where noted. Dates DD/MM/YYYY.",
+  "mcaLogin": {
+    "userId": ""
+  },
+  "company": {
+    "proposedNames": [
+      "EXAMPLE TECHLABS PRIVATE LIMITED",
+      "EXAMPLE TECH SOLUTIONS PRIVATE LIMITED"
+    ],
+    "type": "New Company (Others)",
+    "class": "Private",
+    "category": "Company limited by shares",
+    "subCategory": "Non-government company",
+    "nicCode": "62011",
+    "nicDescription": "Writing, modifying, testing of computer program to meet the needs of a particular client excluding web-page designing",
+    "hasShareCapital": true,
+    "aoaEntrenched": false,
+    "capital": {
+      "authorized": 1000000,
+      "subscribed": 100000,
+      "unclassifiedAuthorized": 0,
+      "equity": {
+        "classes": 1,
+        "className": "Equity",
+        "authorizedShares": 100000,
+        "subscribedShares": 10000,
+        "faceValue": 10
+      },
+      "preference": {
+        "classes": 0
+      }
+    }
+  },
+  "registeredOffice": {
+    "line1": "Plot No 90, Road No 2",
+    "line2": "Banjara Hills",
+    "pincode": "500034",
+    "area": "Banjara Hills",
+    "city": "Khairatabad",
+    "district": "Hyderabad",
+    "state": "Telangana",
+    "country": "India",
+    "countryCode": "+91",
+    "mobile": "9100000000",
+    "email": "office@example.in",
+    "stdCode": "040",
+    "phone": "",
+    "longitude": "78.4438",
+    "latitude": "17.4139",
+    "sameAsCorrespondence": true,
+    "rocOffice": "Registrar of Companies, Hyderabad"
+  },
+  "subscribers": [
+    {
+      "kind": "individual",
+      "isDirector": true,
+      "din": "01234567",
+      "firstName": "Ravi",
+      "surName": "Kumar",
+      "email": "ravi@example.in",
+      "mobile": "9100000001",
+      "designation": "Director",
+      "category": "Promoter",
+      "shares": {
+        "equity": {
+          "class": "Equity",
+          "number": 5000
+        }
+      },
+      "interests": []
+    },
+    {
+      "kind": "individual",
+      "isDirector": true,
+      "din": "",
+      "firstName": "Anita",
+      "middleName": "",
+      "surName": "Sharma",
+      "father": {
+        "firstName": "Mohan",
+        "surName": "Sharma"
+      },
+      "gender": "Female",
+      "dob": "15/08/1990",
+      "nationality": "India",
+      "placeOfBirth": "Hyderabad, Telangana",
+      "citizenOfIndia": true,
+      "residentInIndia": true,
+      "occupationType": "Business",
+      "areaOfOccupation": "Business",
+      "education": "Bachelor's degree",
+      "pan": "ABCPS1234D",
+      "email": "anita@example.in",
+      "mobile": "9100000002",
+      "countryCode": "+91",
+      "permanentAddress": {
+        "line1": "12-3-456, Street 4",
+        "line2": "Jubilee Hills",
+        "country": "India",
+        "pincode": "500033",
+        "area": "Jubilee Hills",
+        "city": "Hyderabad",
+        "district": "Hyderabad",
+        "state": "Telangana",
+        "phone": ""
+      },
+      "presentAddressSame": true,
+      "stayYears": "5",
+      "stayMonths": "2",
+      "identityProof": {
+        "type": "Aadhar Card",
+        "number": "123412341234"
+      },
+      "residentialProof": {
+        "type": "Bank Statement",
+        "number": "XXXX1234"
+      },
+      "designation": "Director",
+      "category": "Promoter",
+      "shares": {
+        "equity": {
+          "class": "Equity",
+          "number": 5000
+        }
+      }
+    }
+  ],
+  "directors": [],
+  "agile": {
+    "applyGstin": false,
+    "establishmentOnLease": true,
+    "leaseFrom": "01/04/2026",
+    "leaseTo": "31/03/2029",
+    "natureOfPossession": "Leased",
+    "proofOfPrincipalPlace": "Rent/ Lease Agreement (RLAT)",
+    "premisesOwnedBy": "Others",
+    "composition": false,
+    "primaryBusinessActivity": "Others",
+    "exactNatureOfWork": "Commercial Establishments",
+    "workSubCategory": "",
+    "natureOfWorkBusiness": "IT services",
+    "numberOfDirectors": 2,
+    "authorizedSignatory": {
+      "name": "Ravi Kumar",
+      "din": "01234567",
+      "mobile": "9100000001",
+      "email": "ravi@example.in"
+    },
+    "otherDirectors": [
+      {
+        "name": "Anita Sharma",
+        "mobile": "9100000002",
+        "email": "anita@example.in"
+      }
+    ],
+    "policeStation": "Banjara Hills",
+    "esicBranchOffice": "",
+    "esicInspectionDivision": "",
+    "bankName": "HDFC Bank",
+    "declarations": {
+      "gst": true,
+      "esic": true,
+      "pt": false,
+      "epfo": true,
+      "bank": true
+    },
+    "declarationPlace": "Hyderabad",
+    "declarationDate": "23/09/2026"
+  },
+  "moa": {
+    "table": "A - MEMORANDUM OF ASSOCIATION OF A COMPANY LIMITED BY SHARES",
+    "objects": "To carry on the business of software development, IT consulting and related services in India and abroad.",
+    "mattersNecessary": "To do all such other things as are incidental or conducive to the attainment of the above objects.",
+    "windingUpContribution": 0,
+    "witness": {
+      "name": "Suresh Rao",
+      "sonDaughter": "Son",
+      "parentName": "Rama Rao",
+      "address": "Hyderabad",
+      "age": 45,
+      "membershipType": "FCA"
+    }
+  },
+  "aoa": {
+    "table": "Table F",
+    "witness": {
+      "name": "Suresh Rao",
+      "addressDescriptionOccupation": "Chartered Accountant, Hyderabad",
+      "dinPanMembership": "123456",
+      "place": "Hyderabad"
+    }
+  }
+}

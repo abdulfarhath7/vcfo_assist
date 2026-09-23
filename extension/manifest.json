@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "vCFO Assist - MCA SPICe+ Autofill",
+  "version": "0.1.0",
+  "description": "Fills MCA V3 SPICe+ incorporation forms (Part A, Part B, AGILE-PRO-S, INC-33, INC-34, INC-9) from a vCFO client profile.",
+  "permissions": ["storage", "activeTab", "scripting"],
+  "host_permissions": ["https://www.mca.gov.in/*"],
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_title": "vCFO Assist"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.mca.gov.in/*"],
+      "js": ["lib/mapping.js", "content/filler.js"],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["schemas/*.json"],
+      "matches": ["https://www.mca.gov.in/*"]
+    }
+  ]
+}
