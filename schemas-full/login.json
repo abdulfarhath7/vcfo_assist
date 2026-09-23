@@ -1,0 +1,755 @@
+{
+ "form": "login",
+ "url": "https://www.mca.gov.in/content/mca/global/en/foportal/fologin.html",
+ "fieldCount": 41,
+ "fields": [
+  {
+   "id": "guideContainer-rootPanel-guidetextdraw__",
+   "key": "formHeadingWithIcon",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "formHeadingWithIcon"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1846244155-guidetextdraw_1681503744__",
+   "key": "userIdNameText",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "userIdNameText",
+    "userID-Name-info",
+    "validation-success"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1846244155-guidetextdraw_1224942838__",
+   "key": "userIDText",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "userIDText",
+    "userID-textbox-info",
+    "validation-success"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1846244155-guidetextbox__",
+   "key": "userID",
+   "label": "",
+   "type": "guideTextBox",
+   "semantic": [
+    "userID",
+    "user-id-input",
+    "validation-success"
+   ],
+   "mandatory": true,
+   "disabled": false,
+   "widget": {
+    "tag": "input",
+    "id": "guideContainer-rootPanel-panel_1846244155-guidetextbox___widget",
+    "name": "guideContainer-rootPanel-panel_1846244155-guidetextbox___jqName",
+    "type": "text",
+    "maxlength": "50"
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1846244155-guidetextdraw_1022771863__",
+   "key": "forgotUserIDLink",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "forgotUserIDLink",
+    "forgot-user-id-link",
+    "validation-success"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1846244155-guidepasswordbox__",
+   "key": "password",
+   "label": "Password",
+   "type": "guidePasswordBox",
+   "semantic": [
+    "password",
+    "password-input",
+    "validation-success"
+   ],
+   "mandatory": true,
+   "disabled": false,
+   "widget": {
+    "tag": "input",
+    "id": "guideContainer-rootPanel-panel_1846244155-guidepasswordbox___widget",
+    "name": "guideContainer-rootPanel-panel_1846244155-guidepasswordbox___jqName",
+    "type": "password"
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1846244155-guidetextdraw_1738945886__",
+   "key": "forgotPasswordLink",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "forgotPasswordLink",
+    "forgot-password-link",
+    "validation-success"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1846244155-guidetextdraw_167730747__",
+   "key": "loginErrorText",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "loginErrorText"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1846244155-submit__",
+   "key": "loginBtn",
+   "label": "",
+   "type": "guideButton",
+   "semantic": [
+    "loginBtn",
+    "primary-btn",
+    "login-btn",
+    "validation-success"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {
+    "tag": "button",
+    "id": "guideContainer-rootPanel-panel_1846244155-submit___widget",
+    "name": "guideContainer-rootPanel-panel_1846244155-submit___jqName",
+    "type": "submit"
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1846244155-guidetextdraw_151104803__",
+   "key": "formnames",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "formnames",
+    "userID-textbox-info",
+    "validation-success"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1846244155-submit_2093963653__",
+   "key": "registerBtn",
+   "label": "",
+   "type": "guideButton",
+   "semantic": [
+    "registerBtn",
+    "secondary-btn",
+    "register-btn",
+    "validation-success"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {
+    "tag": "button",
+    "id": "guideContainer-rootPanel-panel_1846244155-submit_2093963653___widget",
+    "name": "guideContainer-rootPanel-panel_1846244155-submit_2093963653___jqName",
+    "type": "submit"
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1846244155-guidetextdraw_1111783335__",
+   "key": "loginCompanyText",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "loginCompanyText"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1846244155-submit_copy__",
+   "key": "companybutton",
+   "label": "",
+   "type": "guideButton",
+   "semantic": [
+    "companybutton",
+    "primary-btn",
+    "login-btn"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {
+    "tag": "button",
+    "id": "guideContainer-rootPanel-panel_1846244155-submit_copy___widget",
+    "name": "guideContainer-rootPanel-panel_1846244155-submit_copy___jqName",
+    "type": "submit"
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1846244155-guidetextdraw_122494__",
+   "key": "staticMessage_activeSession",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "staticMessage_activeSession",
+    "userID-textbox-info",
+    "validation-success"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1260208513-panel_238048220-panel-guidetextdraw__",
+   "key": "passwordUpdatedMessage",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "passwordUpdatedMessage"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1260208513-panel_238048220-panel-nextitemnav__",
+   "key": "passwordUpdatedMessageButton",
+   "label": "",
+   "type": "guideButton",
+   "semantic": [
+    "passwordUpdatedMessageButton"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {
+    "tag": "button",
+    "id": "guideContainer-rootPanel-panel_1260208513-panel_238048220-panel-nextitemnav___widget",
+    "name": "guideContainer-rootPanel-panel_1260208513-panel_238048220-panel-nextitemnav___jqName",
+    "type": "button"
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1260208513-panel1616149598607-panel-panel_1985138084-panel-guidetextdraw__",
+   "key": "otpText",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "otpText"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1260208513-panel1616149598607-panel-panel_1985138084-panel-guidetextbox__",
+   "key": "OTPField",
+   "label": "Please enter the OTP:",
+   "type": "guideTextBox",
+   "semantic": [
+    "OTPField"
+   ],
+   "mandatory": true,
+   "disabled": false,
+   "widget": {
+    "tag": "input",
+    "id": "guideContainer-rootPanel-panel_1260208513-panel1616149598607-panel-panel_1985138084-panel-guidetextbox___widget",
+    "name": "guideContainer-rootPanel-panel_1260208513-panel1616149598607-panel-panel_1985138084-panel-guidetextbox___jqName",
+    "type": "text",
+    "maxlength": "4"
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1260208513-panel1616149598607-panel-panel_1985138084-panel-nextitemnav__",
+   "key": "confirmOTP",
+   "label": "",
+   "type": "guideButton",
+   "semantic": [
+    "confirmOTP",
+    "confirmOTP"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {
+    "tag": "button",
+    "id": "guideContainer-rootPanel-panel_1260208513-panel1616149598607-panel-panel_1985138084-panel-nextitemnav___widget",
+    "name": "guideContainer-rootPanel-panel_1260208513-panel1616149598607-panel-panel_1985138084-panel-nextitemnav___jqName",
+    "type": "button"
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1260208513-panel1616149598607-panel-panel_1985138084-panel-previtemnav__",
+   "key": "cancelOTP",
+   "label": "",
+   "type": "guideButton",
+   "semantic": [
+    "cancelOTP"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {
+    "tag": "button",
+    "id": "guideContainer-rootPanel-panel_1260208513-panel1616149598607-panel-panel_1985138084-panel-previtemnav___widget",
+    "name": "guideContainer-rootPanel-panel_1260208513-panel1616149598607-panel-panel_1985138084-panel-previtemnav___jqName",
+    "type": "button"
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1260208513-panel1616149598607-panel-panel_1985138084-panel-guidetextdraw_945554_73539956__",
+   "key": "timer_text",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "timer_text"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1260208513-panel1616149598607-panel-panel_1985138084-panel-guidetextdraw_134700_1844882933__",
+   "key": "resend_text",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "resend_text"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1260208513-panel1616149598607-panel-panel_1985138084-panel-guidetextdraw_1327577491__",
+   "key": "IncorrectOTPtext",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "IncorrectOTPtext"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1260208513-panel1616149598607-panel-panel-previtemnav_24539204__",
+   "key": "previtemnav_2453920441619434125258__1",
+   "label": "",
+   "type": "guideButton",
+   "semantic": [
+    "previtemnav_2453920441619434125258"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {
+    "tag": "button",
+    "id": "guideContainer-rootPanel-panel_1260208513-panel1616149598607-panel-panel-previtemnav_24539204___widget",
+    "name": "guideContainer-rootPanel-panel_1260208513-panel1616149598607-panel-panel-previtemnav_24539204___jqName",
+    "type": "button"
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1260208513-panel1616149598607-panel1614245041416-panel_1594807323-panel-guidetextdraw_copy__",
+   "key": "old_password_text",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "old_password_text"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1260208513-panel1616149598607-panel1614245041416-panel_1594807323-panel-guidetextbox_copy__",
+   "key": "Old_password_textbox",
+   "label": "",
+   "type": "guidePasswordBox",
+   "semantic": [
+    "Old_password_textbox"
+   ],
+   "mandatory": true,
+   "disabled": false,
+   "widget": {
+    "tag": "input",
+    "id": "guideContainer-rootPanel-panel_1260208513-panel1616149598607-panel1614245041416-panel_1594807323-panel-guidetextbox_copy___widget",
+    "name": "guideContainer-rootPanel-panel_1260208513-panel1616149598607-panel1614245041416-panel_1594807323-panel-guidetextbox_copy___jqName",
+    "type": "password",
+    "placeholder": "**********"
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1260208513-panel1616149598607-panel1614245041416-panel_1594807323-panel-guidetextdraw_363482__",
+   "key": "textdraw1614245537512",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "textdraw1614245537512"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1260208513-panel1616149598607-panel1614245041416-panel_1594807323-panel-guidepasswordbox__",
+   "key": "newPassword",
+   "label": "",
+   "type": "guidePasswordBox",
+   "semantic": [
+    "newPassword"
+   ],
+   "mandatory": true,
+   "disabled": false,
+   "widget": {
+    "tag": "input",
+    "id": "guideContainer-rootPanel-panel_1260208513-panel1616149598607-panel1614245041416-panel_1594807323-panel-guidepasswordbox___widget",
+    "name": "guideContainer-rootPanel-panel_1260208513-panel1616149598607-panel1614245041416-panel_1594807323-panel-guidepasswordbox___jqName",
+    "type": "password",
+    "placeholder": "**********"
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1260208513-panel1616149598607-panel1614245041416-panel_1594807323-panel-guidetextdraw_279801__",
+   "key": "textdraw_2798010021614767381810",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "textdraw_2798010021614767381810"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1260208513-panel1616149598607-panel1614245041416-panel_1594807323-panel-guidetextdraw_170594__",
+   "key": "textdraw_1705941881614245772427",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "textdraw_1705941881614245772427"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1260208513-panel1616149598607-panel1614245041416-panel_1594807323-panel-guidepasswordbox_867__",
+   "key": "confirmPasswordBox",
+   "label": "",
+   "type": "guidePasswordBox",
+   "semantic": [
+    "confirmPasswordBox"
+   ],
+   "mandatory": true,
+   "disabled": false,
+   "widget": {
+    "tag": "input",
+    "id": "guideContainer-rootPanel-panel_1260208513-panel1616149598607-panel1614245041416-panel_1594807323-panel-guidepasswordbox_867___widget",
+    "name": "guideContainer-rootPanel-panel_1260208513-panel1616149598607-panel1614245041416-panel_1594807323-panel-guidepasswordbox_867___jqName",
+    "type": "password",
+    "placeholder": "**********"
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1260208513-panel1616149598607-panel1614245041416-panel_1594807323-guidetextdraw__",
+   "key": "passwordPolicies",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "passwordPolicies"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1260208513-panel1616149598607-panel1614245041416-panel_1594807323-nextitemnav__",
+   "key": "confirmPasswordButton",
+   "label": "",
+   "type": "guideButton",
+   "semantic": [
+    "confirmPasswordButton"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {
+    "tag": "button",
+    "id": "guideContainer-rootPanel-panel_1260208513-panel1616149598607-panel1614245041416-panel_1594807323-nextitemnav___widget",
+    "name": "guideContainer-rootPanel-panel_1260208513-panel1616149598607-panel1614245041416-panel_1594807323-nextitemnav___jqName",
+    "type": "button"
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1260208513-panel1616149598607-panel1614245041416-panel-previtemnav_24539204__",
+   "key": "previtemnav_2453920441619434125258__2",
+   "label": "",
+   "type": "guideButton",
+   "semantic": [
+    "previtemnav_2453920441619434125258"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {
+    "tag": "button",
+    "id": "guideContainer-rootPanel-panel_1260208513-panel1616149598607-panel1614245041416-panel-previtemnav_24539204___widget",
+    "name": "guideContainer-rootPanel-panel_1260208513-panel1616149598607-panel1614245041416-panel-previtemnav_24539204___jqName",
+    "type": "button"
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-modal_container_copy-panel-guidetextdraw__",
+   "key": "infoMsg1",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "infoMsg1"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-modal_container_copy-panel_copy_copy-guidetextdraw__",
+   "key": "infoMsg2",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "infoMsg2"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-modal_container_copy-panel_copy-guidetextdraw__",
+   "key": "infoMsg3",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "infoMsg3"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-modal_container_copy-nextitemnav_copy_cop__",
+   "key": "killSession",
+   "label": "",
+   "type": "guideButton",
+   "semantic": [
+    "killSession",
+    "btn-theme-primary"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {
+    "tag": "button",
+    "id": "guideContainer-rootPanel-modal_container_copy-nextitemnav_copy_cop___widget",
+    "name": "guideContainer-rootPanel-modal_container_copy-nextitemnav_copy_cop___jqName",
+    "type": "button"
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-modal_container_copy-nextitemnav_copy__",
+   "key": "okButton",
+   "label": "",
+   "type": "guideButton",
+   "semantic": [
+    "okButton",
+    "btn-theme-primary"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {
+    "tag": "button",
+    "id": "guideContainer-rootPanel-modal_container_copy-nextitemnav_copy___widget",
+    "name": "guideContainer-rootPanel-modal_container_copy-nextitemnav_copy___jqName",
+    "type": "button"
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-modal_container_copy_984288898-panel-guidetextdraw__",
+   "key": "crossButtonCaptcha",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "crossButtonCaptcha"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-modal_container_copy_984288898-nextitemnav_copy__",
+   "key": "submitCaptcha",
+   "label": "",
+   "type": "guideButton",
+   "semantic": [
+    "submitCaptcha",
+    "btn-theme-primary"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {
+    "tag": "button",
+    "id": "guideContainer-rootPanel-modal_container_copy_984288898-nextitemnav_copy___widget",
+    "name": "guideContainer-rootPanel-modal_container_copy_984288898-nextitemnav_copy___jqName",
+    "type": "button"
+   },
+   "panels": [],
+   "panelIds": []
+  }
+ ],
+ "buttons": [
+  {
+   "id": "guideContainer-rootPanel-panel_1846244155-submit___widget",
+   "text": "Login"
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1846244155-submit_2093963653___widget",
+   "text": "Register"
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1846244155-submit_copy___widget",
+   "text": "Login to access V2 VPD"
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1260208513-panel_238048220-panel-nextitemnav___widget",
+   "text": "OK"
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1260208513-panel1616149598607-panel-panel_1985138084-panel-nextitemnav___widget",
+   "text": "Confirm"
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1260208513-panel1616149598607-panel-panel_1985138084-panel-previtemnav___widget",
+   "text": "Cancel"
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1260208513-panel1616149598607-panel-panel-previtemnav_24539204___widget",
+   "text": "Back"
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1260208513-panel1616149598607-panel1614245041416-panel_1594807323-nextitemnav___widget",
+   "text": "Confirm Password"
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1260208513-panel1616149598607-panel1614245041416-panel-previtemnav_24539204___widget",
+   "text": "Back"
+  },
+  {
+   "id": "guideContainer-rootPanel-modal_container_copy-nextitemnav_copy_cop___widget",
+   "text": "Yes"
+  },
+  {
+   "id": "guideContainer-rootPanel-modal_container_copy-nextitemnav_copy___widget",
+   "text": "No"
+  },
+  {
+   "id": "guideContainer-rootPanel-modal_container_copy_984288898-nextitemnav_copy___widget",
+   "text": "Continue"
+  }
+ ],
+ "source": "/home/farhath/mca-capture/steps/2026-09-23T11-35-39-714Z/0013/"
+}

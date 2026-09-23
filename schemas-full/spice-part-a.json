@@ -1,0 +1,2054 @@
+{
+ "form": "spice-part-a",
+ "url": "https://www.mca.gov.in/content/mca/global/en/mca/e-filing/incorporation-change-services/spice.html",
+ "fieldCount": 105,
+ "fields": [
+  {
+   "id": "guideContainer-rootPanel-panel_359143262_copy-guidetextdraw__",
+   "key": "form_prefill_status",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "form_prefill_status"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_359143262_copy-guidetextdraw_1464881234__",
+   "key": "form_prefill_resubmission_reason",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "form_prefill_resubmission_reason",
+    "mb-0"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-guidetextdraw__",
+   "key": "textdraw1623739029545",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "textdraw1623739029545"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-afformtitle_copy__",
+   "key": "company-detail-title__1",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "company-detail-title",
+    "mca-form-section-heading"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_388123247_copy_2026367711-panel-afformtitle_11329171__",
+   "key": "moduleTitle",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "moduleTitle",
+    "container"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_388123247_copy_2026367711-panel-guidetextdraw_524016_1527858154__",
+   "key": "textdraw_5240165251611048659783",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "textdraw_5240165251611048659783"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_388123247_copy_2026367711-panel-guidetextdraw_147979__",
+   "key": "textdraw_14797957371611048703739__1",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "textdraw_14797957371611048703739",
+    "mb-0"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_388123247_copy_2026367711-guidetextdraw_147979__",
+   "key": "textdraw_14797957371611048703739__2",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "textdraw_14797957371611048703739",
+    "mb-0"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_388123247_copy_2026367711-panel_1385805192-guideradiobutton__",
+   "key": "language-translation-radio",
+   "label": "Form Language",
+   "type": "guideCheckBox",
+   "semantic": [
+    "language-translation-radio",
+    "mca-radioBtn-group"
+   ],
+   "mandatory": false,
+   "disabled": true,
+   "widget": {
+    "tag": "input",
+    "id": "guideContainer-rootPanel-panel_388123247_copy_2026367711-panel_1385805192-guideradiobutton__-1_widget",
+    "name": "guideContainer-rootPanel-panel_388123247_copy_2026367711-panel_1385805192-guideradiobutton___jqName",
+    "type": "radio",
+    "options": [
+     {
+      "v": "English",
+      "t": "",
+      "id": "guideContainer-rootPanel-panel_388123247_copy_2026367711-panel_1385805192-guideradiobutton__-1_widget"
+     },
+     {
+      "v": "",
+      "t": "",
+      "id": "guideContainer-rootPanel-panel_388123247_copy_2026367711-panel_1385805192-guideradiobutton__-2_widget"
+     }
+    ]
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_388123247_copy_2026367711-panel_1385805192-guidebutton_copy__",
+   "key": "referenceKitLink",
+   "label": "",
+   "type": "guideButton",
+   "semantic": [
+    "referenceKitLink"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {
+    "tag": "button",
+    "id": "guideContainer-rootPanel-panel_388123247_copy_2026367711-panel_1385805192-guidebutton_copy___widget",
+    "name": "guideContainer-rootPanel-panel_388123247_copy_2026367711-panel_1385805192-guidebutton_copy___jqName",
+    "type": "button"
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_388123247_copy_2026367711-panel_1385805192-guidebutton_copy_cop__",
+   "key": "advisoryForStakeholders",
+   "label": "",
+   "type": "guideButton",
+   "semantic": [
+    "advisoryForStakeholders"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {
+    "tag": "button",
+    "id": "guideContainer-rootPanel-panel_388123247_copy_2026367711-panel_1385805192-guidebutton_copy_cop___widget",
+    "name": "guideContainer-rootPanel-panel_388123247_copy_2026367711-panel_1385805192-guidebutton_copy_cop___jqName",
+    "type": "button"
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_2017717670_cop-panel-guidetextdraw_197707__",
+   "key": "textdraw_19770714581628657775643",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "textdraw_19770714581628657775643",
+    "mt-3"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_2017717670_cop-panel-afformtitle__",
+   "key": "company-detail-title__2",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "company-detail-title",
+    "mca-form-section-heading"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_2017717670_cop-panel-guidedropdownlist__",
+   "key": "type-of-company",
+   "label": "1(a)*Type of company",
+   "type": "guideDropDownList",
+   "semantic": [
+    "type-of-company"
+   ],
+   "mandatory": true,
+   "disabled": false,
+   "widget": {
+    "tag": "select",
+    "id": "guideContainer-rootPanel-panel_2017717670_cop-panel-guidedropdownlist___widget",
+    "name": "guideContainer-rootPanel-panel_2017717670_cop-panel-guidedropdownlist___jqName",
+    "options": [
+     {
+      "v": "",
+      "t": "Select Here"
+     },
+     {
+      "v": "IFSC Company",
+      "t": "IFSC Company"
+     },
+     {
+      "v": "New Company (Others)",
+      "t": "New Company (Others)"
+     },
+     {
+      "v": "Nidhi Company",
+      "t": "Nidhi Company"
+     },
+     {
+      "v": "Part I Firm to Company",
+      "t": "Part I Firm to Company"
+     },
+     {
+      "v": "Part I LLP to Company",
+      "t": "Part I LLP to Company"
+     },
+     {
+      "v": "Part I Others",
+      "t": "Part I Others"
+     },
+     {
+      "v": "Part I Section 8 Company",
+      "t": "Part I Section 8 Company"
+     },
+     {
+      "v": "Private (OPC)",
+      "t": "Private (OPC)"
+     },
+     {
+      "v": "Producer Company",
+      "t": "Producer Company"
+     },
+     {
+      "v": "Section 8 Company",
+      "t": "Section 8 Company"
+     },
+     {
+      "v": "Unlimited Company",
+      "t": "Unlimited Company"
+     }
+    ]
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_2017717670_cop-panel-guidetextbox_1884163__",
+   "key": "LLPIN1",
+   "label": "*LLPIN",
+   "type": "guideTextBox",
+   "semantic": [
+    "LLPIN1"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {
+    "tag": "input",
+    "id": "guideContainer-rootPanel-panel_2017717670_cop-panel-guidetextbox_1884163___widget",
+    "name": "guideContainer-rootPanel-panel_2017717670_cop-panel-guidetextbox_1884163___jqName",
+    "type": "text",
+    "placeholder": "Enter Here",
+    "maxlength": "75"
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_2017717670_cop-panel-guidedropdownlist_co_226026912__",
+   "key": "LLPIN3",
+   "label": "*LLPIN/CIN",
+   "type": "guideDropDownList",
+   "semantic": [
+    "LLPIN3"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {
+    "tag": "select",
+    "id": "guideContainer-rootPanel-panel_2017717670_cop-panel-guidedropdownlist_co_226026912___widget",
+    "name": "guideContainer-rootPanel-panel_2017717670_cop-panel-guidedropdownlist_co_226026912___jqName",
+    "options": [
+     {
+      "v": "",
+      "t": "Select Here"
+     }
+    ]
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_2017717670_cop-panel-guidedropdownlist_co__",
+   "key": "class-of-company",
+   "label": "*Class of the company",
+   "type": "guideDropDownList",
+   "semantic": [
+    "class-of-company"
+   ],
+   "mandatory": true,
+   "disabled": false,
+   "widget": {
+    "tag": "select",
+    "id": "guideContainer-rootPanel-panel_2017717670_cop-panel-guidedropdownlist_co___widget",
+    "name": "guideContainer-rootPanel-panel_2017717670_cop-panel-guidedropdownlist_co___jqName",
+    "options": [
+     {
+      "v": "",
+      "t": "Select Here"
+     }
+    ]
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_2017717670_cop-panel-guidedropdownlist_co_1813708729__",
+   "key": "category-of-company",
+   "label": "*Category of the company",
+   "type": "guideDropDownList",
+   "semantic": [
+    "category-of-company"
+   ],
+   "mandatory": true,
+   "disabled": false,
+   "widget": {
+    "tag": "select",
+    "id": "guideContainer-rootPanel-panel_2017717670_cop-panel-guidedropdownlist_co_1813708729___widget",
+    "name": "guideContainer-rootPanel-panel_2017717670_cop-panel-guidedropdownlist_co_1813708729___jqName",
+    "options": [
+     {
+      "v": "",
+      "t": "Select Here"
+     }
+    ]
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_2017717670_cop-panel-guidedropdownlist_co_175619313__",
+   "key": "subcategory-of-company",
+   "label": "*Sub-category of the company",
+   "type": "guideDropDownList",
+   "semantic": [
+    "subcategory-of-company"
+   ],
+   "mandatory": true,
+   "disabled": false,
+   "widget": {
+    "tag": "select",
+    "id": "guideContainer-rootPanel-panel_2017717670_cop-panel-guidedropdownlist_co_175619313___widget",
+    "name": "guideContainer-rootPanel-panel_2017717670_cop-panel-guidedropdownlist_co_175619313___jqName",
+    "options": [
+     {
+      "v": "",
+      "t": "Select Here"
+     }
+    ]
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_2017717670_cop-panel-panel_1663114232_cop-panel_1119548299-guidetextdraw__",
+   "key": "textdraw1632235736969",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "textdraw1632235736969",
+    "mb-0"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_2017717670_cop-panel-panel_1663114232_cop-panel_1119548299-panel-guidetextbox__",
+   "key": "nic-text-box",
+   "label": "",
+   "type": "guideTextBox",
+   "semantic": [
+    "nic-text-box"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {
+    "tag": "input",
+    "id": "guideContainer-rootPanel-panel_2017717670_cop-panel-panel_1663114232_cop-panel_1119548299-panel-guidetextbox___widget",
+    "name": "guideContainer-rootPanel-panel_2017717670_cop-panel-panel_1663114232_cop-panel_1119548299-panel-guidetextbox___jqName",
+    "type": "text",
+    "placeholder": "Search here"
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_2017717670_cop-panel-panel_1663114232_cop-panel_1119548299-panel-mca_button_v2__",
+   "key": "searchNicCodeBtn",
+   "label": "",
+   "type": "guideButton",
+   "semantic": [
+    "searchNicCodeBtn"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {
+    "tag": "button",
+    "id": "guideContainer-rootPanel-panel_2017717670_cop-panel-panel_1663114232_cop-panel_1119548299-panel-mca_button_v2___widget",
+    "name": "guideContainer-rootPanel-panel_2017717670_cop-panel-panel_1663114232_cop-panel_1119548299-panel-mca_button_v2___jqName",
+    "type": "button"
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_2017717670_cop-panel-panel_1663114232_cop-panel-guidetextdraw_copy__",
+   "key": "nicbtn-subtext",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "nicbtn-subtext",
+    "short"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_2017717670_cop-panel-panel_1663114232_cop-modal_container_1602-panel-guidetextdraw__",
+   "key": "textdraw1612773512564__1",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "textdraw1612773512564"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_2017717670_cop-panel-panel_1663114232_cop-modal_container_1602-panel-panel-guidetextbox__",
+   "key": "nicPopupTableSearchBox",
+   "label": "",
+   "type": "guideTextBox",
+   "semantic": [
+    "nicPopupTableSearchBox",
+    "input-search-icon-placeholder"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {
+    "tag": "input",
+    "id": "guideContainer-rootPanel-panel_2017717670_cop-panel-panel_1663114232_cop-modal_container_1602-panel-panel-guidetextbox___widget",
+    "name": "guideContainer-rootPanel-panel_2017717670_cop-panel-panel_1663114232_cop-modal_container_1602-panel-panel-guidetextbox___jqName",
+    "type": "text",
+    "placeholder": "Search here"
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_2017717670_cop-panel-panel_1663114232_cop-modal_container_1602-panel-panel-guidebutton__",
+   "key": "addNicCodeBtn",
+   "label": "",
+   "type": "guideButton",
+   "semantic": [
+    "addNicCodeBtn"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {
+    "tag": "button",
+    "id": "guideContainer-rootPanel-panel_2017717670_cop-panel-panel_1663114232_cop-modal_container_1602-panel-panel-guidebutton___widget",
+    "name": "guideContainer-rootPanel-panel_2017717670_cop-panel-panel_1663114232_cop-modal_container_1602-panel-panel-guidebutton___jqName",
+    "type": "button"
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_2017717670_cop-panel-panel_1663114232_cop-modal_container_1602-panel-panel-guidetextdraw__",
+   "key": "selectPrimaryNicCodeErrorMsg",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "selectPrimaryNicCodeErrorMsg",
+    "mb-0",
+    "text-error"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_2017717670_cop-panel-panel_1663114232_cop-modal_container_1602-panel-panel-guidetextdraw_2032098323__",
+   "key": "nicCodeDuplicateMessage",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "nicCodeDuplicateMessage",
+    "mb-0",
+    "text-error"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_2017717670_cop-panel-panel_1663114232_cop-modal_container_1602-panel-customdropdown__",
+   "key": "nic-code-page-size",
+   "label": "",
+   "type": "guideDropDownList",
+   "semantic": [
+    "nic-code-page-size"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {
+    "tag": "select",
+    "id": "guideContainer-rootPanel-panel_2017717670_cop-panel-panel_1663114232_cop-modal_container_1602-panel-customdropdown___widget",
+    "name": "guideContainer-rootPanel-panel_2017717670_cop-panel-panel_1663114232_cop-modal_container_1602-panel-customdropdown___jqName",
+    "options": [
+     {
+      "v": "10",
+      "t": "10"
+     },
+     {
+      "v": "25",
+      "t": "25"
+     },
+     {
+      "v": "50",
+      "t": "50"
+     },
+     {
+      "v": "100",
+      "t": "100"
+     }
+    ]
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_2017717670_cop-panel-panel_77849537-modal_container-panel-guidetextdraw_copy__",
+   "key": "textdraw1612773512564__2",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "textdraw1612773512564"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_2017717670_cop-panel-panel_77849537-modal_container-panel-guidetextbox__",
+   "key": "llp_search_box",
+   "label": "",
+   "type": "guideTextBox",
+   "semantic": [
+    "llp_search_box",
+    "input-search-icon-placeholder"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {
+    "tag": "input",
+    "id": "guideContainer-rootPanel-panel_2017717670_cop-panel-panel_77849537-modal_container-panel-guidetextbox___widget",
+    "name": "guideContainer-rootPanel-panel_2017717670_cop-panel-panel_77849537-modal_container-panel-guidetextbox___jqName",
+    "type": "text"
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_2017717670_cop-panel-panel_77849537-panel_896788791_copy-guidetextbox__",
+   "key": "MainNICCode",
+   "label": "*Main NIC Code (sub-class) of industrial activity of the company",
+   "type": "guideTextBox",
+   "semantic": [
+    "MainNICCode"
+   ],
+   "mandatory": true,
+   "disabled": true,
+   "widget": {
+    "tag": "input",
+    "id": "guideContainer-rootPanel-panel_2017717670_cop-panel-panel_77849537-panel_896788791_copy-guidetextbox___widget",
+    "name": "guideContainer-rootPanel-panel_2017717670_cop-panel-panel_77849537-panel_896788791_copy-guidetextbox___jqName",
+    "type": "text",
+    "placeholder": "Enter here",
+    "readonly": true
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_2017717670_cop-panel-panel_77849537-panel_896788791_copy-guidetextbox_3059927__",
+   "key": "DescriptionNICCode",
+   "label": "*Description of the main sub-class",
+   "type": "guideTextBox",
+   "semantic": [
+    "DescriptionNICCode"
+   ],
+   "mandatory": true,
+   "disabled": true,
+   "widget": {
+    "tag": "textarea",
+    "id": "guideContainer-rootPanel-panel_2017717670_cop-panel-panel_77849537-panel_896788791_copy-guidetextbox_3059927___widget",
+    "name": "guideContainer-rootPanel-panel_2017717670_cop-panel-panel_77849537-panel_896788791_copy-guidetextbox_3059927___jqName",
+    "placeholder": "Enter here",
+    "readonly": true
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_2017717670_cop-panel-guidetextdraw__",
+   "key": "textdraw1640778496113",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "textdraw1640778496113"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_2017717670_cop-panel_copy-panel-panel-guidetextbox_1884163__",
+   "key": "proposedname1",
+   "label": "I.",
+   "type": "guideTextBox",
+   "semantic": [
+    "proposedname1"
+   ],
+   "mandatory": true,
+   "disabled": false,
+   "widget": {
+    "tag": "input",
+    "id": "guideContainer-rootPanel-panel_2017717670_cop-panel_copy-panel-panel-guidetextbox_1884163___widget",
+    "name": "guideContainer-rootPanel-panel_2017717670_cop-panel_copy-panel-panel-guidetextbox_1884163___jqName",
+    "type": "text",
+    "placeholder": "Enter Here",
+    "maxlength": "75"
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_2017717670_cop-panel_copy-panel-panel-panel-modal_container-guidetextdraw__",
+   "key": "textdraw1612789942308",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "textdraw1612789942308"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_2017717670_cop-panel_copy-panel-panel_2003762916-guidetextbox_4394968__",
+   "key": "proposedname2",
+   "label": "II.",
+   "type": "guideTextBox",
+   "semantic": [
+    "proposedname2"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {
+    "tag": "input",
+    "id": "guideContainer-rootPanel-panel_2017717670_cop-panel_copy-panel-panel_2003762916-guidetextbox_4394968___widget",
+    "name": "guideContainer-rootPanel-panel_2017717670_cop-panel_copy-panel-panel_2003762916-guidetextbox_4394968___jqName",
+    "type": "text",
+    "placeholder": "Enter Here",
+    "maxlength": "75"
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_2017717670_cop-panel_copy-panel-panel_2003762916-panel-modal_container-guidetextdraw__",
+   "key": "textdraw1612790012145",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "textdraw1612790012145"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_2017717670_cop-panel_copy-guidebutton__",
+   "key": "button1610688659905",
+   "label": "",
+   "type": "guideButton",
+   "semantic": [
+    "button1610688659905"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {
+    "tag": "button",
+    "id": "guideContainer-rootPanel-panel_2017717670_cop-panel_copy-guidebutton___widget",
+    "name": "guideContainer-rootPanel-panel_2017717670_cop-panel_copy-guidebutton___jqName",
+    "type": "button"
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_2017717670_cop-panel_copy_202561516-afformtitle__",
+   "key": "documents-to-attach-title",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "documents-to-attach-title",
+    "mca-form-section-heading"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_2017717670_cop-panel_copy_202561516-fileuploadwithplaceh_924283015__",
+   "key": "optionalAttachment",
+   "label": "Optional attachment(s)- if any",
+   "type": "guideFileUpload",
+   "semantic": [
+    "optionalAttachment",
+    "hover-msg"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {
+    "tag": "input",
+    "id": "guideContainer-rootPanel-panel_2017717670_cop-panel_copy_202561516-fileuploadwithplaceh_924283015___widget",
+    "name": "guideContainer-rootPanel-panel_2017717670_cop-panel_copy_202561516-fileuploadwithplaceh_924283015___jqName",
+    "type": "file"
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_2017717670_cop-panel_672096424-guidetextdraw__",
+   "key": "autocheckbox-text",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "autocheckbox-text",
+    "mb-0"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_2017717670_cop-panel_672096424-panel-mca_button__",
+   "key": "error_info_link",
+   "label": "",
+   "type": "guideButton",
+   "semantic": [
+    "error_info_link"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {
+    "tag": "button",
+    "id": "guideContainer-rootPanel-panel_2017717670_cop-panel_672096424-panel-mca_button___widget",
+    "name": "guideContainer-rootPanel-panel_2017717670_cop-panel_672096424-panel-mca_button___jqName",
+    "type": "button"
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_copy_222446296-guidebutton_copy_748__",
+   "key": "autoCheckFormBtn_copy_1",
+   "label": "",
+   "type": "guideButton",
+   "semantic": [
+    "autoCheckFormBtn_copy_1"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {
+    "tag": "button",
+    "id": "guideContainer-rootPanel-panel_copy_222446296-guidebutton_copy_748___widget",
+    "name": "guideContainer-rootPanel-panel_copy_222446296-guidebutton_copy_748___jqName",
+    "type": "button"
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_copy_222446296-guidebutton_copy_748_1005506464__",
+   "key": "autoCheckFormBtn",
+   "label": "",
+   "type": "guideButton",
+   "semantic": [
+    "autoCheckFormBtn"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {
+    "tag": "button",
+    "id": "guideContainer-rootPanel-panel_copy_222446296-guidebutton_copy_748_1005506464___widget",
+    "name": "guideContainer-rootPanel-panel_copy_222446296-guidebutton_copy_748_1005506464___jqName",
+    "type": "button"
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_copy_222446296-guidebutton_copy_748_637769666__",
+   "key": "submit-form-btn",
+   "label": "",
+   "type": "guideButton",
+   "semantic": [
+    "submit-form-btn"
+   ],
+   "mandatory": false,
+   "disabled": true,
+   "widget": {
+    "tag": "button",
+    "id": "guideContainer-rootPanel-panel_copy_222446296-guidebutton_copy_748_637769666___widget",
+    "name": "guideContainer-rootPanel-panel_copy_222446296-guidebutton_copy_748_637769666___jqName",
+    "type": "button"
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_copy-modal_container-panel-guidebutton_copy__",
+   "key": "cancel-btn-submitmodal",
+   "label": "",
+   "type": "guideButton",
+   "semantic": [
+    "cancel-btn-submitmodal"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {
+    "tag": "button",
+    "id": "guideContainer-rootPanel-panel_copy-modal_container-panel-guidebutton_copy___widget",
+    "name": "guideContainer-rootPanel-panel_copy-modal_container-panel-guidebutton_copy___jqName",
+    "type": "button"
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_copy-modal_container-panel-guidebutton_65123201__",
+   "key": "continue-btn-submitmodal__1",
+   "label": "",
+   "type": "guideButton",
+   "semantic": [
+    "continue-btn-submitmodal"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {
+    "tag": "button",
+    "id": "guideContainer-rootPanel-panel_copy-modal_container-panel-guidebutton_65123201___widget",
+    "name": "guideContainer-rootPanel-panel_copy-modal_container-panel-guidebutton_65123201___jqName",
+    "type": "button"
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_copy-panel-modal_container-guidetextdraw_183296__",
+   "key": "cancal-modal-text",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "cancal-modal-text"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_copy-panel-modal_container-panel-guidetextdraw_183296__",
+   "key": "AttachmentIssue",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "AttachmentIssue"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_copy-panel-modal_container-panel-guidebutton_copy__",
+   "key": "cance-yes-btn__1",
+   "label": "",
+   "type": "guideButton",
+   "semantic": [
+    "cance-yes-btn"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {
+    "tag": "button",
+    "id": "guideContainer-rootPanel-panel_copy-panel-modal_container-panel-guidebutton_copy___widget",
+    "name": "guideContainer-rootPanel-panel_copy-panel-modal_container-panel-guidebutton_copy___jqName",
+    "type": "button"
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_copy-panel-modal_container_copy-panel-guidetextdraw_183296__",
+   "key": "save-modal-text",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "save-modal-text"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_copy-panel-modal_container_copy-panel-guidebutton_copy__",
+   "key": "ok_btn__1",
+   "label": "",
+   "type": "guideButton",
+   "semantic": [
+    "ok_btn"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {
+    "tag": "button",
+    "id": "guideContainer-rootPanel-panel_copy-panel-modal_container_copy-panel-guidebutton_copy___widget",
+    "name": "guideContainer-rootPanel-panel_copy-panel-modal_container_copy-panel-guidebutton_copy___jqName",
+    "type": "button"
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_copy-panel-modal_container_2076970193-panel_copy-guidetextdraw_183296__",
+   "key": "validation_text",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "validation_text"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_copy-panel-modal_container_2076970193-panel_copy-guidebutton_copy__",
+   "key": "ok_btn__2",
+   "label": "",
+   "type": "guideButton",
+   "semantic": [
+    "ok_btn"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {
+    "tag": "button",
+    "id": "guideContainer-rootPanel-panel_copy-panel-modal_container_2076970193-panel_copy-guidebutton_copy___widget",
+    "name": "guideContainer-rootPanel-panel_copy-panel-modal_container_2076970193-panel_copy-guidebutton_copy___jqName",
+    "type": "button"
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_770853196_copy-modal_container-guidetextdraw_copy_c__",
+   "key": "Part-I-Other-Error",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "Part-I-Other-Error"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_770853196_copy-modal_container-guidetextdraw__",
+   "key": "IFSC-ErrorMessage",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "IFSC-ErrorMessage"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_770853196_copy-modal_container-panel-guidetextdraw__",
+   "key": "government-private-company-popup",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "government-private-company-popup"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_770853196_copy-modal_container-panel-guidetextdraw_copy_c__",
+   "key": "government-limited-by-guarantee-popup",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "government-limited-by-guarantee-popup"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_770853196_copy-modal_container-panel-guidetextdraw_copy__",
+   "key": "government-unlimited-company-popup",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "government-unlimited-company-popup"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_770853196_copy-modal_container-panel-guidebutton_20583560__",
+   "key": "cancel-no-btn__1",
+   "label": "",
+   "type": "guideButton",
+   "semantic": [
+    "cancel-no-btn"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {
+    "tag": "button",
+    "id": "guideContainer-rootPanel-panel_770853196_copy-modal_container-panel-guidebutton_20583560___widget",
+    "name": "guideContainer-rootPanel-panel_770853196_copy-modal_container-panel-guidebutton_20583560___jqName",
+    "type": "button"
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_770853196_copy-modal_container-panel-guidebutton_copy__",
+   "key": "cance-yes-btn__2",
+   "label": "",
+   "type": "guideButton",
+   "semantic": [
+    "cance-yes-btn"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {
+    "tag": "button",
+    "id": "guideContainer-rootPanel-panel_770853196_copy-modal_container-panel-guidebutton_copy___widget",
+    "name": "guideContainer-rootPanel-panel_770853196_copy-modal_container-panel-guidebutton_copy___jqName",
+    "type": "button"
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_770853196_copy-modal_container_copy-panel-guidetextdraw_copy_c__",
+   "key": "government-limited-by-guarantee-popup-unique",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "government-limited-by-guarantee-popup-unique"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_770853196_copy-modal_container_copy-panel-guidetextdraw_copy__",
+   "key": "government-unlimited-company-popup-unique",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "government-unlimited-company-popup-unique"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_770853196_copy-modal_container_copy-panel-guidebutton_20583560__",
+   "key": "cancel-no-btn__2",
+   "label": "",
+   "type": "guideButton",
+   "semantic": [
+    "cancel-no-btn"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {
+    "tag": "button",
+    "id": "guideContainer-rootPanel-panel_770853196_copy-modal_container_copy-panel-guidebutton_20583560___widget",
+    "name": "guideContainer-rootPanel-panel_770853196_copy-modal_container_copy-panel-guidebutton_20583560___jqName",
+    "type": "button"
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_770853196_copy-modal_container_copy-panel-guidebutton_copy__",
+   "key": "cance-yes-btn__3",
+   "label": "",
+   "type": "guideButton",
+   "semantic": [
+    "cance-yes-btn"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {
+    "tag": "button",
+    "id": "guideContainer-rootPanel-panel_770853196_copy-modal_container_copy-panel-guidebutton_copy___widget",
+    "name": "guideContainer-rootPanel-panel_770853196_copy-modal_container_copy-panel-guidebutton_copy___jqName",
+    "type": "button"
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1558366475_cop-guidetextbox_copy_831679774__",
+   "key": "niccode1",
+   "label": "NIC COde 1",
+   "type": "guideTextBox",
+   "semantic": [
+    "niccode1"
+   ],
+   "mandatory": false,
+   "disabled": true,
+   "widget": {
+    "tag": "input",
+    "id": "guideContainer-rootPanel-panel_1558366475_cop-guidetextbox_copy_831679774___widget",
+    "name": "guideContainer-rootPanel-panel_1558366475_cop-guidetextbox_copy_831679774___jqName",
+    "type": "text",
+    "readonly": true
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1558366475_cop-guidetextbox_copy_co__",
+   "key": "niccode1desc",
+   "label": "NIC Code 1 Desc",
+   "type": "guideTextBox",
+   "semantic": [
+    "niccode1desc"
+   ],
+   "mandatory": false,
+   "disabled": true,
+   "widget": {
+    "tag": "input",
+    "id": "guideContainer-rootPanel-panel_1558366475_cop-guidetextbox_copy_co___widget",
+    "name": "guideContainer-rootPanel-panel_1558366475_cop-guidetextbox_copy_co___jqName",
+    "type": "text",
+    "readonly": true
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1558366475_cop-guidetextbox__",
+   "key": "niccode2",
+   "label": "NIC COde 2",
+   "type": "guideTextBox",
+   "semantic": [
+    "niccode2"
+   ],
+   "mandatory": false,
+   "disabled": true,
+   "widget": {
+    "tag": "input",
+    "id": "guideContainer-rootPanel-panel_1558366475_cop-guidetextbox___widget",
+    "name": "guideContainer-rootPanel-panel_1558366475_cop-guidetextbox___jqName",
+    "type": "text",
+    "readonly": true
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1558366475_cop-guidetextbox_copy__",
+   "key": "niccode2desc",
+   "label": "NIC Code 2 Desc",
+   "type": "guideTextBox",
+   "semantic": [
+    "niccode2desc"
+   ],
+   "mandatory": false,
+   "disabled": true,
+   "widget": {
+    "tag": "input",
+    "id": "guideContainer-rootPanel-panel_1558366475_cop-guidetextbox_copy___widget",
+    "name": "guideContainer-rootPanel-panel_1558366475_cop-guidetextbox_copy___jqName",
+    "type": "text",
+    "readonly": true
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1558366475_cop-guidetextbox_copy_385397651__",
+   "key": "niccode3",
+   "label": "NIC COde 3",
+   "type": "guideTextBox",
+   "semantic": [
+    "niccode3"
+   ],
+   "mandatory": false,
+   "disabled": true,
+   "widget": {
+    "tag": "input",
+    "id": "guideContainer-rootPanel-panel_1558366475_cop-guidetextbox_copy_385397651___widget",
+    "name": "guideContainer-rootPanel-panel_1558366475_cop-guidetextbox_copy_385397651___jqName",
+    "type": "text",
+    "readonly": true
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1558366475_cop-guidetextbox_copy_1865585167__",
+   "key": "niccode3desc",
+   "label": "NIC Code 3 Desc",
+   "type": "guideTextBox",
+   "semantic": [
+    "niccode3desc"
+   ],
+   "mandatory": false,
+   "disabled": true,
+   "widget": {
+    "tag": "input",
+    "id": "guideContainer-rootPanel-panel_1558366475_cop-guidetextbox_copy_1865585167___widget",
+    "name": "guideContainer-rootPanel-panel_1558366475_cop-guidetextbox_copy_1865585167___jqName",
+    "type": "text",
+    "readonly": true
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel-NICCode11623102030812__",
+   "key": "hidden-NICCode1",
+   "label": "NIC Code 1",
+   "type": "guideTextBox",
+   "semantic": [
+    "hidden-NICCode1"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {
+    "tag": "input",
+    "id": "guideContainer-rootPanel-panel-NICCode11623102030812___widget",
+    "name": "guideContainer-rootPanel-panel-NICCode11623102030812___jqName",
+    "type": "text"
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel-NICCode21623102035619__",
+   "key": "hidden-NICCode2",
+   "label": "NIC Code 2",
+   "type": "guideTextBox",
+   "semantic": [
+    "hidden-NICCode2"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {
+    "tag": "input",
+    "id": "guideContainer-rootPanel-panel-NICCode21623102035619___widget",
+    "name": "guideContainer-rootPanel-panel-NICCode21623102035619___jqName",
+    "type": "text"
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel-NICCode31623102074219__",
+   "key": "hidden-NICCode3",
+   "label": "NIC Code 3",
+   "type": "guideTextBox",
+   "semantic": [
+    "hidden-NICCode3"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {
+    "tag": "input",
+    "id": "guideContainer-rootPanel-panel-NICCode31623102074219___widget",
+    "name": "guideContainer-rootPanel-panel-NICCode31623102074219___jqName",
+    "type": "text"
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel-Description11623102077810__",
+   "key": "hidden-NICCode1-Desc",
+   "label": "Description 1",
+   "type": "guideTextBox",
+   "semantic": [
+    "hidden-NICCode1-Desc"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {
+    "tag": "input",
+    "id": "guideContainer-rootPanel-panel-Description11623102077810___widget",
+    "name": "guideContainer-rootPanel-panel-Description11623102077810___jqName",
+    "type": "text"
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel-Description21623102080197__",
+   "key": "hidden-NICCode2-Desc",
+   "label": "Description 2",
+   "type": "guideTextBox",
+   "semantic": [
+    "hidden-NICCode2-Desc"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {
+    "tag": "input",
+    "id": "guideContainer-rootPanel-panel-Description21623102080197___widget",
+    "name": "guideContainer-rootPanel-panel-Description21623102080197___jqName",
+    "type": "text"
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel-Description31623102082918__",
+   "key": "hidden-NICCode3-Desc",
+   "label": "Description 3",
+   "type": "guideTextBox",
+   "semantic": [
+    "hidden-NICCode3-Desc"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {
+    "tag": "input",
+    "id": "guideContainer-rootPanel-panel-Description31623102082918___widget",
+    "name": "guideContainer-rootPanel-panel-Description31623102082918___jqName",
+    "type": "text"
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-guidetextbox__",
+   "key": "flagS",
+   "label": "flagS",
+   "type": "guideTextBox",
+   "semantic": [
+    "flagS"
+   ],
+   "mandatory": false,
+   "disabled": true,
+   "widget": {
+    "tag": "input",
+    "id": "guideContainer-rootPanel-guidetextbox___widget",
+    "name": "guideContainer-rootPanel-guidetextbox___jqName",
+    "type": "text",
+    "readonly": true
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1231489067-guidetextbox__",
+   "key": "formId",
+   "label": "formId",
+   "type": "guideTextBox",
+   "semantic": [
+    "formId"
+   ],
+   "mandatory": false,
+   "disabled": true,
+   "widget": {
+    "tag": "input",
+    "id": "guideContainer-rootPanel-panel_1231489067-guidetextbox___widget",
+    "name": "guideContainer-rootPanel-panel_1231489067-guidetextbox___jqName",
+    "type": "text",
+    "readonly": true
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1231489067-guidetextbox_675744276__",
+   "key": "formDescription",
+   "label": "formDescription",
+   "type": "guideTextBox",
+   "semantic": [
+    "formDescription"
+   ],
+   "mandatory": false,
+   "disabled": true,
+   "widget": {
+    "tag": "input",
+    "id": "guideContainer-rootPanel-panel_1231489067-guidetextbox_675744276___widget",
+    "name": "guideContainer-rootPanel-panel_1231489067-guidetextbox_675744276___jqName",
+    "type": "text",
+    "readonly": true
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1231489067-guidetextbox_1848615136__",
+   "key": "formName",
+   "label": "formName",
+   "type": "guideTextBox",
+   "semantic": [
+    "formName"
+   ],
+   "mandatory": false,
+   "disabled": true,
+   "widget": {
+    "tag": "input",
+    "id": "guideContainer-rootPanel-panel_1231489067-guidetextbox_1848615136___widget",
+    "name": "guideContainer-rootPanel-panel_1231489067-guidetextbox_1848615136___jqName",
+    "type": "text",
+    "readonly": true
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1231489067-guidetextbox_1460172777__",
+   "key": "formVersion",
+   "label": "formVersion",
+   "type": "guideTextBox",
+   "semantic": [
+    "formVersion"
+   ],
+   "mandatory": false,
+   "disabled": true,
+   "widget": {
+    "tag": "input",
+    "id": "guideContainer-rootPanel-panel_1231489067-guidetextbox_1460172777___widget",
+    "name": "guideContainer-rootPanel-panel_1231489067-guidetextbox_1460172777___jqName",
+    "type": "text",
+    "readonly": true
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1231489067-guidetextbox_2070870574__",
+   "key": "userId",
+   "label": "userId",
+   "type": "guideTextBox",
+   "semantic": [
+    "userId"
+   ],
+   "mandatory": false,
+   "disabled": true,
+   "widget": {
+    "tag": "input",
+    "id": "guideContainer-rootPanel-panel_1231489067-guidetextbox_2070870574___widget",
+    "name": "guideContainer-rootPanel-panel_1231489067-guidetextbox_2070870574___jqName",
+    "type": "text",
+    "readonly": true
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1231489067-guidetextbox_612628904__",
+   "key": "integrationId",
+   "label": "integrationId",
+   "type": "guideTextBox",
+   "semantic": [
+    "integrationId"
+   ],
+   "mandatory": false,
+   "disabled": true,
+   "widget": {
+    "tag": "input",
+    "id": "guideContainer-rootPanel-panel_1231489067-guidetextbox_612628904___widget",
+    "name": "guideContainer-rootPanel-panel_1231489067-guidetextbox_612628904___jqName",
+    "type": "text",
+    "readonly": true
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1231489067-guidetextbox_393894177__",
+   "key": "referenceNumber",
+   "label": "referenceNumber",
+   "type": "guideTextBox",
+   "semantic": [
+    "referenceNumber"
+   ],
+   "mandatory": false,
+   "disabled": true,
+   "widget": {
+    "tag": "input",
+    "id": "guideContainer-rootPanel-panel_1231489067-guidetextbox_393894177___widget",
+    "name": "guideContainer-rootPanel-panel_1231489067-guidetextbox_393894177___jqName",
+    "type": "text",
+    "readonly": true
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1231489067-guidetextbox_1241688170__",
+   "key": "srn",
+   "label": "srn",
+   "type": "guideTextBox",
+   "semantic": [
+    "srn"
+   ],
+   "mandatory": false,
+   "disabled": true,
+   "widget": {
+    "tag": "input",
+    "id": "guideContainer-rootPanel-panel_1231489067-guidetextbox_1241688170___widget",
+    "name": "guideContainer-rootPanel-panel_1231489067-guidetextbox_1241688170___jqName",
+    "type": "text",
+    "readonly": true
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1231489067-guidetextbox_578552518__",
+   "key": "Path_for_PDFGeneration",
+   "label": "Path_for_PDFGeneration",
+   "type": "guideTextBox",
+   "semantic": [
+    "Path_for_PDFGeneration"
+   ],
+   "mandatory": false,
+   "disabled": true,
+   "widget": {
+    "tag": "input",
+    "id": "guideContainer-rootPanel-panel_1231489067-guidetextbox_578552518___widget",
+    "name": "guideContainer-rootPanel-panel_1231489067-guidetextbox_578552518___jqName",
+    "type": "text",
+    "readonly": true
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1231489067-guidetextbox_1939066937__",
+   "key": "formIntegrationId",
+   "label": "formIntegrationId",
+   "type": "guideTextBox",
+   "semantic": [
+    "formIntegrationId"
+   ],
+   "mandatory": false,
+   "disabled": true,
+   "widget": {
+    "tag": "input",
+    "id": "guideContainer-rootPanel-panel_1231489067-guidetextbox_1939066937___widget",
+    "name": "guideContainer-rootPanel-panel_1231489067-guidetextbox_1939066937___jqName",
+    "type": "text",
+    "readonly": true
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1231489067-guidetextbox_401867444__",
+   "key": "formAttachmentHidden",
+   "label": "formAttachList",
+   "type": "guideTextBox",
+   "semantic": [
+    "formAttachmentHidden"
+   ],
+   "mandatory": false,
+   "disabled": true,
+   "widget": {
+    "tag": "input",
+    "id": "guideContainer-rootPanel-panel_1231489067-guidetextbox_401867444___widget",
+    "name": "guideContainer-rootPanel-panel_1231489067-guidetextbox_401867444___jqName",
+    "type": "text",
+    "readonly": true
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1231489067-guidetextbox_858207514__",
+   "key": "prefill",
+   "label": "Prefill Box",
+   "type": "guideTextBox",
+   "semantic": [
+    "prefill"
+   ],
+   "mandatory": false,
+   "disabled": true,
+   "widget": {
+    "tag": "input",
+    "id": "guideContainer-rootPanel-panel_1231489067-guidetextbox_858207514___widget",
+    "name": "guideContainer-rootPanel-panel_1231489067-guidetextbox_858207514___jqName",
+    "type": "text",
+    "readonly": true
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1231489067-guidetextbox_1100664__",
+   "key": "prefillStatus",
+   "label": "Prefill Status",
+   "type": "guideTextBox",
+   "semantic": [
+    "prefillStatus"
+   ],
+   "mandatory": false,
+   "disabled": true,
+   "widget": {
+    "tag": "input",
+    "id": "guideContainer-rootPanel-panel_1231489067-guidetextbox_1100664___widget",
+    "name": "guideContainer-rootPanel-panel_1231489067-guidetextbox_1100664___jqName",
+    "type": "text",
+    "readonly": true
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_1231489067-guidetextbox_1635272185__",
+   "key": "flagI",
+   "label": "Flag",
+   "type": "guideTextBox",
+   "semantic": [
+    "flagI"
+   ],
+   "mandatory": false,
+   "disabled": true,
+   "widget": {
+    "tag": "input",
+    "id": "guideContainer-rootPanel-panel_1231489067-guidetextbox_1635272185___widget",
+    "name": "guideContainer-rootPanel-panel_1231489067-guidetextbox_1635272185___jqName",
+    "type": "text",
+    "readonly": true
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-modal_container_2035-panel_copy-guidetextdraw_183296__",
+   "key": "error-modal-text__1",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "error-modal-text"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-modal_container_2035-panel_copy-guidebutton_copy__",
+   "key": "ok_btn__3",
+   "label": "",
+   "type": "guideButton",
+   "semantic": [
+    "ok_btn"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {
+    "tag": "button",
+    "id": "guideContainer-rootPanel-modal_container_2035-panel_copy-guidebutton_copy___widget",
+    "name": "guideContainer-rootPanel-modal_container_2035-panel_copy-guidebutton_copy___jqName",
+    "type": "button"
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-modal_container_2035_1366054411-panel_copy-guidetextdraw_183296__",
+   "key": "error-modal-text__2",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "error-modal-text"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-modal_container_2035_1366054411-panel_copy-guidebutton_copy__",
+   "key": "ok_btn__4",
+   "label": "",
+   "type": "guideButton",
+   "semantic": [
+    "ok_btn"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {
+    "tag": "button",
+    "id": "guideContainer-rootPanel-modal_container_2035_1366054411-panel_copy-guidebutton_copy___widget",
+    "name": "guideContainer-rootPanel-modal_container_2035_1366054411-panel_copy-guidebutton_copy___jqName",
+    "type": "button"
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-modal_container_copy-guidetextdraw_copy__",
+   "key": "alertPopUp",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "alertPopUp"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-modal_container_copy-guidetextdraw_copy_908765214__",
+   "key": "nicCodeErrorMessage",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "nicCodeErrorMessage"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-modal_container_copy-panel-guidetextdraw__",
+   "key": "noResultsFoundText",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "noResultsFoundText"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-modal_container_copy-panel-guidebutton_65123201__",
+   "key": "continue-btn-submitmodal__2",
+   "label": "",
+   "type": "guideButton",
+   "semantic": [
+    "continue-btn-submitmodal",
+    "btn-theme-primary"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {
+    "tag": "button",
+    "id": "guideContainer-rootPanel-modal_container_copy-panel-guidebutton_65123201___widget",
+    "name": "guideContainer-rootPanel-modal_container_copy-panel-guidebutton_65123201___jqName",
+    "type": "button"
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-modal_container_copy_709081779-panel-guidetextdraw__",
+   "key": "srnMessage",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "srnMessage"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-modal_container_copy_709081779-panel-guidebutton_65123201__",
+   "key": "srn-ok-btn",
+   "label": "",
+   "type": "guideButton",
+   "semantic": [
+    "srn-ok-btn",
+    "btn-theme-primary"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {
+    "tag": "button",
+    "id": "guideContainer-rootPanel-modal_container_copy_709081779-panel-guidebutton_65123201___widget",
+    "name": "guideContainer-rootPanel-modal_container_copy_709081779-panel-guidebutton_65123201___jqName",
+    "type": "button"
+   },
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-modal_container_copy_991151877-guidetextdraw_copy__",
+   "key": "attachmentConfirmationPOP-UP",
+   "label": "",
+   "type": "guideTextDraw",
+   "semantic": [
+    "attachmentConfirmationPOP-UP"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {},
+   "panels": [],
+   "panelIds": []
+  },
+  {
+   "id": "guideContainer-rootPanel-modal_container_copy_991151877-panel-guidebutton_65123201__",
+   "key": "continue-btn-submitmodal__3",
+   "label": "",
+   "type": "guideButton",
+   "semantic": [
+    "continue-btn-submitmodal",
+    "btn-theme-primary"
+   ],
+   "mandatory": false,
+   "disabled": false,
+   "widget": {
+    "tag": "button",
+    "id": "guideContainer-rootPanel-modal_container_copy_991151877-panel-guidebutton_65123201___widget",
+    "name": "guideContainer-rootPanel-modal_container_copy_991151877-panel-guidebutton_65123201___jqName",
+    "type": "button"
+   },
+   "panels": [],
+   "panelIds": []
+  }
+ ],
+ "buttons": [
+  {
+   "id": "guideContainer-rootPanel-panel_388123247_copy_2026367711-panel_1385805192-guidebutton_copy___widget",
+   "text": "Refer instruction kit for filing the form"
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_388123247_copy_2026367711-panel_1385805192-guidebutton_copy_cop___widget",
+   "text": "Refer advisory for Stakeholders for Company and LLP Name Res"
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_2017717670_cop-panel-panel_1663114232_cop-modal_container_1602-panel-panel-guidebutton___widget",
+   "text": "Add"
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_2017717670_cop-panel_copy-guidebutton___widget",
+   "text": "Check Domain"
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_2017717670_cop-panel_672096424-panel-mca_button___widget",
+   "text": "Click here to check alerts"
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_copy_222446296-guidebutton_copy_748___widget",
+   "text": "Save"
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_copy_222446296-guidebutton_copy_748_1005506464___widget",
+   "text": "Auto check"
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_copy_222446296-guidebutton_copy_748_637769666___widget",
+   "text": "Submit"
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_copy-modal_container-panel-guidebutton_copy___widget",
+   "text": "Cancel"
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_copy-modal_container-panel-guidebutton_65123201___widget",
+   "text": "Continue"
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_copy-panel-modal_container-panel-guidebutton_copy___widget",
+   "text": "Yes"
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_copy-panel-modal_container_copy-panel-guidebutton_copy___widget",
+   "text": "Ok"
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_copy-panel-modal_container_2076970193-panel_copy-guidebutton_copy___widget",
+   "text": "Ok"
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_770853196_copy-modal_container-panel-guidebutton_20583560___widget",
+   "text": "No"
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_770853196_copy-modal_container-panel-guidebutton_copy___widget",
+   "text": "Yes"
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_770853196_copy-modal_container_copy-panel-guidebutton_20583560___widget",
+   "text": "No"
+  },
+  {
+   "id": "guideContainer-rootPanel-panel_770853196_copy-modal_container_copy-panel-guidebutton_copy___widget",
+   "text": "Yes"
+  },
+  {
+   "id": "guideContainer-rootPanel-modal_container_2035-panel_copy-guidebutton_copy___widget",
+   "text": "Ok"
+  },
+  {
+   "id": "guideContainer-rootPanel-modal_container_2035_1366054411-panel_copy-guidebutton_copy___widget",
+   "text": "Ok"
+  },
+  {
+   "id": "guideContainer-rootPanel-modal_container_copy-panel-guidebutton_65123201___widget",
+   "text": "OK"
+  },
+  {
+   "id": "guideContainer-rootPanel-modal_container_copy_709081779-panel-guidebutton_65123201___widget",
+   "text": "OK"
+  },
+  {
+   "id": "guideContainer-rootPanel-modal_container_copy_991151877-panel-guidebutton_65123201___widget",
+   "text": "OK"
+  },
+  {
+   "id": "okInfoModalBtn",
+   "text": "OK"
+  }
+ ],
+ "source": "/home/farhath/mca-capture/steps/2026-09-23T11-35-39-714Z/0019/"
+}

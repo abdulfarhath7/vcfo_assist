@@ -1,0 +1,44 @@
+[
+ {
+  "form": "agile-pro-s",
+  "url": "https://www.mca.gov.in/content/mca/global/en/mca/e-filing/incorporation-change-services/AgilePro.html",
+  "fields": 210,
+  "file": "agile-pro-s.json"
+ },
+ {
+  "form": "inc-33-emoa",
+  "url": "https://www.mca.gov.in/content/mca/global/en/mca/e-filing/incorporation-change-services/INC-33.html",
+  "fields": 128,
+  "file": "inc-33-emoa.json"
+ },
+ {
+  "form": "inc-34-eaoa",
+  "url": "https://www.mca.gov.in/content/mca/global/en/mca/e-filing/incorporation-change-services/INC-34.html",
+  "fields": 128,
+  "file": "inc-34-eaoa.json"
+ },
+ {
+  "form": "inc-9",
+  "url": "https://www.mca.gov.in/content/mca/global/en/mca/e-filing/incorporation-change-services/INC-9.html",
+  "fields": 286,
+  "file": "inc-9.json"
+ },
+ {
+  "form": "spice-part-b",
+  "url": "https://www.mca.gov.in/content/mca/global/en/mca/e-filing/incorporation-change-services/SpicePartB.html",
+  "fields": 1177,
+  "file": "spice-part-b.json"
+ },
+ {
+  "form": "login",
+  "url": "https://www.mca.gov.in/content/mca/global/en/foportal/fologin.html",
+  "fields": 41,
+  "file": "login.json"
+ },
+ {
+  "form": "spice-part-a",
+  "url": "https://www.mca.gov.in/content/mca/global/en/mca/e-filing/incorporation-change-services/spice.html",
+  "fields": 105,
+  "file": "spice-part-a.json"
+ }
+]
