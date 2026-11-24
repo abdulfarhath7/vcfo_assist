@@ -84,7 +84,14 @@ export async function startMockServers(opts = {}) {
     if (url.pathname === '/__mock/log') return send(200, 'application/json', JSON.stringify({ events, saves }));
     const p = url.pathname === '/registration' ? '/registration/' : url.pathname.replace(/\/$/, '') || '/';
     const route = ROUTES.find(([r]) => r === p || (r === '/registration/' && p === '/registration'));
-    if (route) return send(200, 'text/html; charset=utf-8', layout(route[1], route[0]));
+    if (route) {
+      let html = layout(route[1], route[0]);
+      // As on the portal, Verification lists the signatory saved on the Authorized Signatory tab.
+      const signatory = route[1] === 'verify' ? saves.filter((s) => s.page === 'authsignatory').at(-1)?.values : null;
+      const name = signatory ? [signatory.fnm, signatory.as_mname, signatory.as_lname].filter(Boolean).join(' ').replace(/[<>&"]/g, '') : '';
+      if (name) html = html.replace(/(<select id="authsign">.*?)<\/select>/, (_m, head) => (head.includes(`>${name}<`) ? `${head}</select>` : `${head}<option value="2">${name}</option></select>`));
+      return send(200, 'text/html; charset=utf-8', html);
+    }
     if (p === '/' || p === '') { res.writeHead(302, { location: '/registration/' }); return res.end(); }
     return send(404, 'text/plain', 'not in the mock');
   });

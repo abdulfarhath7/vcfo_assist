@@ -99,18 +99,24 @@ export async function requestOriginPermission(origin) {
 export const SUITE_ORIGIN_DEFAULTS = Object.freeze(['https://app.sbctrack.in', 'http://localhost:3000']);
 
 /**
- * Suite pages that name an engagement: `/app/{admin|manager|super|intern}/{projects|engagements}/{id or slug}`.
+ * Suite pages that name an engagement: `/app/{admin|manager|super|intern|lead}/{projects|engagements}/{id or slug}`,
+ * or any Suite page Suite's "Start" button marked with `?engagement=<id>` (the Ask VCFO chat, the
+ * reg-4 page).
  * @param {string} url
  * @returns {string | null}
  */
 export function engagementFromSuiteUrl(url) {
   let pathname = '';
+  let marked = '';
   try {
-    pathname = new URL(url).pathname;
+    const u = new URL(url);
+    pathname = u.pathname;
+    marked = u.searchParams.get('engagement') ?? '';
   } catch {
     return null;
   }
-  const m = /^\/app\/(?:admin|manager|super|intern)\/(?:projects|engagements)\/([^/?#]+)/.exec(pathname);
+  if (/^[\w.-]{1,120}$/.test(marked)) return marked;
+  const m = /^\/app\/(?:admin|manager|super|intern|lead)\/(?:projects|engagements)\/([^/?#]+)/.exec(pathname);
   if (!m || m[1] === 'new') return null;
   return decodeURIComponent(m[1]);
 }

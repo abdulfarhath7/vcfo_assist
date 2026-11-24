@@ -521,6 +521,18 @@ async function pendingForm() {
   return isRecord(p) && typeof p.formId === 'string' ? p.formId : null;
 }
 
+/**
+ * The engagement a Suite page's start request named, when it asked for this form's profile
+ * (the Ask VCFO chat and the reg-4 page are not engagement URLs, so the request carries it).
+ * @param {string | undefined} formId
+ * @returns {Promise<string | undefined>}
+ */
+async function pendingEngagement(formId) {
+  const p = await sessionGet(SESSION_KEYS.PENDING_START);
+  if (!isRecord(p) || typeof p.engagementId !== 'string' || p.engagementId === '' || typeof p.formId !== 'string') return undefined;
+  return !formId || profileFormFor(p.formId) === profileFormFor(formId) ? p.engagementId : undefined;
+}
+
 /** Resolves once the resume check for this worker instance has finished. */
 const resumed = getDevMode().then((devMode) => runner.resumeIfNeeded(devMode)).catch(() => undefined);
 
@@ -551,7 +563,7 @@ async function handle(req) {
       return Ok(await detectSuiteEngagement(await getSuiteOrigin()));
     case MSG.START_PART_A:
       if (await runner.isRunLive()) return Err('internal', 'A run is in progress. Stop it before starting another.');
-      return startPartA(req.engagementId, req.formId ?? (await pendingForm()) ?? PART_A);
+      return startPartA(req.engagementId ?? (await pendingEngagement(req.formId)), req.formId ?? (await pendingForm()) ?? PART_A);
     case MSG.PREPARE_FORM:
       return prepareForm(req.formId);
     case MSG.START_RUN:

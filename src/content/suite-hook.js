@@ -29,6 +29,7 @@
     relay(d.form, d.engagementId);
   });
 
-  const asked = new URL(location.href).searchParams.get('assist') ?? document.documentElement.dataset.vcfoAssistForm;
-  if (asked) relay(asked, null);
+  const params = new URL(location.href).searchParams;
+  const asked = params.get('assist') ?? document.documentElement.dataset.vcfoAssistForm;
+  if (asked) relay(asked, params.get('engagement') ?? document.documentElement.dataset.vcfoAssistEngagement ?? null);
 })();
