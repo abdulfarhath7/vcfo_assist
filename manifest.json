@@ -3,7 +3,7 @@
   "name": "VCFO Assist",
   "short_name": "VCFO Assist",
   "version": "0.1.0",
-  "description": "Assisted filling of MCA V3 portal forms from VCFO Suite engagement data. Never logs in, signs, pays, or submits.",
+  "description": "Assisted filling of MCA V3 and GST portal forms from VCFO Suite engagement data. Never logs in, signs, pays, or submits.",
   "minimum_chrome_version": "116",
   "icons": {
     "16": "assets/icons/icon-16.png",
@@ -31,7 +31,10 @@
     "tabs"
   ],
   "host_permissions": [
-    "https://www.mca.gov.in/*"
+    "https://www.mca.gov.in/*",
+    "https://reg.gst.gov.in/*",
+    "https://services.gst.gov.in/*",
+    "https://www.gst.gov.in/*"
   ],
   "optional_host_permissions": [
     "https://*/*",
@@ -41,7 +44,10 @@
   "content_scripts": [
     {
       "matches": [
-        "https://www.mca.gov.in/*"
+        "https://www.mca.gov.in/*",
+        "https://reg.gst.gov.in/*",
+        "https://services.gst.gov.in/*",
+        "https://www.gst.gov.in/*"
       ],
       "js": [
         "src/content/lib/resolve.js",

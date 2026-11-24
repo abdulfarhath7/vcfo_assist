@@ -13,6 +13,8 @@ import { waitForTabComplete } from '../engine/transport.js';
 /** @typedef {import('../shared/schema.js').SuiteResult} SuiteResult */
 
 const FIXTURE_PATH = 'fixtures/engagement.json';
+/** The GST development fixture (docs/gst-profile-contract.md shape). */
+const GST_FIXTURE_PATH = 'fixtures/gst-engagement.json';
 
 /**
  * Read the configured Suite origin. Empty string when unset.
@@ -256,11 +258,12 @@ function httpError(status, what, origin, tabId) {
  * tab. The raw JSON is returned; `suite/profile.js` validates and binds it.
  * @param {string} origin
  * @param {string} engagementId   Id or slug, as Suite's route accepts either
+ * @param {string} [form]          Profile form, e.g. `gst-reg-01`; none for SPICe+
  * @returns {Promise<import('../shared/result.js').Result<unknown>>}
  */
-export async function fetchAssistProfile(origin, engagementId) {
+export async function fetchAssistProfile(origin, engagementId, form) {
   const what = `the assist profile for engagement "${engagementId}"`;
-  const r = await suiteRequest(origin, SUITE_API.assistProfile(engagementId), { method: 'GET', headers: { Accept: 'application/json' } });
+  const r = await suiteRequest(origin, SUITE_API.assistProfile(engagementId, form), { method: 'GET', headers: { Accept: 'application/json' } });
   if (!r.ok) return r;
   if (r.value.status < 200 || r.value.status >= 300) return httpError(r.value.status, what, origin, r.value.tabId);
   if (r.value.body === null) return Err('transport', `${origin} answered for ${what}, but not with JSON. Is this the VCFO Suite origin?`);
@@ -269,12 +272,14 @@ export async function fetchAssistProfile(origin, engagementId) {
 
 /**
  * Read the development fixture. Used only when no Suite origin is set.
+ * @param {string} [formId]  A GST form reads the GST fixture
  * @returns {Promise<import('../shared/result.js').Result<unknown>>}
  */
-export async function loadFixture() {
-  const r = await fetchPackagedJson(FIXTURE_PATH);
+export async function loadFixture(formId = '') {
+  const path = formId.startsWith('gst-') ? GST_FIXTURE_PATH : FIXTURE_PATH;
+  const r = await fetchPackagedJson(path);
   if (!r.ok) return r;
-  if (r.value === null) return Err('validation', `${FIXTURE_PATH} is missing from this build.`);
+  if (r.value === null) return Err('validation', `${path} is missing from this build.`);
   return Ok(r.value);
 }
 
@@ -302,4 +307,69 @@ export async function postResult(origin, engagementId, result) {
     return httpError(r.value.status, `the result post for engagement "${engagementId}"`, origin, r.value.tabId);
   }
   return Ok({ status: r.value.status });
+}
+
+/**
+ * A file ready for an upload field.
+ * @typedef {object} FetchedFile
+ * @property {string} fileName
+ * @property {string} contentType
+ * @property {string} base64
+ * @property {number} sizeBytes
+ */
+
+/**
+ * @param {ArrayBuffer} buf
+ * @returns {string}
+ */
+function toBase64(buf) {
+  const bytes = new Uint8Array(buf);
+  let bin = '';
+  for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+  return btoa(bin);
+}
+
+/**
+ * Fetch one document the profile offers. First Suite's own attachments route,
+ * inside a Suite tab (same-origin, staff session, audited by Suite); then the
+ * document's signed URL from the worker. A data: URL (development fixture)
+ * is read directly. Nothing is written to disk; the bytes go straight to the
+ * page's file input.
+ * @param {string} origin   Suite origin, '' in fixture mode
+ * @param {string} engagementId
+ * @param {import('../shared/schema.js').SuiteDocument} doc
+ * @returns {Promise<import('../shared/result.js').Result<FetchedFile>>}
+ */
+export async function fetchDocument(origin, engagementId, doc) {
+  /** @type {string[]} */
+  const tried = [];
+  if (origin !== '' && engagementId !== 'fixture') {
+    const r = await suiteRequest(origin, SUITE_API.attachmentPath(engagementId, doc.key), { method: 'GET', headers: { Accept: 'application/json' } });
+    if (r.ok && r.value.status === 200 && r.value.body && typeof r.value.body === 'object') {
+      const b = /** @type {Record<string, unknown>} */ (r.value.body);
+      if (typeof b.base64 === 'string') {
+        return Ok({
+          fileName: typeof b.fileName === 'string' ? b.fileName : doc.fileName,
+          contentType: typeof b.contentType === 'string' ? b.contentType : doc.contentType,
+          base64: b.base64,
+          sizeBytes: Math.floor((b.base64.length * 3) / 4),
+        });
+      }
+    }
+    if (r.ok && r.value.status === 401) return httpError(401, `the document ${doc.key}`, origin, r.value.tabId);
+    tried.push(r.ok ? `Suite attachments route answered ${r.value.status}` : r.error.message);
+  }
+  if (doc.url) {
+    try {
+      const res = await fetch(doc.url, { credentials: 'omit' });
+      if (res.ok) {
+        const buf = await res.arrayBuffer();
+        return Ok({ fileName: doc.fileName, contentType: doc.contentType || res.headers.get('content-type') || '', base64: toBase64(buf), sizeBytes: buf.byteLength });
+      }
+      tried.push(`the signed URL answered ${res.status}`);
+    } catch (e) {
+      tried.push(`the signed URL could not be read (${e instanceof Error ? e.message : String(e)})`);
+    }
+  }
+  return Err('transport', `The document ${doc.key} could not be fetched: ${tried.join('; ') || 'no source'}.`);
 }

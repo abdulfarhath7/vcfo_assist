@@ -27,7 +27,19 @@ export const MCA_ORIGIN_PATTERN = /^https:\/\/www\.mca\.gov\.in\//;
  */
 export const FORMS = Object.freeze([
   Object.freeze({ id: 'spice-part-a', label: 'SPICe+ Part A — name reservation', enabled: true }),
+  Object.freeze({ id: 'gst-reg-01-part-a', label: 'GST REG-01 Part A — TRN', enabled: true }),
+  Object.freeze({ id: 'gst-reg-01-part-b', label: 'GST REG-01 Part B — application tabs', enabled: true }),
 ]);
+
+/**
+ * Forms that share one Suite profile. The GST profile is fetched with
+ * `?form=gst-reg-01` and both GST recipes run on it (docs/gst-profile-contract.md).
+ * @param {string} formId
+ * @returns {string}
+ */
+export function profileFormFor(formId) {
+  return formId.startsWith('gst-reg-01') ? 'gst-reg-01' : formId;
+}
 
 /** chrome.storage.session keys. PII lives only here. */
 export const SESSION_KEYS = Object.freeze({
@@ -43,6 +55,8 @@ export const SESSION_KEYS = Object.freeze({
   PREPARED: 'va.session.prepared',
   /** Result captured from the page for the return leg. */
   CAPTURED_RESULT: 'va.session.capturedResult',
+  /** A start request from a Suite page (form and engagement), for preselection. */
+  PENDING_START: 'va.session.pendingStart',
 });
 
 /** chrome.storage.local keys. Preferences only. Never engagement data. */
@@ -50,6 +64,12 @@ export const LOCAL_KEYS = Object.freeze({
   SUITE_ORIGIN: 'va.pref.suiteOrigin',
   LAST_FORM: 'va.pref.lastForm',
   DEV_MODE: 'va.pref.devMode',
+  /**
+   * Development only: a loopback origin (`http://127.0.0.1:4410`) that stands in for
+   * a portal origin, so the recipes can run against fixtures/gst-portal. Honoured only
+   * by an unpacked build in development mode (engine/devtarget.js).
+   */
+  MOCK_ORIGIN: 'va.pref.mockOrigin',
   PANEL_STATE: 'va.pref.panelState',
 });
 
@@ -112,7 +132,9 @@ export const DANGER = Object.freeze({
   /** Exact `type` attribute values that are always refused. */
   types: Object.freeze(['submit', 'image']),
   /** Case-insensitive pattern applied to every attribute in the descriptor. */
-  pattern: 'submit|pay|payment|confirm|proceed to pay|file|final|sign|dsc|delete|remove',
+  // GST additions: Proceed (sends the Part A OTPs), OTP / captcha / EVC / e-sign /
+  // Aadhaar authentication controls, challan creation and "generate" buttons.
+  pattern: 'submit|pay|payment|confirm|proceed|file|final|sign|dsc|delete|remove|otp|captcha|evc|e-?sign|authenticat|challan|generate|resend|declar',
   flags: 'i',
 });
 
@@ -122,7 +144,8 @@ export const DANGER = Object.freeze({
  * filled and is refused by the loader when it appears in a field map.
  */
 export const CREDENTIAL = Object.freeze({
-  pattern: 'captcha|otp|passw|passcode|mpin|(?:^|[^a-z])pin(?![\\s_-]*code)|secret|token|cvv',
+  // GST additions: the TRN login id, EVC codes and the Aadhaar number input (`#uid`).
+  pattern: 'captcha|otp|passw|passcode|mpin|(?:^|[^a-z])pin(?![\\s_-]*code)|secret|token|cvv|(?:^|[^a-z])trn(?:no)?(?:$|[^a-z])|(?:^|[^a-z])evc|(?:^|[^a-z])uid(?:$|[^a-z])',
   flags: 'i',
   /** Element types that are credential inputs whatever their name. */
   types: Object.freeze(['password']),
@@ -131,11 +154,32 @@ export const CREDENTIAL = Object.freeze({
 /** Recipe ops the runner understands. Keep in step with `engine/ops/`. */
 export const OPS = Object.freeze([
   'click', 'fill', 'fillGroup', 'select', 'check',
-  'waitFor', 'waitForGone', 'waitForUrl', 'assert', 'humanGate', 'halt', 'navigate',
+  'waitFor', 'waitForGone', 'waitForUrl', 'assert', 'humanGate', 'halt', 'navigate', 'forEach',
 ]);
 
-/** The only origin a recipe's `navigate` step may load. Checked by the loader and the guard. */
+/** The MCA portal origin (the SPICe+ forms, and the default tab the panel opens). */
 export const NAVIGATE_ORIGIN = 'https://www.mca.gov.in';
+
+/**
+ * The only origins a recipe's `navigate` step may load: exact origins, https, no
+ * wildcard. Checked by the loader and the guard. A development mock origin is
+ * allowed on top only through engine/devtarget.js.
+ */
+export const NAVIGATE_ORIGINS = Object.freeze([
+  NAVIGATE_ORIGIN,
+  'https://reg.gst.gov.in',
+  'https://services.gst.gov.in',
+  'https://www.gst.gov.in',
+]);
+
+/**
+ * Whether an origin is a loopback http origin (the development mock).
+ * @param {string} origin
+ * @returns {boolean}
+ */
+export function isLoopbackOrigin(origin) {
+  return /^http:\/\/(?:127\.0\.0\.1|localhost)(?::\d+)?$/.test(origin);
+}
 
 /** Run log cap. Session storage is not unbounded. */
 export const LOG_CAP = 200;
@@ -162,8 +206,18 @@ export const FRAMEWORKS = Object.freeze(['jquery', 'angular', 'react', 'aem', 'u
 
 /** Suite API paths, relative to the configured origin. */
 export const SUITE_API = Object.freeze({
-  /** The engagement's assist profile (read-only, staff session). @param {string} id  Engagement id or slug */
-  assistProfile: (id) => `/api/engagements/${encodeURIComponent(id)}/assist-profile`,
+  /**
+   * The engagement's assist profile (read-only, staff session).
+   * @param {string} id  Engagement id or slug
+   * @param {string} [form]  Profile form (`gst-reg-01`); SPICe+ sends none
+   */
+  assistProfile: (id, form) => `/api/engagements/${encodeURIComponent(id)}/assist-profile${form ? `?form=${encodeURIComponent(form)}` : ''}`,
+  /**
+   * One stored file as base64 JSON (`{ fileName, contentType, base64 }`), staff session.
+   * @param {string} id
+   * @param {string} key  Document key, e.g. `promoter.1.photo`
+   */
+  attachmentPath: (id, key) => `/api/assist/engagements/${encodeURIComponent(id)}/attachments/${encodeURIComponent(key)}`,
   /** @param {string} id */
   resultPath: (id) => `/api/assist/engagements/${encodeURIComponent(id)}/result`,
 });

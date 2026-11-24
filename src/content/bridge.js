@@ -110,6 +110,7 @@
     if (typeof raw.listboxSelector === 'string') entry.listboxSelector = raw.listboxSelector;
     if (typeof raw.optionSelector === 'string') entry.optionSelector = raw.optionSelector;
     if (raw.waitForOptions === true) entry.waitForOptions = true;
+    if (raw.matchPrefix === true) entry.matchPrefix = true;
     return entry;
   }
 
@@ -283,6 +284,39 @@
           return fail(picked.error.class, `field \`${field}\`: ${picked.error.message}`, { field, selectors: [r.selector] });
         }
         return ok({ actual: picked.actual, selector: r.selector });
+      }
+
+      case 'attachFile': {
+        // Prefill: put a file from VCFO Suite into a file input and raise its
+        // change event, as a person choosing the file would. Nothing is clicked.
+        const credential = patternSetArg(args, 'credential');
+        if (!credential) return fail('credential', 'upload refused: no credential set supplied with the op');
+        const r = resolveFromArgs(args);
+        if (!r.ok) return r.response;
+        const input = r.element instanceof HTMLInputElement && r.element.type === 'file'
+          ? r.element
+          : r.element.querySelector('input[type="file"]');
+        if (!(input instanceof HTMLInputElement)) {
+          return fail('verification', `field \`${field}\`: \`${r.selector}\` holds no file input`, { field, selectors: [r.selector] });
+        }
+        const hit = credentialMatch(resolveApi.describe(input), credential);
+        if (hit) return fail('credential', `field \`${field}\`: refused, the file input is a credential control (${hit})`, { field });
+        if (input.disabled) return fail('verification', `field \`${field}\`: the file input is disabled (pick the document type first?)`, { field, selectors: [r.selector] });
+        let bytes;
+        try {
+          const bin = atob(str(args, 'base64'));
+          bytes = new Uint8Array(bin.length);
+          for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+        } catch {
+          return fail('internal', `field \`${field}\`: the file arrived damaged (not base64)`);
+        }
+        const file = new File([bytes], str(args, 'fileName') || 'document', { type: str(args, 'contentType') });
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        input.files = dt.files;
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+        return ok({ attached: true, selector: r.selector });
       }
 
       case 'check': {

@@ -13,6 +13,7 @@ import * as assert from './assert.js';
 import * as humanGate from './humanGate.js';
 import * as halt from './halt.js';
 import * as navigate from './navigate.js';
+import * as forEach from './forEach.js';
 
 /**
  * @typedef {(ctx: import('../context.js').OpContext, step: import('../../shared/schema.js').Step) => Promise<import('../../shared/result.js').Result<import('../context.js').OpOutcome>>} OpRunner
@@ -32,4 +33,5 @@ export const OPS = Object.freeze({
   humanGate: humanGate.run,
   halt: halt.run,
   navigate: navigate.run,
+  forEach: forEach.run,
 });

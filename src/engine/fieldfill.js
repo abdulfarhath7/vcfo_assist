@@ -6,7 +6,7 @@
 import { Ok, Err } from '../shared/result.js';
 import { TIMEOUTS } from '../shared/constants.js';
 import { checkFieldIsNotCredential, credentialPatternSet } from './guard.js';
-import { valuesMatch, readValue } from './verify.js';
+import { valuesMatch, readValue, readField } from './verify.js';
 
 /** @typedef {import('../shared/schema.js').FieldDef} FieldDef */
 /** @typedef {import('../shared/schema.js').DiffMismatch} DiffMismatch */
@@ -89,9 +89,54 @@ async function widgetAttempt(ctx, field, value) {
     timeoutMs: waitMs, credential: credentialPatternSet(),
   }, waitMs + TIMEOUTS.SLICE_MARGIN_MS);
   if (!picked.ok) return picked;
-  const read = await ctx.send('readBack', { selectors: field.selectors, field: field.key, type: field.type });
-  if (!read.ok) return read;
-  return Ok(readValue(read.value));
+  return readField(ctx, field, value);
+}
+
+/**
+ * Put one Suite document into the page's file input. Prefill only: the input
+ * is set and its change event raised; nothing is clicked. A file Suite does
+ * not hold, cannot hand over, or that is larger than the portal takes is left
+ * for the person and named in the diff.
+ * @param {OpContext} ctx
+ * @param {FieldDef} field
+ * @returns {Promise<import('../shared/result.js').Result<FieldOutcome>>}
+ */
+export async function fillFile(ctx, field) {
+  const notCredential = checkFieldIsNotCredential(field);
+  if (!notCredential.ok) return notCredential;
+  if (field.sourceField === null) return Ok({ kind: 'skipped', reason: 'optional, no source value' });
+  const file = await ctx.fetchDocument(field.sourceField);
+  if (!file.ok) {
+    if (file.error.class === 'auth') return file;
+    const reason = `attach by hand: ${file.error.message}`;
+    if (field.optional) return Ok({ kind: 'skipped', reason });
+    return Ok({ kind: 'mismatch', expected: '', actual: '', reason });
+  }
+  const f = file.value;
+  if (field.maxSizeKB && f.sizeBytes > field.maxSizeKB * 1024) {
+    return Ok({
+      kind: 'mismatch', expected: '', actual: '',
+      reason: `attach by hand: ${f.fileName} is ${Math.ceil(f.sizeBytes / 1024)} KB; the portal takes at most ${field.maxSizeKB} KB. VCFO Assist does not resize files.`,
+    });
+  }
+  if (field.accept && field.accept.length && !field.accept.includes(f.contentType)) {
+    return Ok({ kind: 'mismatch', expected: '', actual: '', reason: `attach by hand: ${f.fileName} is ${f.contentType || 'of unknown type'}; the portal takes ${field.accept.join(', ')}.` });
+  }
+  const settled = await settleDependencies(ctx, field);
+  if (!settled.ok) return settled;
+  const put = await ctx.send('attachFile', {
+    selectors: field.selectors, field: field.key, fileName: f.fileName, contentType: f.contentType,
+    base64: f.base64, credential: credentialPatternSet(),
+  }, TIMEOUTS.OP_MS);
+  if (!put.ok) {
+    if (put.error.class !== 'verification') return put;
+    return Ok({ kind: 'mismatch', expected: f.fileName, actual: '', reason: `attach by hand: ${put.error.message.replace(/^field `[^`]+`: /, '')}` });
+  }
+  const read = await readField(ctx, field, f.fileName);
+  if (read.ok && valuesMatch(field, f.fileName, read.value.actual, read.value.alt)) {
+    return Ok({ kind: 'filled', expected: f.fileName, actual: read.value.actual });
+  }
+  return Ok({ kind: 'mismatch', expected: f.fileName, actual: read.ok ? read.value.actual : '', reason: 'the file was set but the page does not show it' });
 }
 
 /**
@@ -172,6 +217,7 @@ export async function fillFieldWith(ctx, field, value) {
  * @returns {Promise<import('../shared/result.js').Result<FieldOutcome>>}
  */
 export async function fillField(ctx, field) {
+  if (field.type === 'file') return fillFile(ctx, field);
   const lookup = ctx.valueFor(field);
   switch (lookup.status) {
     case 'missing':

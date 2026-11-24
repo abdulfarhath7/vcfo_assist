@@ -5,8 +5,10 @@
 import { Ok, Err } from '../shared/result.js';
 import {
   OPS, PRECONDITION_OPS, TRANSFORMS, ENTRY_MODES, STABILITIES, FRAMEWORKS,
-  SUPPORTED_SCHEMA_VERSIONS, CREDENTIAL, NAVIGATE_ORIGIN,
+  SUPPORTED_SCHEMA_VERSIONS, CREDENTIAL, NAVIGATE_ORIGINS,
 } from '../shared/constants.js';
+import { mockOrigin, retargetRecipe, retargetFieldMap, retargetResultRecipe } from './devtarget.js';
+import { expandForPayload } from './expand.js';
 import { isRecord, Problems } from '../shared/check.js';
 import { selectorStrings } from '../shared/selectors.js';
 
@@ -20,8 +22,10 @@ import { selectorStrings } from '../shared/selectors.js';
 /** @typedef {import('../shared/schema.js').ResultField} ResultField */
 
 const EXAMPLE_SUFFIX = '.example';
-const FIELD_TYPES = Object.freeze(['text', 'textarea', 'number', 'select', 'checkbox', 'radio', 'date', 'email', 'tel']);
-const WIDGET_KINDS = Object.freeze(['listbox', 'combobox', 'datepicker', 'radio', 'checkbox', 'native']);
+const FIELD_TYPES = Object.freeze(['text', 'textarea', 'number', 'select', 'checkbox', 'radio', 'date', 'email', 'tel', 'file']);
+const WIDGET_KINDS = Object.freeze(['listbox', 'combobox', 'datepicker', 'radio', 'checkbox', 'native', 'checklist']);
+/** Ops a forEach row may contain. Fill-by-key ops are excluded: a row fills through its section. */
+const FOREACH_INNER_OPS = Object.freeze(['click', 'fillGroup', 'waitFor', 'waitForGone', 'assert', 'humanGate']);
 const READ_MODES = Object.freeze(['text', 'value', 'attribute']);
 
 /* ------------------------------------------------------------------------ */
@@ -195,7 +199,7 @@ function readPrecondition(p, raw, path) {
  * @param {string} path
  * @returns {Step | undefined}
  */
-function readStep(p, raw, path) {
+function readStep(p, raw, path, nested = false) {
   if (!isRecord(raw)) {
     p.add(path, 'must be an object');
     return undefined;
@@ -206,6 +210,10 @@ function readStep(p, raw, path) {
     return undefined;
   }
   const op = /** @type {import('../shared/schema.js').StepOp} */ (opRaw);
+  if (nested && !FOREACH_INNER_OPS.includes(op)) {
+    p.add(`${path}.op`, `"${op}" is not allowed inside forEach (allowed: ${FOREACH_INNER_OPS.join(', ')})`);
+    return undefined;
+  }
   /** @type {Step} */
   const step = { op };
   if (typeof raw.label === 'string') step.label = raw.label;
@@ -279,8 +287,32 @@ function readStep(p, raw, path) {
       } catch {
         origin = '';
       }
-      if (origin !== NAVIGATE_ORIGIN) p.add(`${path}.url`, `must be on ${NAVIGATE_ORIGIN}; "${url}" is not`);
+      if (!NAVIGATE_ORIGINS.includes(origin)) p.add(`${path}.url`, `must be on ${NAVIGATE_ORIGINS.join(', ')}; "${url}" is not`);
       else step.url = url;
+      break;
+    }
+    case 'forEach': {
+      const over = p.string(raw, 'over', `${path}.over`);
+      if (over !== undefined) {
+        if (!/^[A-Za-z][\w.]*$/.test(over)) p.add(`${path}.over`, `"${over}" is not a field prefix`);
+        step.over = over;
+      }
+      if (raw.max !== undefined) {
+        const max = p.int(raw, 'max', `${path}.max`);
+        if (max !== undefined && max < 1) p.add(`${path}.max`, 'must be 1 or more');
+        else if (max !== undefined) step.max = max;
+      }
+      const inner = p.array(raw, 'steps', `${path}.steps`);
+      if (inner) {
+        if (inner.length === 0) p.add(`${path}.steps`, 'must contain at least one step');
+        /** @type {Step[]} */
+        const list = [];
+        inner.forEach((item, i) => {
+          const s = readStep(p, item, `${path}.steps[${i}]`, true);
+          if (s) list.push(s);
+        });
+        step.steps = list;
+      }
       break;
     }
   }
@@ -300,7 +332,20 @@ export function validateRecipeShape(raw, path = 'recipe') {
   const version = p.int(raw, 'version');
   const label = p.string(raw, 'label');
   const origin = p.string(raw, 'origin');
-  const requiresFieldMap = p.string(raw, 'requiresFieldMap');
+  /** @type {string | string[] | undefined} */
+  let requiresFieldMap;
+  if (Array.isArray(raw.requiresFieldMap)) {
+    requiresFieldMap = p.stringArray(raw, 'requiresFieldMap');
+    if (requiresFieldMap && requiresFieldMap.length === 0) p.add('requiresFieldMap', 'must name at least one field map');
+  } else {
+    requiresFieldMap = p.string(raw, 'requiresFieldMap');
+  }
+  /** @type {'mock-only' | 'approved' | undefined} */
+  let legalStatus;
+  if (raw.legalStatus !== undefined) {
+    const ls = p.oneOf(raw, 'legalStatus', ['mock-only', 'approved']);
+    if (ls !== undefined) legalStatus = /** @type {'mock-only' | 'approved'} */ (ls);
+  }
   const requiresSchemaVersion = p.int(raw, 'requiresSchemaVersion');
   let requiresFieldMapVersion = 1;
   if (raw.requiresFieldMapVersion !== undefined) {
@@ -341,6 +386,7 @@ export function validateRecipeShape(raw, path = 'recipe') {
     id, version, label, origin, requiresFieldMap, requiresFieldMapVersion,
     requiresSchemaVersion, preconditions, steps,
   };
+  if (legalStatus) recipe.legalStatus = legalStatus;
   if (typeof raw._note === 'string') recipe._note = raw._note;
   return Ok(recipe);
 }
@@ -406,6 +452,7 @@ function readFieldDef(p, raw, path) {
       }
       if (typeof entryRaw.listboxSelector === 'string') entry.listboxSelector = entryRaw.listboxSelector;
       if (typeof entryRaw.optionSelector === 'string') entry.optionSelector = entryRaw.optionSelector;
+      if (entryRaw.matchPrefix === true) entry.matchPrefix = true;
     }
   }
   const selectors = readSelectors(p, raw.selectors, `${path}.selectors`);
@@ -421,6 +468,15 @@ function readFieldDef(p, raw, path) {
   /** @type {string | undefined} */
   let note;
   if (raw.note !== undefined && raw.note !== null) note = p.string(raw, 'note', `${path}.note`);
+  /** @type {string | undefined} */
+  let verifyIn;
+  if (raw.verifyIn !== undefined && raw.verifyIn !== null) verifyIn = p.string(raw, 'verifyIn', `${path}.verifyIn`);
+  /** @type {number | undefined} */
+  let maxSizeKB;
+  if (raw.maxSizeKB !== undefined && raw.maxSizeKB !== null) maxSizeKB = p.int(raw, 'maxSizeKB', `${path}.maxSizeKB`);
+  /** @type {string[] | undefined} */
+  let accept;
+  if (raw.accept !== undefined) accept = p.stringArray(raw, 'accept', `${path}.accept`);
   if (sourceField === null && optional === false) p.add(`${path}.optional`, 'must be true when sourceField is null');
   if (key === undefined || label === undefined || sourceField === undefined || optional === undefined
     || type === undefined || entry === undefined || selectors === undefined || dependsOn === undefined) {
@@ -439,6 +495,9 @@ function readFieldDef(p, raw, path) {
   };
   if (waitForOptions) def.waitForOptions = true;
   if (note) def.note = note;
+  if (verifyIn) def.verifyIn = verifyIn;
+  if (maxSizeKB !== undefined) def.maxSizeKB = maxSizeKB;
+  if (accept) def.accept = accept;
   return def;
 }
 
@@ -606,6 +665,19 @@ export function validateResultRecipeShape(raw, path = 'resultRecipe') {
   }
   /** @type {ResultRecipe} */
   const rr = { id, version, form, label, origin, preconditions, extract };
+  if (isRecord(raw.report)) {
+    const r = raw.report;
+    /** @type {NonNullable<ResultRecipe['report']>} */
+    const report = {};
+    if (typeof r.form === 'string') report.form = r.form;
+    if (r.subjectKind === 'filing' || r.subjectKind === 'registration') report.subjectKind = r.subjectKind;
+    if (typeof r.subjectKey === 'string') report.subjectKey = r.subjectKey;
+    if (typeof r.referenceKey === 'string') {
+      if (!/^[a-z][A-Za-z]{1,30}$/.test(r.referenceKey)) p.add('report.referenceKey', 'must be a plain key such as "arn"');
+      else report.referenceKey = r.referenceKey;
+    }
+    rr.report = report;
+  }
   if (typeof raw._note === 'string') rr._note = raw._note;
   return Ok(rr);
 }
@@ -625,8 +697,8 @@ export function validateResultRecipeShape(raw, path = 'resultRecipe') {
 export function checkCompatibility(recipe, fieldMap) {
   /** @type {string[]} */
   const problems = [];
-  if (recipe.requiresFieldMap !== fieldMap.id) {
-    problems.push(`recipe "${recipe.id}" requires field map "${recipe.requiresFieldMap}" but "${fieldMap.id}" was loaded`);
+  if (mapIdOf(recipe) !== fieldMap.id) {
+    problems.push(`recipe "${recipe.id}" requires field map "${mapIdOf(recipe)}" but "${fieldMap.id}" was loaded`);
   }
   const needVersion = recipe.requiresFieldMapVersion ?? 1;
   if (fieldMap.version < needVersion) {
@@ -645,12 +717,13 @@ export function checkCompatibility(recipe, fieldMap) {
     problems.push(`recipe origin ${recipe.origin} differs from field map origin ${fieldMap.origin}`);
   }
   const allKeys = new Set(Object.values(fieldMap.sections).flat().map((f) => f.key));
-  recipe.steps.forEach((s, i) => {
+  const flat = recipe.steps.flatMap((s, i) => (s.op === 'forEach' ? (s.steps ?? []).map((x) => /** @type {[import('../shared/schema.js').Step, string]} */ ([x, `steps[${i}].steps`])) : [/** @type {[import('../shared/schema.js').Step, string]} */ ([s, `steps[${i}]`])]));
+  flat.forEach(([s, where]) => {
     if (s.op === 'fillGroup' && s.section !== undefined && !(s.section in fieldMap.sections)) {
-      problems.push(`steps[${i}] fillGroup references section "${s.section}" which the field map lacks`);
+      problems.push(`${where} fillGroup references section "${s.section}" which the field map lacks`);
     }
     if ((s.op === 'fill' || s.op === 'select' || s.op === 'check') && s.key !== undefined && !allKeys.has(s.key)) {
-      problems.push(`steps[${i}] ${s.op} references key "${s.key}" which the field map lacks`);
+      problems.push(`${where} ${s.op} references key "${s.key}" which the field map lacks`);
     }
   });
   if (problems.length) {
@@ -676,7 +749,67 @@ export async function loadRecipe(formId, devMode) {
   if (!shaped.ok) return shaped;
   const allowed = refuseExampleOutsideDev(shaped.value.id, fetched.value.path, devMode);
   if (!allowed.ok) return allowed;
-  return Ok({ recipe: shaped.value, path: fetched.value.path });
+  return Ok({ recipe: retargetRecipe(shaped.value, await mockOrigin(devMode)), path: fetched.value.path });
+}
+
+/**
+ * The field map id a recipe runs on: its one map, or the joined ids of several.
+ * @param {Recipe} recipe
+ * @returns {string}
+ */
+export function mapIdOf(recipe) {
+  return Array.isArray(recipe.requiresFieldMap) ? recipe.requiresFieldMap.join('+') : recipe.requiresFieldMap;
+}
+
+/**
+ * Load several field maps (one per portal tab) and merge them into one. They
+ * must share origin, framework and schema version; section names and keys must
+ * not repeat. The merged version is the lowest of the parts.
+ * @param {string[]} ids
+ * @param {boolean} devMode
+ * @returns {Promise<import('../shared/result.js').Result<{ fieldMap: FieldMap, path: string }>>}
+ */
+async function loadMergedFieldMaps(ids, devMode) {
+  /** @type {FieldMap[]} */
+  const parts = [];
+  /** @type {string[]} */
+  const paths = [];
+  for (const id of ids) {
+    const m = await loadFieldMap(id, devMode);
+    if (!m.ok) return m;
+    parts.push(m.value.fieldMap);
+    paths.push(m.value.path);
+  }
+  const first = parts[0];
+  /** @type {Record<string, FieldDef[]>} */
+  const sections = {};
+  /** @type {Set<string>} */
+  const keys = new Set();
+  for (const part of parts) {
+    if (part.origin !== first.origin || part.framework !== first.framework || part.requiresSchemaVersion !== first.requiresSchemaVersion) {
+      return Err('validation', `Field map "${part.id}" differs from "${first.id}" in origin, framework or schema version; they cannot be merged.`);
+    }
+    for (const [name, fields] of Object.entries(part.sections)) {
+      if (name in sections) return Err('validation', `Section "${name}" appears in more than one of the field maps ${ids.join(', ')}.`);
+      for (const f of fields) {
+        if (keys.has(f.key)) return Err('validation', `Field key "${f.key}" appears in more than one of the field maps ${ids.join(', ')}.`);
+        keys.add(f.key);
+      }
+      sections[name] = fields;
+    }
+  }
+  return Ok({
+    fieldMap: {
+      id: ids.join('+'),
+      version: Math.min(...parts.map((m) => m.version)),
+      origin: first.origin,
+      framework: first.framework,
+      requiresSchemaVersion: first.requiresSchemaVersion,
+      capturedFrom: parts.map((m) => `${m.id}: ${m.capturedFrom}`).join(' | '),
+      sections,
+    },
+    path: paths.join(', '),
+  });
 }
 
 /**
@@ -695,7 +828,7 @@ export async function loadFieldMap(mapId, devMode) {
   if (!shaped.ok) return shaped;
   const allowed = refuseExampleOutsideDev(shaped.value.id, fetched.value.path, devMode);
   if (!allowed.ok) return allowed;
-  return Ok({ fieldMap: shaped.value, path: fetched.value.path });
+  return Ok({ fieldMap: retargetFieldMap(shaped.value, await mockOrigin(devMode)), path: fetched.value.path });
 }
 
 /**
@@ -714,7 +847,7 @@ export async function loadResultRecipe(formId, devMode) {
   if (shaped.value.form !== formId) {
     return Err('validation', `${fetched.value.path} is for form "${shaped.value.form}", not "${formId}"`);
   }
-  return Ok({ resultRecipe: shaped.value, path: fetched.value.path });
+  return Ok({ resultRecipe: retargetResultRecipe(shaped.value, await mockOrigin(devMode)), path: fetched.value.path });
 }
 
 /**
@@ -726,7 +859,8 @@ export async function loadResultRecipe(formId, devMode) {
 export async function loadForm(formId, devMode) {
   const r = await loadRecipe(formId, devMode);
   if (!r.ok) return r;
-  const m = await loadFieldMap(r.value.recipe.requiresFieldMap, devMode);
+  const need = r.value.recipe.requiresFieldMap;
+  const m = Array.isArray(need) ? await loadMergedFieldMaps(need, devMode) : await loadFieldMap(need, devMode);
   if (!m.ok) return m;
   const compat = checkCompatibility(r.value.recipe, m.value.fieldMap);
   if (!compat.ok) return compat;
@@ -736,6 +870,23 @@ export async function loadForm(formId, devMode) {
     recipePath: r.value.path,
     fieldMapPath: m.value.path,
   });
+}
+
+/**
+ * Load a form and expand its repeat groups (forEach) for one payload. Every
+ * caller that runs or prepares a form uses this, so the steps the panel lists,
+ * the steps the runner executes and the steps a restarted worker rebuilds are
+ * the same.
+ * @param {string} formId
+ * @param {boolean} devMode
+ * @param {import('../shared/schema.js').SuitePayload} payload
+ * @returns {Promise<import('../shared/result.js').Result<{ recipe: Recipe, fieldMap: FieldMap, recipePath: string, fieldMapPath: string }>>}
+ */
+export async function loadFormFor(formId, devMode, payload) {
+  const loaded = await loadForm(formId, devMode);
+  if (!loaded.ok) return loaded;
+  const expanded = expandForPayload(loaded.value.recipe, loaded.value.fieldMap, payload);
+  return Ok({ ...loaded.value, recipe: expanded.recipe, fieldMap: expanded.fieldMap });
 }
 
 /**

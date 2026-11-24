@@ -5,7 +5,9 @@
 
 import { Ok, Err, fromThrown } from '../shared/result.js';
 import { SESSION_KEYS, NON_IDEMPOTENT_OPS, TIMEOUTS, LOG_CAP } from '../shared/constants.js';
-import { loadForm, findField, orderedFields } from './loader.js';
+import { loadFormFor, findField, orderedFields } from './loader.js';
+import { fetchDocument, getSuiteOrigin } from '../suite/client.js';
+import { isLoopbackOrigin } from '../shared/constants.js';
 import { validatePayloadForForm } from '../suite/validate.js';
 import { sendOp, triggerJquery, ensureBridge } from './transport.js';
 import { lookupValue, selectorsFor } from './context.js';
@@ -121,6 +123,11 @@ function buildContext(state, recipe, fieldMap, payload) {
     persist: () => persistState(state),
     abortRequested: () => state.abortRequested,
     valueFor: (field) => lookupValue(field, payload),
+    fetchDocument: async (key) => {
+      const doc = (payload.documents ?? []).find((d) => d.key === key);
+      if (!doc) return Err('validation', `VCFO Suite holds no document "${key}".`);
+      return fetchDocument(await getSuiteOrigin(), payload.engagement.id, doc);
+    },
   };
 }
 
@@ -180,9 +187,14 @@ export async function startRun(opts) {
   const payload = await getPayload();
   if (!payload) return Err('validation', 'No engagement is loaded. Go back to Import.');
 
-  const loaded = await loadForm(prepared.formId, opts.devMode);
+  const loaded = await loadFormFor(prepared.formId, opts.devMode, payload);
   if (!loaded.ok) return loaded;
   const { recipe, fieldMap } = loaded.value;
+  // A recipe whose legal position is not settled fills only the development mock.
+  if (recipe.legalStatus === 'mock-only' && !isLoopbackOrigin(recipe.origin)) {
+    return Err('precondition',
+      `${recipe.label} may not fill the live portal yet: its legal status is "mock-only" until the CS opinion is in. Type the values from the Verify table yourself.`);
+  }
   const valid = validatePayloadForForm(payload, prepared.formId, recipe, fieldMap);
   if (!valid.ok) return valid;
 
@@ -195,7 +207,7 @@ export async function startRun(opts) {
   }
   const url = tab.url ?? '';
   if (!url.startsWith(recipe.origin)) {
-    return Err('precondition', `The active tab is not on ${recipe.origin}. Open the MCA portal in this tab, log in, then start the run.`);
+    return Err('precondition', `The active tab is not on ${recipe.origin}. Open the portal in this tab, log in where it asks, then start the run.`);
   }
 
   const runId = `run_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
@@ -408,7 +420,7 @@ export async function resumeIfNeeded(devMode) {
   const state = await getRunState();
   if (!state || (state.status !== 'running' && state.status !== 'paused')) return;
   const payload = await getPayload();
-  const loaded = await loadForm(state.formId, devMode);
+  const loaded = payload ? await loadFormFor(state.formId, devMode, payload) : await Promise.resolve(Err('internal', 'no payload'));
   if (!payload || !loaded.ok) {
     state.error = loaded.ok
       ? { class: 'internal', message: 'The engagement payload was not found after the worker restarted.' }

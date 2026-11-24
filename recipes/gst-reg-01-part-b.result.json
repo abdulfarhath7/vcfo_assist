@@ -1,0 +1,28 @@
+{
+  "id": "gst-reg-01-part-b.result",
+  "version": 1,
+  "form": "gst-reg-01-part-b",
+  "label": "GST REG-01 ARN",
+  "origin": "https://reg.gst.gov.in",
+  "_note": "The live success page (/registration/auth/newappl/acknowledgement) says the ARN follows by email and SMS; the ARN itself shows on Track Application Status and on the 'submitted successfully and ARN generated is' message. The pattern is the ARN layout Suite checks: AA + 2-digit state + DDMMYY + 7 alphanumerics. Verify on the first real run which page carries it.",
+  "preconditions": [],
+  "extract": [
+    {
+      "key": "srn",
+      "label": "Application Reference Number (ARN)",
+      "selectors": { "primary": "body", "fallbacks": [], "shadowPath": [], "stability": "likely" },
+      "read": "text",
+      "optional": false,
+      "pattern": "\\b(AA\\d{2}\\d{6}[0-9A-Z]{7})\\b"
+    },
+    {
+      "key": "arnDate",
+      "label": "Date of ARN",
+      "selectors": { "primary": "body", "fallbacks": [], "shadowPath": [], "stability": "fragile" },
+      "read": "text",
+      "optional": true,
+      "pattern": "(?:Date of ARN|ARN Date|Submission Date)\\s*:?\\s*(\\d{2}/\\d{2}/\\d{4})"
+    }
+  ],
+  "report": { "form": "gst-reg-01", "subjectKind": "registration", "subjectKey": "reg-4", "referenceKey": "arn" }
+}

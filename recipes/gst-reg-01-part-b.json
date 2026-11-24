@@ -1,0 +1,74 @@
+{
+  "id": "gst-reg-01-part-b",
+  "version": 1,
+  "label": "GST REG-01 Part B — application tabs",
+  "origin": "https://reg.gst.gov.in",
+  "legalStatus": "mock-only",
+  "requiresFieldMap": [
+    "gst-reg-01-business",
+    "gst-reg-01-promoters",
+    "gst-reg-01-signatory",
+    "gst-reg-01-principal-place",
+    "gst-reg-01-additional-places",
+    "gst-reg-01-goods-services",
+    "gst-reg-01-state-specific",
+    "gst-reg-01-verification"
+  ],
+  "requiresFieldMapVersion": 1,
+  "requiresSchemaVersion": 1,
+  "_note": "Tab selectors come from the portal's public templates (never seen rendered: Part B sits behind TRN login). Each tab ends with a humanGate because Save & Continue is a submit button and the guard refuses it. TRN login, ADD NEW, Aadhaar choices, the declaration and DSC/EVC/E-sign submit are the person's.",
+  "preconditions": [],
+  "steps": [
+    { "op": "waitFor", "selector": "#tnm", "timeoutMs": 30000, "settleMs": 500, "label": "Business Details tab open" },
+    { "op": "fillGroup", "section": "business", "label": "Fill Business Details" },
+    {
+      "op": "forEach", "over": "existingRegistrations", "max": 20,
+      "steps": [
+        { "op": "fillGroup", "section": "existingReg", "label": "Existing registration {n} of {count}" },
+        { "op": "humanGate", "message": "Check existing registration {n} of {count}, then click Add on the portal and Continue here." }
+      ]
+    },
+    { "op": "humanGate", "message": "Review Business Details and the uploaded proof, then press Save & Continue on the portal. Continue here when the Promoter / Partners tab is open." },
+    {
+      "op": "forEach", "over": "promoters", "max": 20,
+      "steps": [
+        { "op": "waitFor", "selector": "#fnm", "timeoutMs": 30000, "settleMs": 300, "label": "Promoter form open" },
+        { "op": "fillGroup", "section": "promoter", "label": "Fill promoter {n} of {count}" },
+        { "op": "humanGate", "message": "Review promoter {n} of {count} and the photo, then press Save & Continue on the portal (or ADD NEW for the next promoter). Continue here when the next form is open." }
+      ]
+    },
+    { "op": "waitFor", "selector": "#auth_prim", "timeoutMs": 30000, "settleMs": 300, "label": "Authorized Signatory tab open" },
+    { "op": "fillGroup", "section": "signatory", "label": "Fill Authorized Signatory" },
+    { "op": "humanGate", "message": "Review the signatory and the proof of appointment, then press Save & Continue. On Authorized Representative choose No (or fill it yourself) and press Save & Continue. Continue here when Principal Place of Business is open." },
+    { "op": "waitFor", "selector": "#bp_email", "timeoutMs": 30000, "settleMs": 300, "label": "Principal Place of Business tab open" },
+    { "op": "fillGroup", "section": "principalPlace", "label": "Fill Principal Place of Business" },
+    { "op": "humanGate", "message": "Check the jurisdiction the portal picked from the PIN code, the possession type and the proof, then press Save & Continue. Continue here on the next tab (Additional Places, or Goods and Services when there are none)." },
+    {
+      "op": "forEach", "over": "additionalPlaces", "max": 50,
+      "steps": [
+        { "op": "waitFor", "selector": "#ap_email", "timeoutMs": 30000, "settleMs": 300, "label": "Additional place form open" },
+        { "op": "fillGroup", "section": "additionalPlace", "label": "Fill additional place {n} of {count}" },
+        { "op": "humanGate", "message": "Review additional place {n} of {count}, then press Save & Continue (or ADD NEW). Continue here when the next form is open." }
+      ]
+    },
+    { "op": "waitFor", "selector": "#gs_hsn_value", "timeoutMs": 30000, "settleMs": 300, "label": "Goods and Services tab open" },
+    {
+      "op": "forEach", "over": "goods", "max": 5,
+      "steps": [ { "op": "fillGroup", "section": "goodsRow", "label": "Add HSN {n} of {count}" } ]
+    },
+    {
+      "op": "forEach", "over": "services", "max": 5,
+      "steps": [ { "op": "fillGroup", "section": "serviceRow", "label": "Add SAC {n} of {count}" } ]
+    },
+    { "op": "humanGate", "message": "Check the HSN and SAC rows, then press Save & Continue. On Bank Accounts (optional) add the account yourself or skip. Continue here when State Specific Information is open." },
+    { "op": "waitFor", "selector": "#ec_tax", "timeoutMs": 30000, "settleMs": 300, "label": "State Specific Information tab open" },
+    { "op": "fillGroup", "section": "stateSpecific", "label": "Fill State Specific Information" },
+    { "op": "humanGate", "message": "Press Save & Continue. On Aadhaar Authentication choose Yes or No for each person yourself and press Save & Continue. Continue here when Verification is open." },
+    { "op": "waitFor", "selector": "#veriPlace", "timeoutMs": 30000, "settleMs": 300, "label": "Verification tab open" },
+    { "op": "fillGroup", "section": "verification", "label": "Fill Verification (signatory name, place)" },
+    {
+      "op": "halt",
+      "reason": "Read the whole application. The declaration tick, SUBMIT WITH DSC / E-SIGNATURE / EVC, and any Aadhaar OTP are the authorised signatory's own acts: VCFO Assist does none of them. After the success page, open Track Application Status (or the ARN email) and use Read result in the panel to send the ARN to VCFO Suite."
+    }
+  ]
+}

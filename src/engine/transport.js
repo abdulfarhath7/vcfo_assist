@@ -92,7 +92,7 @@ export function navigateTab(tabId, url, timeoutMs = TIMEOUTS.TAB_SETTLE_MS) {
       if (loading && info.status === 'complete') {
         const now = tab.url ?? '';
         if (now.startsWith(target.origin)) finish(Ok(true));
-        else finish(Err('precondition', `Loading ${url} ended on ${now || 'an unknown page'}. Is the MCA session still logged in?`));
+        else finish(Err('precondition', `Loading ${url} ended on ${now || 'an unknown page'}. Is the portal session still logged in?`));
       }
     };
     /** @param {number} id */

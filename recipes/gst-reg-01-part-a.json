@@ -1,0 +1,21 @@
+{
+  "id": "gst-reg-01-part-a",
+  "version": 1,
+  "label": "GST REG-01 Part A — TRN",
+  "origin": "https://reg.gst.gov.in",
+  "legalStatus": "mock-only",
+  "requiresFieldMap": "gst-reg-01-part-a",
+  "requiresFieldMapVersion": 1,
+  "requiresSchemaVersion": 1,
+  "_note": "Selectors seen live on 2026-11-25 (docs/gst-registration-portal.md, Part A). The form is ready when #applnType is visible. Captcha, PROCEED and both OTPs are the person's: the recipe halts before them. mock-only until the CS opinion (docs/gst-profile-contract.md).",
+  "preconditions": [],
+  "steps": [
+    { "op": "navigate", "url": "https://reg.gst.gov.in/registration/", "label": "Open GST New Registration" },
+    { "op": "waitFor", "selector": "#applnType", "timeoutMs": 30000, "settleMs": 500, "label": "Part A form rendered" },
+    { "op": "fillGroup", "section": "partA", "label": "Fill Part A (type, state, district, legal name, PAN, email, mobile)" },
+    {
+      "op": "halt",
+      "reason": "Check every value. Then type the captcha and press PROCEED yourself; enter the mobile and email OTPs yourself on the next page. Note the TRN the portal shows (it is also sent by SMS and email) and use it for Part B within 15 days. VCFO Assist does not press PROCEED, read the captcha or touch an OTP."
+    }
+  ]
+}

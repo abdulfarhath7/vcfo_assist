@@ -3,9 +3,10 @@
 // lives in chrome.storage.session only; preferences in chrome.storage.local.
 
 import { Ok, Err } from './shared/result.js';
-import { ASSIST_VERSION, SESSION_KEYS, LOCAL_KEYS, MSG, FORMS, TIMEOUTS, NAVIGATE_ORIGIN } from './shared/constants.js';
+import { ASSIST_VERSION, SESSION_KEYS, LOCAL_KEYS, MSG, FORMS, TIMEOUTS, NAVIGATE_ORIGIN, profileFormFor } from './shared/constants.js';
 import { isRecord } from './shared/check.js';
-import { loadForm, loadResultRecipe, orderedFields } from './engine/loader.js';
+import { loadFormFor, loadResultRecipe, orderedFields } from './engine/loader.js';
+import { registerSuiteHook, isSuiteStartMessage, acceptSuiteStart } from './suite/hook.js';
 import { lookupValue, selectorsFor } from './engine/context.js';
 import { sendOp, ensureBridge } from './engine/transport.js';
 import { flag } from './engine/waits.js';
@@ -100,6 +101,7 @@ async function snapshot() {
     runner.getRunState(),
     sessionGet(SESSION_KEYS.CAPTURED_RESULT),
   ]);
+  const pendingStart = await sessionGet(SESSION_KEYS.PENDING_START);
   const p = /** @type {SuitePayload | null} */ (payload);
   const lastForm = local[LOCAL_KEYS.LAST_FORM];
   return {
@@ -112,6 +114,7 @@ async function snapshot() {
     missing: p?.missing ?? [],
     notes: p?.notes ?? [],
     lastForm: typeof lastForm === 'string' ? lastForm : null,
+    pendingStart: /** @type {{ formId: string, engagementId: string | null } | null} */ (pendingStart),
     prepared: /** @type {Prepared | null} */ (prepared),
     verifyRows: /** @type {VerifyRow[] | null} */ (verifyRows),
     run,
@@ -135,7 +138,7 @@ async function acceptPayload(raw, source, formId) {
   const shaped = validatePayloadShape(raw);
   if (!shaped.ok) return shaped;
   const payload = shaped.value;
-  if (payload.form !== formId) {
+  if (profileFormFor(payload.form) !== profileFormFor(formId)) {
     return Err('validation', `The payload is for form "${payload.form}" but "${formId}" was selected.`);
   }
   const fresh = checkPayloadExpiry(payload);
@@ -190,13 +193,14 @@ async function loadEngagement(req) {
   }
   const origin = await getSuiteOrigin();
   if (origin === '' || req.source === 'fixture') {
-    const fixture = await loadFixture();
+    const fixture = await loadFixture(req.formId);
     if (!fixture.ok) return fixture;
     return acceptProfile(fixture.value, 'fixture', { formId: req.formId, engagementId: 'fixture', from: 'the development fixture' });
   }
   const engagementId = (req.engagementId ?? '').trim();
   if (!engagementId) return Err('validation', 'Open the engagement in VCFO Suite, or enter its id or slug.');
-  const raw = await fetchAssistProfile(origin, engagementId);
+  const profileForm = profileFormFor(req.formId);
+  const raw = await fetchAssistProfile(origin, engagementId, profileForm === req.formId ? undefined : profileForm);
   if (!raw.ok) return raw;
   return acceptProfile(raw.value, 'suite', { formId: req.formId, engagementId, from: origin });
 }
@@ -208,24 +212,37 @@ async function loadEngagement(req) {
 const PART_A = 'spice-part-a';
 
 /**
- * Bring the MCA portal forward: the open MCA tab, or a new active one. The
- * lead logs in there; Assist never does.
+ * Bring the portal forward: an open tab on the form's origin, or a new active
+ * one on its start page. The person logs in there; Assist never does.
+ * @param {string} origin
+ * @param {string} url
  * @returns {Promise<import('./shared/result.js').Result<number>>}
  */
-async function openMcaTab() {
+async function openPortalTab(origin = NAVIGATE_ORIGIN, url = `${NAVIGATE_ORIGIN}/`) {
   try {
-    const [existing] = await chrome.tabs.query({ url: `${NAVIGATE_ORIGIN}/*` });
+    const [existing] = await chrome.tabs.query({ url: `${origin}/*` });
     if (existing && typeof existing.id === 'number') {
       await chrome.tabs.update(existing.id, { active: true });
       if (typeof existing.windowId === 'number') await chrome.windows.update(existing.windowId, { focused: true });
       return Ok(existing.id);
     }
-    const tab = await chrome.tabs.create({ url: `${NAVIGATE_ORIGIN}/`, active: true });
-    if (typeof tab.id !== 'number') return Err('transport', `Could not open ${NAVIGATE_ORIGIN}.`);
+    const tab = await chrome.tabs.create({ url, active: true });
+    if (typeof tab.id !== 'number') return Err('transport', `Could not open ${origin}.`);
     return Ok(tab.id);
   } catch (e) {
-    return Err('transport', `Could not open ${NAVIGATE_ORIGIN}: ${e instanceof Error ? e.message : String(e)}`);
+    return Err('transport', `Could not open ${origin}: ${e instanceof Error ? e.message : String(e)}`);
   }
+}
+
+/**
+ * Open the portal for a prepared form.
+ * @param {PanelResponse} prepared
+ * @returns {Promise<import('./shared/result.js').Result<number>>}
+ */
+function openPortalFor(prepared) {
+  const p = prepared.ok ? /** @type {Prepared} */ (prepared.value) : null;
+  if (p && p.origin) return openPortalTab(p.origin, p.startUrl ?? `${p.origin}/`);
+  return openPortalTab();
 }
 
 /**
@@ -235,15 +252,16 @@ async function openMcaTab() {
  * @param {string | undefined} typedId
  * @returns {Promise<PanelResponse>}
  */
-async function startPartA(typedId) {
+async function startPartA(typedId, formId = PART_A) {
   const origin = await getSuiteOrigin();
+  const PART_A = formId;
   let engagementId = (typedId ?? '').trim();
   const loadedAlready = /** @type {SuitePayload | null} */ (await sessionGet(SESSION_KEYS.ENGAGEMENT));
-  if (!engagementId && loadedAlready) {
+  if (!engagementId && loadedAlready && profileFormFor(loadedAlready.form) === profileFormFor(formId)) {
     // Loaded and confirmed by name on panel 1: start it as it is.
     const prepared = await prepareForm(PART_A);
     if (!prepared.ok) return prepared;
-    const mca = await openMcaTab();
+    const mca = await openPortalFor(prepared);
     if (!mca.ok) return mca;
     return Ok({ mcaTabId: mca.value });
   }
@@ -258,7 +276,7 @@ async function startPartA(typedId) {
   if (!loaded.ok) return loaded;
   const prepared = await prepareForm(PART_A);
   if (!prepared.ok) return prepared;
-  const mca = await openMcaTab();
+  const mca = await openPortalFor(prepared);
   if (!mca.ok) return mca;
   return Ok({ mcaTabId: mca.value });
 }
@@ -281,7 +299,7 @@ async function prepareForm(formId) {
   const payload = /** @type {SuitePayload | null} */ (await sessionGet(SESSION_KEYS.ENGAGEMENT));
   if (!payload) return Err('validation', 'No engagement is loaded.');
   const devMode = await getDevMode();
-  const loaded = await loadForm(formId, devMode);
+  const loaded = await loadFormFor(formId, devMode, payload);
   if (!loaded.ok) return loaded;
   const { recipe, fieldMap } = loaded.value;
   const valid = validatePayloadForForm(payload, formId, recipe, fieldMap);
@@ -352,7 +370,13 @@ async function prepareForm(formId) {
     fillableCount,
     unboundCount,
     steps: recipe.steps.map((s, index) => ({ index, op: s.op, label: s.label ?? (s.op === 'halt' ? 'Stop for review' : s.op) })),
+    origin: recipe.origin,
+    startUrl: recipe.steps.find((s) => s.op === 'navigate')?.url ?? `${recipe.origin}/`,
+    legalStatus: recipe.legalStatus ?? 'approved',
   };
+  if (recipe.legalStatus === 'mock-only') {
+    warnings.push(`${recipe.label} is mock-only until the CS opinion is in: VCFO Assist fills only the development mock. On the live portal, type the values below yourself.`);
+  }
   await chrome.storage.session.set({
     [SESSION_KEYS.PREPARED]: prepared,
     [SESSION_KEYS.VERIFY_ROWS]: rows,
@@ -388,7 +412,7 @@ async function captureResult(tabId) {
   }
   const url = tab.url ?? '';
   if (!url.startsWith(rr.origin)) {
-    return Err('precondition', `The active tab is not on ${rr.origin}. Open the MCA page that shows the SRN.`);
+    return Err('precondition', `The active tab is not on ${rr.origin}. Open the portal page that shows the reference (SRN or ARN).`);
   }
   for (const pre of rr.preconditions) {
     if (pre.op === 'assertUrlMatches' && pre.pattern && !new RegExp(pre.pattern).test(url)) {
@@ -434,17 +458,27 @@ async function captureResult(tabId) {
   const srn = values.srn;
   if (!srn) return Err('verification', 'No SRN was read from the page.');
 
+  const report = rr.report ?? {};
+  const payloadNow = /** @type {SuitePayload | null} */ (await sessionGet(SESSION_KEYS.ENGAGEMENT));
   /** @type {SuiteResult} */
   const result = {
-    form: run.formId,
+    form: report.form ?? run.formId,
     srn,
+    reference: srn,
     status: values.status ?? (run.submittedByHuman ? 'submitted' : 'unknown'),
     capturedAt: new Date().toISOString(),
     fieldsWritten: run.fieldsWritten,
-    mismatches: run.diff ? run.diff.mismatches : [],
+    // Suite's ingest names each mismatch by `field`; `key` is kept for older readers.
+    mismatches: (run.diff ? run.diff.mismatches : []).map((m) => ({ ...m, field: m.key })),
     recipeVersion: run.recipeVersion,
     fieldMapVersion: run.fieldMapVersion,
   };
+  if (report.referenceKey) /** @type {Record<string, unknown>} */ (result)[report.referenceKey] = srn;
+  if (values.arnDate) result.arnDate = values.arnDate;
+  if (report.subjectKind) result.subjectKind = report.subjectKind;
+  // Suite may name the tracker row in the profile (`fields['meta.subjectKey']`); else the recipe's.
+  const subjectKey = payloadNow && typeof payloadNow.fields['meta.subjectKey'] === 'string' ? payloadNow.fields['meta.subjectKey'] : report.subjectKey;
+  if (subjectKey) result.subjectKey = String(subjectKey);
   /** @type {CapturedResult} */
   const captured = { engagementId: run.engagementId, result, posted: false };
   await chrome.storage.session.set({ [SESSION_KEYS.CAPTURED_RESULT]: captured });
@@ -478,6 +512,15 @@ async function postCaptured() {
 /* Request handling                                                          */
 /* ------------------------------------------------------------------------ */
 
+/**
+ * The form a Suite page asked for, if any (src/suite/hook.js).
+ * @returns {Promise<string | null>}
+ */
+async function pendingForm() {
+  const p = await sessionGet(SESSION_KEYS.PENDING_START);
+  return isRecord(p) && typeof p.formId === 'string' ? p.formId : null;
+}
+
 /** Resolves once the resume check for this worker instance has finished. */
 const resumed = getDevMode().then((devMode) => runner.resumeIfNeeded(devMode)).catch(() => undefined);
 
@@ -494,6 +537,7 @@ async function handle(req) {
       const n = normaliseOrigin(req.origin);
       if (!n.ok) return n;
       await setSuiteOrigin(n.value);
+      await registerSuiteHook(n.value);
       return Ok({ origin: n.value });
     }
     case MSG.SET_DEV_MODE:
@@ -507,7 +551,7 @@ async function handle(req) {
       return Ok(await detectSuiteEngagement(await getSuiteOrigin()));
     case MSG.START_PART_A:
       if (await runner.isRunLive()) return Err('internal', 'A run is in progress. Stop it before starting another.');
-      return startPartA(req.engagementId);
+      return startPartA(req.engagementId, req.formId ?? (await pendingForm()) ?? PART_A);
     case MSG.PREPARE_FORM:
       return prepareForm(req.formId);
     case MSG.START_RUN:
@@ -551,7 +595,16 @@ chrome.runtime.onMessage.addListener(
    * @returns {boolean | undefined}
    */
   (message, sender, sendResponse) => {
-    if (sender.id !== chrome.runtime.id || sender.tab) return undefined;
+    if (sender.id !== chrome.runtime.id) return undefined;
+    if (sender.tab) {
+      // The one message a page may send: a start request from the Suite hook.
+      getSuiteOrigin().then(async (origin) => {
+        if (!isSuiteStartMessage(message, sender, origin)) return sendResponse(Err('validation', 'refused'));
+        const pending = await acceptSuiteStart(message);
+        sendResponse(pending ? Ok(pending) : Err('validation', 'unknown form'));
+      }).catch(() => sendResponse(Err('internal', 'hook failed')));
+      return true;
+    }
     if (!isPanelRequest(message)) return undefined;
     handle(message)
       .then(sendResponse)
@@ -562,6 +615,7 @@ chrome.runtime.onMessage.addListener(
 
 chrome.runtime.onInstalled.addListener(() => {
   void chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
+  void getSuiteOrigin().then(registerSuiteHook);
 });
 
 chrome.runtime.onStartup.addListener(() => {

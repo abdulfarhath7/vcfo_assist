@@ -52,6 +52,12 @@ async function focusTab(tabId) {
 function currentFormId(ctx) {
   if (local.formId) return local.formId;
   const enabled = ctx.snap.forms.filter((f) => f.enabled);
+  // A start from a Suite page (Ask VCFO, the reg-4 step) names the form.
+  const asked = ctx.snap.pendingStart?.formId;
+  if (asked && enabled.some((f) => f.id === asked)) {
+    local.formId = asked;
+    return asked;
+  }
   const last = ctx.snap.lastForm && enabled.some((f) => f.id === ctx.snap.lastForm) ? ctx.snap.lastForm : null;
   local.formId = last ?? (enabled[0] ? enabled[0].id : '');
   return local.formId;
@@ -187,7 +193,7 @@ function formCard(ctx) {
     h('div', { class: 'field' },
       h('label', { for: 'form' }, 'Which form to fill'),
       select,
-      locked ? h('span', { class: 'hint' }, 'Change the engagement to pick a different form.') : h('span', { class: 'hint' }, 'Only SPICe+ Part A is offered until it has filled a real form.'),
+      locked ? h('span', { class: 'hint' }, 'Change the engagement to pick a different form.') : h('span', { class: 'hint' }, 'SPICe+ Part A, and GST REG-01 Part A then Part B. GST fills only the development mock until the CS opinion is in.'),
     ),
   );
 }
@@ -303,7 +309,7 @@ async function startPartA(ctx) {
   ctx.setBusy(true);
   // An engagement already loaded (and confirmed by name) is the one started.
   const typed = ctx.snap.engagement ? '' : local.startId.trim();
-  const r = await ctx.request({ type: MSG.START_PART_A, engagementId: typed || undefined });
+  const r = await ctx.request({ type: MSG.START_PART_A, engagementId: typed || undefined, formId: currentFormId(ctx) });
   ctx.setBusy(false);
   if (!r.ok) {
     const tabId = r.error.details?.tabId;
@@ -342,16 +348,21 @@ async function continueAfterLogin(ctx) {
  */
 function startCard(ctx) {
   const { snap } = ctx;
+  const formId = currentFormId(ctx);
+  const gst = formId.startsWith('gst-');
+  const formLabel = snap.forms.find((f) => f.id === formId)?.label ?? formId;
   if (local.gateTabId !== null) {
     const tabId = local.gateTabId;
     return h('div', { class: 'card' },
-      h('div', { class: 'card__head' }, h('h3', null, 'Log in to MCA'), chip('Waiting for you', 'waiting')),
+      h('div', { class: 'card__head' }, h('h3', null, gst ? 'Open the GST portal' : 'Log in to MCA'), chip('Waiting for you', 'waiting')),
       h('div', { class: 'stack' },
-        h('p', null, 'Log in, clear the captcha and OTP, then click Continue.'),
-        h('p', { class: 'muted' }, 'Assist never types your MCA user id, password, captcha or OTP. After Continue it opens SPICe+ Part A itself and fills it; you review and submit.'),
+        h('p', null, gst && formId.endsWith('part-b')
+          ? 'Log in with your TRN (TRN, email, captcha, OTP), open My Saved Applications, click Edit, then click Continue.'
+          : gst ? 'The New Registration page is open. Click Continue.' : 'Log in, clear the captcha and OTP, then click Continue.'),
+        h('p', { class: 'muted' }, `Assist never types a user id, password, TRN, captcha or OTP. After Continue it fills ${formLabel}; you review, sign and submit.`),
         h('div', { class: 'btn-row' },
           h('button', { type: 'button', class: 'btn btn--primary', onclick: () => { void continueAfterLogin(ctx); } }, 'Continue'),
-          h('button', { type: 'button', class: 'btn btn--ghost btn--sm', onclick: () => { void focusTab(tabId); } }, 'Show the MCA tab'),
+          h('button', { type: 'button', class: 'btn btn--ghost btn--sm', onclick: () => { void focusTab(tabId); } }, 'Show the portal tab'),
           h('button', { type: 'button', class: 'btn btn--ghost btn--sm', onclick: () => { local.gateTabId = null; ctx.rerender(); } }, 'Cancel'),
         ),
       ),
@@ -365,7 +376,7 @@ function startCard(ctx) {
   /** @type {HTMLElement} */
   let which;
   if (snap.engagement) {
-    which = h('p', null, 'Fill SPICe+ Part A for ', h('strong', null, snap.engagement.companyName), ', as named by VCFO Suite above.');
+    which = h('p', null, `Fill ${formLabel} for `, h('strong', null, snap.engagement.companyName), ', as named by VCFO Suite above.');
   } else if (fixture) {
     which = h('p', { class: 'muted' }, 'No Suite origin is set: the development fixture is used.');
   } else if (found && local.detecting) {
@@ -390,18 +401,18 @@ function startCard(ctx) {
   }
   const suiteTab = local.suiteTabId;
   return h('div', { class: 'card' },
-    h('div', { class: 'card__head' }, h('h3', null, 'SPICe+ Part A')),
+    h('div', { class: 'card__head' }, h('h3', null, formLabel)),
     h('div', { class: 'stack' },
       which,
       h('div', { class: 'btn-row' },
-        h('button', { type: 'button', class: 'btn btn--primary', onclick: () => { void startPartA(ctx); } }, 'Start SPICe+ Part A'),
+        h('button', { type: 'button', class: 'btn btn--primary', onclick: () => { void startPartA(ctx); } }, `Start ${formLabel.split(' — ')[0]}`),
         fixture ? null : h('button', {
           type: 'button', class: 'btn btn--ghost btn--sm',
           onclick: () => { local.detected = undefined; ctx.rerender(); },
         }, 'Look again'),
         suiteTab !== null ? h('button', { type: 'button', class: 'btn btn--ghost btn--sm', onclick: () => { void focusTab(suiteTab); } }, 'Show the VCFO Suite tab') : null,
       ),
-      h('p', { class: 'hint' }, 'Loads the engagement from Suite, opens MCA for you to log in, then opens the form and fills it. Nothing is submitted.'),
+      h('p', { class: 'hint' }, 'Loads the engagement from Suite, opens the portal for you to log in, then opens the form and fills it. Nothing is submitted.'),
     ),
   );
 }

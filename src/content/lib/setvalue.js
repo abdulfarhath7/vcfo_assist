@@ -229,6 +229,17 @@
    */
   function readBack(el, type) {
     el.removeAttribute(MARK_ATTR);
+    if (type === 'file') {
+      // The chosen file's name; `alt` is the surrounding upload block's text,
+      // where a portal lists the files it accepted.
+      const input = el instanceof HTMLInputElement && el.type === 'file' ? el : el.querySelector('input[type="file"]');
+      const name = input instanceof HTMLInputElement && input.files && input.files[0] ? input.files[0].name : '';
+      return { actual: name, alt: (el.textContent ?? '').replace(/\s+/g, ' ').trim() };
+    }
+    if (entryIsChecklist(el)) {
+      const ticked = checklistBoxes(el).filter((b) => b.checked).map((b) => checklistLabel(b));
+      return { actual: ticked.join(' | '), alt: ticked.join(' | ') };
+    }
     if (el instanceof HTMLSelectElement) {
       const o = el.selectedOptions[0];
       return { actual: (o?.textContent ?? '').trim(), alt: o?.value ?? el.value };
@@ -325,6 +336,34 @@
   }
 
   /**
+   * A checklist is a container of checkboxes answered by label (GST's nature
+   * of business activity). Marked by the engine while it works on one.
+   * @param {Element} el
+   * @returns {boolean}
+   */
+  function entryIsChecklist(el) {
+    return el.getAttribute('data-va-checklist') === '1';
+  }
+
+  /**
+   * @param {Element} el
+   * @returns {HTMLInputElement[]}
+   */
+  function checklistBoxes(el) {
+    return Array.from(el.querySelectorAll('input[type="checkbox"]')).filter((b) => b instanceof HTMLInputElement);
+  }
+
+  /**
+   * The text beside a checkbox in a list: its list item, else its label.
+   * @param {HTMLInputElement} box
+   * @returns {string}
+   */
+  function checklistLabel(box) {
+    const li = box.closest('li');
+    return (li ? li.textContent ?? '' : choiceLabel(box)).replace(/\s+/g, ' ').trim();
+  }
+
+  /**
    * Widget-mode entry: open the control, wait for its options, click the one
    * whose text or value matches, then report what the control shows.
    * Native selects and text-like date pickers take the direct path.
@@ -335,6 +374,23 @@
    * @returns {Promise<{ ok: true, actual: string } | { ok: false, error: AssistError }>}
    */
   async function pickWidget(el, value, entry, timeoutMs) {
+    if (entry.widgetKind === 'checklist') {
+      // Tick each box whose label is one of the values ("A; B", as Suite
+      // flattens a list), exactly. Boxes already ticked are left alone.
+      el.setAttribute('data-va-checklist', '1');
+      const boxes = checklistBoxes(el);
+      const wants = value.split(';').map((v) => norm(v)).filter(Boolean);
+      for (const want of wants) {
+        const hit = boxes.find((b) => norm(checklistLabel(b)) === want) ?? boxes.find((b) => norm(b.value) === want);
+        if (!hit) {
+          return { ok: false, error: { class: 'verification', message: `none of the ${boxes.length} checkboxes is labelled "${want}"` } };
+        }
+        if (hit.disabled) return { ok: false, error: { class: 'verification', message: `the checkbox "${want}" is disabled` } };
+        if (!hit.checked) click(hit);
+      }
+      const ticked = boxes.filter((b) => b.checked).map((b) => checklistLabel(b));
+      return { ok: true, actual: ticked.join(' | ') };
+    }
     if (el instanceof HTMLSelectElement || entry.widgetKind === 'native') {
       // Options that load after an earlier choice or a PIN lookup: poll for the
       // exact option until the timeout, as the reference build did.
@@ -384,6 +440,7 @@
       seen = options.length;
       target = options.find((o) => norm(o.getAttribute('data-value') ?? o.getAttribute('value')) === want && want !== '')
         ?? options.find((o) => norm(o.textContent) === want)
+        ?? (entry.matchPrefix && want !== '' ? options.find((o) => norm(o.textContent).startsWith(want)) : undefined)
         ?? null;
       if (target) break;
       await sleep(POLL_MS);

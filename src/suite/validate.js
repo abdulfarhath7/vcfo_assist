@@ -5,7 +5,7 @@
 // which lists its own gaps). Failures list the missing keys.
 
 import { Ok, Err } from '../shared/result.js';
-import { SUPPORTED_SCHEMA_VERSIONS, KNOWN_SUITE_RANGE } from '../shared/constants.js';
+import { SUPPORTED_SCHEMA_VERSIONS, KNOWN_SUITE_RANGE, profileFormFor } from '../shared/constants.js';
 import { isRecord, Problems } from '../shared/check.js';
 
 /** @typedef {import('../shared/schema.js').SuitePayload} SuitePayload */
@@ -129,7 +129,8 @@ export function validatePayloadForForm(payload, formId, recipe, fieldMap) {
   const warnings = [];
   const skew = suiteVersionWarning(payload);
   if (skew) warnings.push(skew);
-  if (payload.form !== formId) {
+  // One GST profile feeds both GST recipes (Part A and Part B).
+  if (profileFormFor(payload.form) !== profileFormFor(formId)) {
     return Err('validation', `Payload is for form "${payload.form}" but "${formId}" was selected.`);
   }
   if (payload.schemaVersion !== fieldMap.requiresSchemaVersion) {
@@ -144,7 +145,8 @@ export function validatePayloadForForm(payload, formId, recipe, fieldMap) {
   const missing = [];
   for (const fields of Object.values(fieldMap.sections)) {
     for (const f of fields) {
-      if (f.optional || f.sourceField === null) continue;
+      // Upload fields read payload.documents, not fields; their gaps are listed by Suite.
+      if (f.optional || f.sourceField === null || f.type === 'file') continue;
       if (!(f.sourceField in payload.fields)) missing.push(`${f.key} ← ${f.sourceField}`);
     }
   }

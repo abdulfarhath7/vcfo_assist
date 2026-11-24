@@ -37,7 +37,7 @@
 /**
  * @typedef {'click' | 'fill' | 'fillGroup' | 'select' | 'check'
  *   | 'waitFor' | 'waitForGone' | 'waitForUrl' | 'assert'
- *   | 'humanGate' | 'halt' | 'navigate'} StepOp
+ *   | 'humanGate' | 'halt' | 'navigate' | 'forEach'} StepOp
  */
 
 /**
@@ -57,6 +57,13 @@
  * @property {number} [timeoutMs]  waits
  * @property {string} [message]    assert, humanGate
  * @property {string} [reason]     halt
+ * @property {string} [over]       forEach — the repeat group's prefix in `payload.fields`
+ *   (`promoters` counts `promoters.1.*`, `promoters.2.*`, …; Suite's rows are 1-based)
+ * @property {number} [max]        forEach — the most rows the portal accepts
+ * @property {Step[]} [steps]      forEach — the steps for one row. `{n}` in a label,
+ *   message or fillGroup section is replaced by the row number when the recipe is
+ *   expanded for a payload (engine/expand.js); there is no forEach left at run time.
+ * @property {number} [instance]   Set by the expander on the steps it produces
  */
 
 /**
@@ -73,11 +80,14 @@
  * @property {number} version
  * @property {string} label
  * @property {string} origin
- * @property {string} requiresFieldMap          Field map id this recipe fills from
+ * @property {string | string[]} requiresFieldMap  Field map id this recipe fills from, or
+ *   several ids whose sections are merged (one map per portal tab)
  * @property {number} [requiresFieldMapVersion] Minimum field map version (default 1)
  * @property {number} requiresSchemaVersion     Suite payload schemaVersion
  * @property {Precondition[]} preconditions
  * @property {Step[]} steps
+ * @property {'mock-only' | 'approved'} [legalStatus]  `mock-only`: the runner refuses to fill
+ *   the live portal; only the development mock may be filled. Default `approved`.
  * @property {string} [_note]
  */
 
@@ -117,7 +127,7 @@
  */
 
 /**
- * @typedef {'listbox' | 'combobox' | 'datepicker' | 'radio' | 'checkbox' | 'native'} WidgetKind
+ * @typedef {'listbox' | 'combobox' | 'datepicker' | 'radio' | 'checkbox' | 'native' | 'checklist'} WidgetKind
  */
 
 /**
@@ -126,11 +136,13 @@
  * @property {WidgetKind | null} [widgetKind]
  * @property {string} [listboxSelector] widget — where options appear once opened
  * @property {string} [optionSelector]  widget — option elements within the listbox
+ * @property {boolean} [matchPrefix]  combobox — an option matches when its text starts with the
+ *   value (a search result reading `9983 - Other professional services` for `9983`)
  * @property {boolean} [waitForOptions] Set by the engine from FieldDef.waitForOptions when sending the op
  */
 
 /**
- * @typedef {'text' | 'textarea' | 'number' | 'select' | 'checkbox' | 'radio' | 'date' | 'email' | 'tel'} FieldType
+ * @typedef {'text' | 'textarea' | 'number' | 'select' | 'checkbox' | 'radio' | 'date' | 'email' | 'tel' | 'file'} FieldType
  */
 
 /**
@@ -150,6 +162,11 @@
  * @property {boolean} [waitForOptions]  Options load after an earlier choice (or a PIN lookup):
  *   poll for the matching option instead of failing at once
  * @property {string} [note]           Shown to the lead beside the field, e.g. a manual step
+ * @property {string} [verifyIn]       CSS selector of an element whose text must contain the
+ *   value after the fill (a search widget that clears itself and adds a table row)
+ * @property {number} [maxSizeKB]      type `file`: the portal's size cap; a larger file is left
+ *   for the person, never resized
+ * @property {string[]} [accept]       type `file`: content types the portal takes
  */
 
 /**
@@ -192,6 +209,9 @@
  * @property {string} origin
  * @property {Precondition[]} preconditions
  * @property {ResultField[]} extract
+ * @property {{ form?: string, subjectKind?: 'filing' | 'registration', subjectKey?: string, referenceKey?: string }} [report]
+ *   How the captured reference is posted: `referenceKey` names the extra key that carries it
+ *   (`arn`), besides `srn` and `reference`
  * @property {string} [_note]
  */
 
@@ -242,6 +262,19 @@
  * @property {string} [expiresAt]   Present on bundle payloads
  * @property {SuiteMissing[]} [missing]
  * @property {SuiteNote[]} [notes]
+ * @property {SuiteDocument[]} [documents]  Files Suite holds for upload fields (GST profile)
+ */
+
+/**
+ * A file the Suite profile offers for an upload field (docs/gst-profile-contract.md).
+ * @typedef {object} SuiteDocument
+ * @property {string} key           `promoter.1.photo`, `place.proof`, …
+ * @property {string} label
+ * @property {string} fileName
+ * @property {string} contentType
+ * @property {number | null} sizeBytes
+ * @property {string} url           Signed GET URL (or a data: URL in the development fixture)
+ * @property {number | null} portalLimitKb
  */
 
 /**
@@ -260,6 +293,11 @@
  * @property {DiffMismatch[]} mismatches
  * @property {number} recipeVersion
  * @property {number} fieldMapVersion
+ * @property {string} [reference]   The same reference as `srn`, under Suite's ingest name
+ * @property {string} [arn]         GST: the ARN (a result recipe's `report.referenceKey`)
+ * @property {string} [arnDate]
+ * @property {'filing' | 'registration'} [subjectKind]
+ * @property {string} [subjectKey]
  */
 
 /* ------------------------------------------------------------------------ */
@@ -412,6 +450,9 @@
  * @property {number} fillableCount
  * @property {number} unboundCount   Captured fields with no profile binding, not shown or filled
  * @property {{ index: number, op: StepOp, label: string }[]} steps
+ * @property {string} [origin]        The portal origin the recipe runs on
+ * @property {string} [startUrl]      The page the panel opens for the person (first navigate)
+ * @property {'mock-only' | 'approved'} [legalStatus]
  */
 
 /**
@@ -436,6 +477,7 @@
  * @property {SuiteNote[]} notes        Suite's notes for the loaded engagement
  * @property {string | null} lastForm
  * @property {Prepared | null} prepared
+ * @property {{ formId: string, engagementId: string | null } | null} [pendingStart]  A start a Suite page asked for
  * @property {VerifyRow[] | null} verifyRows
  * @property {RunState | null} run
  * @property {CapturedResult | null} captured
@@ -453,7 +495,7 @@
  *   | { type: 'va.loadEngagement', source: 'suite' | 'fixture', formId: string, engagementId?: string }
  *   | { type: 'va.loadEngagement', source: 'bundle', formId: string, envelope: unknown, passphrase: string }
  *   | { type: 'va.detectSuiteEngagement' }
- *   | { type: 'va.startPartA', engagementId?: string }
+ *   | { type: 'va.startPartA', engagementId?: string, formId?: string }
  *   | { type: 'va.prepareForm', formId: string }
  *   | { type: 'va.startRun', tabId: number }
  *   | { type: 'va.continueGate' }
@@ -480,7 +522,7 @@
  * Ops the content script executes. All site knowledge arrives in `args`.
  * @typedef {'ping' | 'exists' | 'inspect' | 'click' | 'setValue' | 'readBack'
  *   | 'pickWidget' | 'check' | 'waitFor' | 'waitForGone' | 'waitForUrl'
- *   | 'settle' | 'readText' | 'describePage'} ContentOp
+ *   | 'settle' | 'readText' | 'describePage' | 'attachFile'} ContentOp
  */
 
 /**

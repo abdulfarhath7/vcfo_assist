@@ -3,7 +3,7 @@
 // override path: no flag, no recipe key, no argument that widens this.
 
 import { Ok, Err } from '../shared/result.js';
-import { DANGER, CREDENTIAL, NAVIGATE_ORIGIN } from '../shared/constants.js';
+import { DANGER, CREDENTIAL, NAVIGATE_ORIGINS, isLoopbackOrigin } from '../shared/constants.js';
 import { selectorStrings } from '../shared/selectors.js';
 
 /** @typedef {import('../shared/schema.js').ElementDescriptor} ElementDescriptor */
@@ -47,22 +47,27 @@ export function checkClickTarget(d, selector, label = '') {
 }
 
 /**
- * Refuse a navigation anywhere but the MCA portal. Exact origin match: no
- * subdomain, no http, no other host, whatever the recipe says.
+ * Refuse a navigation anywhere but a listed portal origin (MCA, the GST
+ * portal's reg / services / www hosts). Exact origin match: no other
+ * subdomain, no http, no other host, whatever the recipe says. The one
+ * addition is the development mock origin, and only when it is loopback http
+ * and is the run's own (retargeted) recipe origin.
  * @param {string} url
  * @param {string} [label]
+ * @param {string} [mockOrigin]  The run's recipe origin when it is the dev mock
  * @returns {import('../shared/result.js').Result<true>}
  */
-export function checkNavigateTarget(url, label = '') {
+export function checkNavigateTarget(url, label = '', mockOrigin = '') {
   let origin = '';
   try {
     origin = new URL(url).origin;
   } catch {
     origin = '';
   }
-  if (origin !== NAVIGATE_ORIGIN) {
+  const allowed = NAVIGATE_ORIGINS.includes(origin) || (mockOrigin !== '' && origin === mockOrigin && isLoopbackOrigin(origin));
+  if (!allowed) {
     return Err('guard',
-      `Step "${label || url}" refused: navigate may only load ${NAVIGATE_ORIGIN}, not ${origin || `"${url}"`}. This is a recipe bug.`,
+      `Step "${label || url}" refused: navigate may only load ${NAVIGATE_ORIGINS.join(', ')}, not ${origin || `"${url}"`}. This is a recipe bug.`,
       { step: label || undefined });
   }
   return Ok(true);

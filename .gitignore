@@ -8,3 +8,5 @@ cmd.txt
 cmd.out
 .DS_Store
 *.zip
+# GST portal captures: the portal's own pages, scripts and masters (not ours to publish)
+capture/gst/

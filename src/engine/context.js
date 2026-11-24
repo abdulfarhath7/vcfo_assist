@@ -43,6 +43,8 @@ import { toText, applyTransforms } from './transform.js';
  * @property {() => Promise<void>} persist
  * @property {() => boolean} abortRequested
  * @property {(field: FieldDef) => ValueLookup} valueFor
+ * @property {(key: string) => Promise<import('../shared/result.js').Result<import('../suite/client.js').FetchedFile>>} fetchDocument
+ *   Fetch the payload's document with this key (upload fields); an Err names why
  */
 
 /**

@@ -1,10 +1,10 @@
 // navigate: load a URL in the run's tab, wait for it to finish loading, and
 // re-establish the content-script bridge (the old document's bridge died with
-// it). Only https://www.mca.gov.in is reachable: the loader refuses any other
+// it). Only the listed portal origins (and, in development, the loopback mock) are reachable: the loader refuses any other
 // origin in a recipe, and the guard refuses it again here.
 
 import { Ok, Err } from '../../shared/result.js';
-import { TIMEOUTS } from '../../shared/constants.js';
+import { TIMEOUTS, isLoopbackOrigin } from '../../shared/constants.js';
 import { checkNavigateTarget } from '../guard.js';
 import { navigateTab, ensureBridge } from '../transport.js';
 
@@ -18,7 +18,8 @@ import { navigateTab, ensureBridge } from '../transport.js';
  */
 export async function run(ctx, step) {
   if (!step.url) return Err('validation', `navigate step "${step.label ?? ''}" has no url`);
-  const allowed = checkNavigateTarget(step.url, step.label ?? '');
+  const mock = isLoopbackOrigin(ctx.recipe.origin) ? ctx.recipe.origin : '';
+  const allowed = checkNavigateTarget(step.url, step.label ?? '', mock);
   if (!allowed.ok) return allowed;
   const loaded = await navigateTab(ctx.tabId, step.url, step.timeoutMs ?? TIMEOUTS.TAB_SETTLE_MS);
   if (!loaded.ok) return loaded;

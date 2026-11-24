@@ -31,6 +31,9 @@ import { isRecord } from '../shared/check.js';
  * @property {Record<string, unknown>} profile
  * @property {SuiteMissing[]} missing
  * @property {SuiteNote[]} notes
+ * @property {Record<string, FieldValue> | null} fields  Suite's own flat binding (GST profile);
+ *   when present it is used as is, so `sourceField` names stay exactly Suite's
+ * @property {import('../shared/schema.js').SuiteDocument[]} documents
  */
 
 /**
@@ -97,12 +100,40 @@ export function validateProfileResponse(body, origin) {
     if (typeof n.key !== 'string' || typeof n.note !== 'string') return Err('validation', `notes[${i}] from ${origin} lacks key or note.`);
     notes.push({ key: n.key, note: n.note });
   }
+  /** @type {Record<string, FieldValue> | null} */
+  let fields = null;
+  if (body.fields !== undefined) {
+    if (!isRecord(body.fields)) return Err('validation', `The profile from ${origin} has "fields" that is not an object.`);
+    fields = {};
+    for (const [k, v] of Object.entries(body.fields)) {
+      if (typeof v === 'string' || typeof v === 'boolean' || (typeof v === 'number' && Number.isFinite(v))) fields[k] = v;
+    }
+  }
+  /** @type {import('../shared/schema.js').SuiteDocument[]} */
+  const documents = [];
+  if (body.documents !== undefined && !Array.isArray(body.documents)) {
+    return Err('validation', `The profile from ${origin} has "documents" that is not a list.`);
+  }
+  for (const [i, d] of records(body.documents).entries()) {
+    if (typeof d.key !== 'string' || typeof d.url !== 'string') return Err('validation', `documents[${i}] from ${origin} lacks key or url.`);
+    documents.push({
+      key: d.key,
+      label: typeof d.label === 'string' ? d.label : d.key,
+      fileName: typeof d.fileName === 'string' ? d.fileName : d.key,
+      contentType: typeof d.contentType === 'string' ? d.contentType : '',
+      sizeBytes: typeof d.sizeBytes === 'number' ? d.sizeBytes : null,
+      url: d.url,
+      portalLimitKb: typeof d.portalLimitKb === 'number' ? d.portalLimitKb : null,
+    });
+  }
   return Ok({
     schemaVersion: version,
     companyName: typeof body.companyName === 'string' ? body.companyName : '',
     profile: body.profile,
     missing,
     notes,
+    fields,
+    documents,
   });
 }
 
@@ -174,10 +205,11 @@ export function payloadFromProfile(response, ctx) {
     suiteVersion: '',
     form: ctx.formId,
     engagement: { id: ctx.engagementId, companyName: response.companyName || ctx.engagementId, stage: '' },
-    fields: bindProfile(response.profile),
+    fields: response.fields ?? bindProfile(response.profile),
     issuedAt: new Date().toISOString(),
     missing: response.missing,
     notes: response.notes,
+    documents: response.documents,
   };
 }
 
