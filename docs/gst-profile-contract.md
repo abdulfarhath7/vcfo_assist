@@ -244,16 +244,18 @@ The reg-4 step page, the GST registration record (`/app/{role}/registrations/{en
 and Ask VCFO show **Start on GST portal**. It keeps the Suite tab where it is, adds
 `?assist=gst-reg-01&engagement={engagementId}` to that tab's URL (history.replaceState, no
 navigation), sets `document.documentElement.dataset.vcfoAssistForm = 'gst-reg-01'` and
-`dataset.vcfoAssistEngagement = '{engagementId}'`, posts
-`window.postMessage({ source: 'vcfo-suite', type: 'vcfo-assist:start', form: 'gst-reg-01', engagementId }, location.origin)`,
-and opens `https://reg.gst.gov.in/registration/` in a new tab. The extension preselects the
+`dataset.vcfoAssistEngagement = '{engagementId}'`,
+and posts `window.postMessage({ source: 'vcfo-suite', type: 'vcfo-assist:start', form: 'gst-reg-01', engagementId }, location.origin)`.
+Suite opens no portal tab itself (25 Nov 2026): the side panel's Start opens
+`https://reg.gst.gov.in/registration/` in the extension's own tab, so a Suite tab would only be a
+second, unmanaged one. The extension preselects the
 form and the engagement from those URL parameters (or the data attributes) the same way it
 already preselects the engagement from a `/projects/{id}` URL; the registration record's URL is
 not a projects URL, so the `engagement` parameter is the one to read there.
 
 Suite treats the extension as installed when the page carries
 `document.documentElement.dataset.vcfoAssist` (any value, ideally the version). Without it, Suite
-shows the install steps (Chrome → Extensions → Developer mode → Load unpacked
+shows the install steps and opens no live portal tab (Chrome → Extensions → Developer mode → Load unpacked
 `extensions/vcfo-assist/.output/chrome-mv3`, or the firm's managed install).
 
 ## Requested additions
