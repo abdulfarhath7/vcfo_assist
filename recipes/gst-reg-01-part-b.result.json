@@ -13,7 +13,7 @@
       "selectors": { "primary": "body", "fallbacks": [], "shadowPath": [], "stability": "likely" },
       "read": "text",
       "optional": false,
-      "pattern": "\\b(AA\\d{2}\\d{6}[0-9A-Z]{7})\\b"
+      "pattern": "\\b(AA\\d{2}(?:\\d{6}|\\d{4})[0-9A-Z]{7})\\b"
     },
     {
       "key": "arnDate",

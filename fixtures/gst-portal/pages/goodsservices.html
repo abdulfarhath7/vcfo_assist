@@ -1,0 +1,14 @@
+<!-- route /registration/auth/newappl/goodsservices (goodservices.html, hsnpopup.html, sacpopup.html) -->
+<form name="gs" data-next="/registration/auth/newappl/bankaccounts" novalidate>
+<fieldset><legend>Goods</legend>
+  <div class="ac" id="gs_hsn"><label for="gs_hsn_value">Search HSN Chapter by Name or Code</label>
+    <input type="text" id="gs_hsn_value" class="angucomplete-input" data-ac="hsn" data-table="#hsn_added" autocomplete="off"></div>
+  <table class="added" id="hsn_added"><thead><tr><th>HSN</th><th>Description of Goods</th></tr></thead><tbody></tbody></table>
+</fieldset>
+<fieldset><legend>Services</legend>
+  <div class="ac" id="gs_ssn"><label for="gs_ssn_value">Search by Name or Code</label>
+    <input type="text" id="gs_ssn_value" class="angucomplete-input" data-ac="sac" data-table="#sac_added" autocomplete="off"></div>
+  <table class="added" id="sac_added"><thead><tr><th>Service Classification Code (SAC)</th><th>Description of Services</th></tr></thead><tbody></tbody></table>
+</fieldset>
+<div class="btns"><button type="button" id="back">BACK</button><button type="submit" class="btn btn-primary">SAVE &amp; CONTINUE</button></div>
+</form>

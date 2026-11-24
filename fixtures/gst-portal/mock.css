@@ -1,0 +1,20 @@
+body { font: 14px/1.4 Arial, sans-serif; margin: 0; background: #f4f6f9; color: #222; }
+header { background: #1c3c6c; color: #fff; padding: 10px 16px; }
+nav.tabs { display: flex; flex-wrap: wrap; gap: 4px; padding: 8px 16px; background: #dde4ee; }
+nav.tabs a { padding: 4px 8px; border-radius: 3px; color: #1c3c6c; text-decoration: none; }
+nav.tabs a.active { background: #1c3c6c; color: #fff; }
+main { padding: 16px; max-width: 960px; }
+fieldset { border: 1px solid #c8d0dc; margin: 0 0 12px; background: #fff; }
+.row { display: flex; flex-wrap: wrap; gap: 12px; }
+.fg { display: flex; flex-direction: column; min-width: 200px; margin: 4px 0; }
+.fg label { font-weight: bold; font-size: 12px; }
+input[type=text], input[type=email], select { padding: 4px; }
+.upload ul { margin: 4px 0; padding-left: 18px; }
+.natpos-dropdown-menu { display: none; list-style: none; border: 1px solid #999; padding: 0; margin: 0; background: #fff; position: absolute; }
+.natpos-dropdown-menu.open { display: block; }
+.natpos-dropdown-menu a { display: block; padding: 3px 8px; }
+.ac { position: relative; }
+.angucomplete-dropdown { border: 1px solid #999; background: #fff; position: absolute; z-index: 2; min-width: 300px; }
+.angucomplete-row { padding: 3px 6px; cursor: pointer; }
+.err { color: #b00; font-size: 12px; }
+.btns { margin-top: 12px; display: flex; gap: 8px; }

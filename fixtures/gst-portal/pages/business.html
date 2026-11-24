@@ -1,0 +1,56 @@
+<!-- route /registration/auth/newappl/business (businessdetails.html) -->
+<form name="bd" data-next="/registration/auth/newappl/promoters" novalidate>
+<fieldset><legend>Business Details</legend>
+  <div class="row">
+    <div class="fg"><label for="tnm">Trade Name</label><input type="text" id="tnm" name="tnm" maxlength="99" data-ng-model="bd.bzdtlsbz.trdnm"></div>
+    <div class="fg"><label for="bd_ConstBuss">Constitution of Business</label>
+      <select id="bd_ConstBuss" name="cobz"><option value="">Select</option>
+        <option value="PRO">Proprietorship</option><option value="PAR">Partnership</option><option value="HUF">Hindu Undivided Family</option>
+        <option value="PVT">Private Limited Company</option><option value="PUB">Public Limited Company</option>
+        <option value="LLP">Limited Liability Partnership</option><option value="OPC">One Person Company</option><option value="OTH">Others</option>
+      </select></div>
+    <div class="fg"><label for="dst">District</label><select id="dst"><option value="TGHYD">Hyderabad</option></select></div>
+  </div>
+  <div class="row">
+    <label><input type="checkbox" id="casual" name="casual"> Are you applying for registration as a casual taxable person?</label>
+    <label><input type="checkbox" id="composition" name="composition"> Option for Composition</label>
+  </div>
+  <div class="row">
+    <div class="fg"><label for="bd_rsl">Reason to obtain registration</label>
+      <select id="bd_rsl" name="rslibrg"><option value="">Select</option>
+        <option value="CRTH">Crossing the Threshold</option><option value="INSS">Inter-State supply</option>
+        <option value="VOLN">Voluntary Basis</option><option value="NOTA">Others (Not covered above)</option>
+      </select></div>
+    <div class="fg"><label for="bd_othr">Others (Please specify)</label><input type="text" id="bd_othr" maxlength="50"></div>
+    <div class="fg"><label for="bd_cmbz">Date of commencement of Business</label><input type="text" id="bd_cmbz" placeholder="DD/MM/YYYY" maxlength="10"></div>
+    <div class="fg"><label for="lib">Date on which liability to register arises</label><input type="text" id="lib" placeholder="DD/MM/YYYY" maxlength="10"></div>
+  </div>
+</fieldset>
+<fieldset><legend>Indicate Existing Registrations</legend>
+  <div class="row">
+    <div class="fg"><label for="exty">Type of Registration</label>
+      <select id="exty"><option value="">Select</option>
+        <option value="CIN">Corporate Identity Number/Foreign Company Registration Number</option>
+        <option value="IEC">Importer/Exporter Code Number</option>
+        <option value="OTH">Others (Please specify)</option>
+      </select></div>
+    <div class="fg"><label for="exno">Registration No.</label><input type="text" id="exno" maxlength="21"></div>
+    <div class="fg"><label for="exdt">Date of Registration</label><input type="text" id="exdt" placeholder="DD/MM/YYYY" maxlength="10"></div>
+    <button type="button" name="addexist" id="addexist" data-add-existing>Add</button>
+  </div>
+  <table class="added" id="existing_added"><tbody></tbody></table>
+</fieldset>
+<fieldset><legend>Proof of Constitution of Business</legend>
+  <div class="fg"><label for="bd_up_type">Proof of Constitution of Business</label>
+    <select id="bd_up_type"><option value="">Select</option><option value="PARD">Partnership Deed</option><option value="REGC">Registration Certificate</option><option value="MAAA">Memorandum of Association and Articles of Association</option><option value="CINC">Certificate of Incorporation</option></select></div>
+  <div class="upload" id="bd_upload" data-file-model data-type-select="#bd_up_type"><input type="file" accept=".pdf,.jpg,.jpeg"><span class="err"></span><ul></ul></div>
+</fieldset>
+<div class="btns"><button type="button" id="back">BACK</button><button type="submit" class="btn btn-primary">SAVE &amp; CONTINUE</button></div>
+</form>
+<script>
+  document.querySelector('[data-add-existing]').addEventListener('click', () => {
+    const t = document.querySelector('#existing_added tbody');
+    const r = t.insertRow(); r.insertCell().textContent = document.querySelector('#exty').selectedOptions[0].textContent; r.insertCell().textContent = document.querySelector('#exno').value;
+    for (const id of ['#exty', '#exno', '#exdt']) document.querySelector(id).value = '';
+  });
+</script>

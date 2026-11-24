@@ -1,0 +1,27 @@
+<!-- route /registration/auth/newappl/business/addlplace (addlbusinessplaces.html) -->
+<form name="ap" data-next="/registration/auth/newappl/goodsservices" novalidate>
+<div class="fg"><label for="abp_ctr">Number of additional places</label><input type="text" id="abp_ctr" maxlength="4"></div>
+<fieldset><legend>Address</legend><div class="row">
+  <div class="fg"><label for="pncd">PIN Code</label><input type="text" id="pncd" maxlength="6"></div>
+  <div class="fg"><label for="dst">District</label><input type="text" id="dst" maxlength="50"></div>
+  <div class="fg"><label for="loc">City / Town / Village</label><input type="text" id="loc" maxlength="60"></div>
+  <div class="fg"><label for="ap_locality">Locality/Sub Locality</label><input type="text" id="ap_locality" maxlength="80"></div>
+  <div class="fg"><label for="st">Road / Street</label><input type="text" id="st" maxlength="60"></div>
+  <div class="fg"><label for="ap_bdname">Name of the Premises / Building</label><input type="text" id="ap_bdname" maxlength="100"></div>
+  <div class="fg"><label for="abp_bdnum">Building No. / Flat No.</label><input type="text" id="abp_bdnum" maxlength="60"></div>
+  <div class="fg"><label for="ap_flrnum">Floor No.</label><input type="text" id="ap_flrnum" maxlength="60"></div>
+  <div class="fg"><label for="lat">Latitude</label><input type="text" id="lat" maxlength="27"></div>
+  <div class="fg"><label for="lng">Longitude</label><input type="text" id="lng" maxlength="27"></div>
+  <div class="fg"><label for="ap_email">Office Email Address</label><input type="email" id="ap_email" maxlength="254"></div>
+  <div class="fg"><label for="mbno">Mobile Number</label><input type="text" id="mbno" maxlength="10"></div>
+</div></fieldset>
+<fieldset><legend>Nature of possession of premises</legend>
+  <div class="fg" style="position:relative"><label>Nature of possession of premises</label>
+      <button type="button" class="natpos-dropdown-toggle" id="ap_buss_poss_btn">Select</button>
+      <input type="hidden" id="psnt"><ul class="natpos-dropdown-menu"><li><a href="#" class="natpos-item" data-code="OWN">Owned</a></li><li><a href="#" class="natpos-item" data-code="RNT">Rented/Leased</a></li><li><a href="#" class="natpos-item" data-code="CON">Consent Based</a></li><li><a href="#" class="natpos-item" data-code="COW">Co-working Space</a></li><li><a href="#" class="natpos-item" data-code="DEC">In the name of deceased ancestor</a></li><li><a href="#" class="natpos-item" data-code="SEZ">Special Economic Zone</a></li></ul></div>
+  <div class="fg"><label for="ap_up_type">Document Proof</label><select id="ap_up_type"><option value="">Select</option><option value="TAXR">Property Tax Receipt</option><option value="CMUK">Municipal Khata Copy</option><option value="ELCB">Electricity Bill</option><option value="RLAT">Rent / Lease agreement</option><option value="CNLR">Consent Letter</option><option value="LOWN">Legal ownership document</option></select></div>
+  <div class="upload" id="ap_upload" data-upload-model data-type-select="#ap_up_type"><input type="file" accept=".pdf,.jpg,.jpeg"><span class="err"></span><ul></ul></div>
+</fieldset>
+<fieldset><legend>Nature of Business Activity being carried out at above mentioned premises</legend><ul class="natbus-table"><li><input type="checkbox" id="ap_ck_0" name="ntbz" value="0"><label for="ap_ck_0">Bonded Warehouse</label></li><li><input type="checkbox" id="ap_ck_1" name="ntbz" value="1"><label for="ap_ck_1">EOU / STP / EHTP</label></li><li><input type="checkbox" id="ap_ck_2" name="ntbz" value="2"><label for="ap_ck_2">Export</label></li><li><input type="checkbox" id="ap_ck_3" name="ntbz" value="3"><label for="ap_ck_3">Factory / Manufacturing</label></li><li><input type="checkbox" id="ap_ck_4" name="ntbz" value="4"><label for="ap_ck_4">Import</label></li><li><input type="checkbox" id="ap_ck_5" name="ntbz" value="5"><label for="ap_ck_5">Supplier of Services</label></li><li><input type="checkbox" id="ap_ck_6" name="ntbz" value="6"><label for="ap_ck_6">Leasing Business</label></li><li><input type="checkbox" id="ap_ck_7" name="ntbz" value="7"><label for="ap_ck_7">Office / Sale Office</label></li><li><input type="checkbox" id="ap_ck_8" name="ntbz" value="8"><label for="ap_ck_8">Recipient of Goods or Services</label></li><li><input type="checkbox" id="ap_ck_9" name="ntbz" value="9"><label for="ap_ck_9">Retail Business</label></li><li><input type="checkbox" id="ap_ck_10" name="ntbz" value="10"><label for="ap_ck_10">Warehouse / Depot</label></li><li><input type="checkbox" id="ap_ck_11" name="ntbz" value="11"><label for="ap_ck_11">Wholesale Business</label></li><li><input type="checkbox" id="ap_ck_12" name="ntbz" value="12"><label for="ap_ck_12">Works Contract</label></li><li><input type="checkbox" id="ap_ck_13" name="ntbz" value="13"><label for="ap_ck_13">Others</label></li></ul></fieldset>
+<div class="btns"><button type="button" id="back">BACK</button><button type="button" data-add-new>ADD NEW</button><button type="submit" class="btn btn-primary">SAVE &amp; CONTINUE</button></div>
+</form>

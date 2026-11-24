@@ -1,0 +1,37 @@
+<!-- route /registration/auth/newappl/business/place (businessplaces.html) -->
+<form name="ppbzdtls" data-next="/registration/auth/newappl/goodsservices" data-next-if="#bp_add" data-next-if-to="/registration/auth/newappl/business/addlplace" novalidate>
+<fieldset><legend>Address</legend><div class="row">
+  <div class="fg"><label for="pncd">PIN Code</label><input type="text" id="pncd" maxlength="6"></div>
+  <div class="fg"><label for="dst">District</label><input type="text" id="dst" maxlength="50"></div>
+  <div class="fg"><label for="loc">City / Town / Village</label><input type="text" id="loc" maxlength="60"></div>
+  <div class="fg"><label for="ppbzdtls_locality">Locality/Sub Locality</label><input type="text" id="ppbzdtls_locality" maxlength="80"></div>
+  <div class="fg"><label for="st">Road / Street</label><input type="text" id="st" maxlength="120"></div>
+  <div class="fg"><label for="bp_bdname">Name of the Premises / Building</label><input type="text" id="bp_bdname" maxlength="100"></div>
+  <div class="fg"><label for="bno">Building No. / Flat No.</label><input type="text" id="bno" maxlength="60"></div>
+  <div class="fg"><label for="bp_flrnum">Floor No.</label><input type="text" id="bp_flrnum" maxlength="60"></div>
+  <div class="fg"><label for="bp_latitude">Latitude</label><input type="text" id="bp_latitude" maxlength="27"></div>
+  <div class="fg"><label for="bp_longitude">Longitude</label><input type="text" id="bp_longitude" maxlength="27"></div>
+</div></fieldset>
+<fieldset><legend>Jurisdiction</legend><div class="row">
+  <div class="fg"><label for="stj">Sector / Circle / Ward / Charge / Unit</label><select id="stj"><option value="">Select</option></select></div>
+  <div class="fg"><label for="comcd">Commissionerate Code</label><select id="comcd"><option value="">Select</option></select></div>
+  <div class="fg"><label for="divcd">Division Code</label><select id="divcd"><option value="">Select</option></select></div>
+  <div class="fg"><label for="rgcd">Range Code</label><select id="rgcd"><option value="">Select</option></select></div>
+</div></fieldset>
+<fieldset><legend>Contact Information</legend><div class="row">
+  <div class="fg"><label for="bp_email">Office Email Address</label><input type="email" id="bp_email" maxlength="254"></div>
+  <div class="fg"><label for="tlphnoStd">STD</label><input type="text" id="tlphnoStd" maxlength="8"></div>
+  <div class="fg"><label for="tlphno">Office Telephone Number</label><input type="text" id="tlphno" maxlength="16"></div>
+  <div class="fg"><label for="bp_mobile">Mobile Number</label><input type="text" id="bp_mobile" maxlength="10"></div>
+</div></fieldset>
+<fieldset><legend>Nature of possession of premises</legend>
+  <div class="fg" style="position:relative"><label>Nature of possession of premises</label>
+      <button type="button" class="natpos-dropdown-toggle" id="bp_buss_poss_btn">Select</button>
+      <input type="hidden" id="bp_psnt"><ul class="natpos-dropdown-menu"><li><a href="#" class="natpos-item" data-code="OWN">Owned</a></li><li><a href="#" class="natpos-item" data-code="RNT">Rented/Leased</a></li><li><a href="#" class="natpos-item" data-code="CON">Consent Based</a></li><li><a href="#" class="natpos-item" data-code="COW">Co-working Space</a></li><li><a href="#" class="natpos-item" data-code="DEC">In the name of deceased ancestor</a></li><li><a href="#" class="natpos-item" data-code="SEZ">Special Economic Zone</a></li></ul></div>
+  <div class="fg"><label for="bp_up_type">Document Proof</label><select id="bp_up_type"><option value="">Select</option><option value="TAXR">Property Tax Receipt</option><option value="CMUK">Municipal Khata Copy</option><option value="ELCB">Electricity Bill</option><option value="RLAT">Rent / Lease agreement</option><option value="CNLR">Consent Letter</option><option value="LOWN">Legal ownership document</option></select></div>
+  <div class="upload" id="bp_upload" data-upload-model data-type-select="#bp_up_type"><input type="file" accept=".pdf,.jpg,.jpeg"><span class="err"></span><ul></ul></div>
+</fieldset>
+<fieldset><legend>Nature of Business Activity being carried out at above mentioned premises</legend><ul class="natbus-table"><li><input type="checkbox" id="bp_ck_0" name="bp_bactivity" value="0"><label for="bp_ck_0">Bonded Warehouse</label></li><li><input type="checkbox" id="bp_ck_1" name="bp_bactivity" value="1"><label for="bp_ck_1">EOU / STP / EHTP</label></li><li><input type="checkbox" id="bp_ck_2" name="bp_bactivity" value="2"><label for="bp_ck_2">Export</label></li><li><input type="checkbox" id="bp_ck_3" name="bp_bactivity" value="3"><label for="bp_ck_3">Factory / Manufacturing</label></li><li><input type="checkbox" id="bp_ck_4" name="bp_bactivity" value="4"><label for="bp_ck_4">Import</label></li><li><input type="checkbox" id="bp_ck_5" name="bp_bactivity" value="5"><label for="bp_ck_5">Supplier of Services</label></li><li><input type="checkbox" id="bp_ck_6" name="bp_bactivity" value="6"><label for="bp_ck_6">Leasing Business</label></li><li><input type="checkbox" id="bp_ck_7" name="bp_bactivity" value="7"><label for="bp_ck_7">Office / Sale Office</label></li><li><input type="checkbox" id="bp_ck_8" name="bp_bactivity" value="8"><label for="bp_ck_8">Recipient of Goods or Services</label></li><li><input type="checkbox" id="bp_ck_9" name="bp_bactivity" value="9"><label for="bp_ck_9">Retail Business</label></li><li><input type="checkbox" id="bp_ck_10" name="bp_bactivity" value="10"><label for="bp_ck_10">Warehouse / Depot</label></li><li><input type="checkbox" id="bp_ck_11" name="bp_bactivity" value="11"><label for="bp_ck_11">Wholesale Business</label></li><li><input type="checkbox" id="bp_ck_12" name="bp_bactivity" value="12"><label for="bp_ck_12">Works Contract</label></li><li><input type="checkbox" id="bp_ck_13" name="bp_bactivity" value="13"><label for="bp_ck_13">Others</label></li></ul></fieldset>
+<label><input type="checkbox" id="bp_add"> Have Additional Place of Business</label>
+<div class="btns"><button type="button" id="back">BACK</button><button type="submit" class="btn btn-primary">SAVE &amp; CONTINUE</button></div>
+</form>

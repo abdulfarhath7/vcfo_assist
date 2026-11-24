@@ -1,0 +1,15 @@
+<!-- route /registration/auth/newappl/verify (verify.html) -->
+<form name="vf" novalidate onsubmit="return false">
+<h3>Verification</h3>
+<label><input type="checkbox" id="authveri"> I hereby solemnly affirm and declare that the information given herein above is true and correct to the best of my knowledge and belief.</label>
+<div class="row">
+  <div class="fg"><label for="authsign">Name of Authorized Signatory</label><select id="authsign"><option value="">Select</option><option value="1">Asha Fixture</option></select></div>
+  <div class="fg"><label for="veriPlace">Place</label><input type="text" id="veriPlace" maxlength="50"></div>
+</div>
+<span class="err" id="verr"></span>
+<div class="btns">
+  <button type="button" id="btn_dsc" data-final-submit>SUBMIT WITH DSC</button>
+  <button type="button" id="btn_esign" data-final-submit>SUBMIT WITH E-SIGNATURE</button>
+  <button type="button" id="btn_evc" data-final-submit>SUBMIT WITH EVC</button>
+</div>
+</form>

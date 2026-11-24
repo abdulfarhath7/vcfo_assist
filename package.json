@@ -4,7 +4,10 @@
   "private": true,
   "description": "VCFO Assist - Chrome MV3 companion to VCFO Suite that pre-fills the MCA V3 portal from engagement data.",
   "scripts": {
-    "check": "tsc -p jsconfig.json --noEmit"
+    "check": "tsc -p jsconfig.json --noEmit",
+    "test:gst": "node tools/check-gst.mjs && node tools/e2e-gst.mjs",
+    "gst:mock": "node tools/gst-mock-server.mjs",
+    "gst:maps": "node tools/build-gst-fieldmaps.mjs"
   },
   "devDependencies": {
     "@types/chrome": "^0.1.12",

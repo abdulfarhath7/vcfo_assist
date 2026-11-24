@@ -1,0 +1,58 @@
+<!-- route /registration/auth/newappl/authsignatory (authsignatory.html) -->
+<form name="as" data-next="/registration/auth/newappl/authrepresentative" novalidate>
+<h3>Details of Authorized Signatory</h3>
+<label><input type="checkbox" id="auth_prim"> Primary Authorized Signatory</label>
+
+<fieldset><legend>Personal Information</legend>
+  <div class="row">
+    <div class="fg"><label for="fnm">First Name</label><input type="text" id="fnm" maxlength="99"></div>
+    <div class="fg"><label for="as_mname">Middle Name</label><input type="text" id="as_mname" maxlength="99"></div>
+    <div class="fg"><label for="as_lname">Last Name</label><input type="text" id="as_lname" maxlength="99"></div>
+  </div>
+  <div class="row">
+    <div class="fg"><label for="ffname">Name of Father: First Name</label><input type="text" id="ffname" maxlength="99"></div>
+    <div class="fg"><label for="as_fmname">Middle Name</label><input type="text" id="as_fmname" maxlength="99"></div>
+    <div class="fg"><label for="as_flname">Last Name</label><input type="text" id="as_flname" maxlength="99"></div>
+  </div>
+  <div class="row">
+    <div class="fg"><label for="dob">Date of Birth</label><input type="text" id="dob" placeholder="DD/MM/YYYY" maxlength="10"></div>
+    <div class="fg"><label for="mbno">Mobile Number</label><input type="text" id="mbno" maxlength="10"></div>
+    <div class="fg"><label for="em">Email Address</label><input type="email" id="em" maxlength="254"></div>
+  </div>
+  <div class="row">Gender
+    <input type="radio" id="radiomale" name="as_gd" value="M"><label for="radiomale">Male</label>
+    <input type="radio" id="radiofemale" name="as_gd" value="F"><label for="radiofemale">Female</label>
+    <input type="radio" id="radiotrans" name="as_gd" value="O"><label for="radiotrans">Others</label>
+  </div>
+</fieldset>
+<fieldset><legend>Identity Information</legend>
+  <div class="row">
+    <div class="fg"><label for="dg">Designation / Status</label><input type="text" id="dg" maxlength="25"></div>
+    <div class="fg"><label for="din">Director Identification Number</label><input type="text" id="din" maxlength="8"></div>
+    <label><input type="checkbox" id="as_cit_ind"> Are you a citizen of India?</label>
+    <div class="fg"><label for="pan">Permanent Account Number (PAN)</label><input type="text" id="pan" maxlength="10"></div>
+    <div class="fg"><label for="ppno">Passport Number (In case of Foreigners)</label><input type="text" id="ppno" maxlength="15"></div>
+    <div class="fg"><label for="uid">Aadhaar Number</label><input type="text" id="uid" maxlength="12"></div>
+  </div>
+</fieldset>
+<fieldset><legend>Residential Address</legend>
+  <div class="row">
+    <div class="fg"><label for="cnty">Country</label><select id="cnty" name="cnty"><option value="">Select</option><option value="IND">India</option><option value="USA">United States</option></select></div>
+    <div class="fg"><label for="pncd">PIN Code</label><input type="text" id="pncd" maxlength="6"></div>
+    <div class="fg"><label for="as_state">State</label><input type="text" id="as_state" maxlength="50"></div>
+    <div class="fg"><label for="dst">District</label><input type="text" id="dst" maxlength="50"></div>
+    <div class="fg"><label for="city">City / Town / Village</label><input type="text" id="city" maxlength="60"></div>
+    <div class="fg"><label for="as_locality">Locality/Sub Locality</label><input type="text" id="as_locality" maxlength="80"></div>
+    <div class="fg"><label for="st">Road / Street</label><input type="text" id="st" maxlength="120"></div>
+    <div class="fg"><label for="as_bdname">Name of the Premises / Building</label><input type="text" id="as_bdname" maxlength="100"></div>
+    <div class="fg"><label for="bno">Building No. / Flat No.</label><input type="text" id="bno" maxlength="60"></div>
+    <div class="fg"><label for="as_flrnum">Floor No.</label><input type="text" id="as_flrnum" maxlength="60"></div>
+  </div>
+</fieldset>
+<fieldset><legend>Document Upload</legend>
+  <div class="fg"><label for="as_up_type">Proof of details of authorized signatory</label>
+    <select id="as_up_type"><option value="">Select</option><option value="LOAU">Letter of Authorisation</option><option value="CRBC">Copy of resolution passed by BoD / Managing Committee</option></select></div>
+  <div class="upload" id="as_upload_sign" data-file-model data-type-select="#as_up_type"><input type="file" accept=".pdf,.jpg,.jpeg"><span class="err"></span><ul></ul></div>
+</fieldset>
+<div class="btns"><button type="button" id="back">BACK</button><button type="button" data-add-new>ADD NEW</button><button type="submit" class="btn btn-primary">SAVE &amp; CONTINUE</button></div>
+</form>

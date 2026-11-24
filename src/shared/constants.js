@@ -144,8 +144,9 @@ export const DANGER = Object.freeze({
  * filled and is refused by the loader when it appears in a field map.
  */
 export const CREDENTIAL = Object.freeze({
-  // GST additions: the TRN login id, EVC codes and the Aadhaar number input (`#uid`).
-  pattern: 'captcha|otp|passw|passcode|mpin|(?:^|[^a-z])pin(?![\\s_-]*code)|secret|token|cvv|(?:^|[^a-z])trn(?:no)?(?:$|[^a-z])|(?:^|[^a-z])evc|(?:^|[^a-z])uid(?:$|[^a-z])',
+  // GST additions: the TRN login id, EVC codes and the Aadhaar number input (`#uid` exactly:
+  // MCA labels such as "Building UID" are ordinary fields).
+  pattern: 'captcha|otp|passw|passcode|mpin|(?:^|[^a-z])pin(?![\\s_-]*code)|secret|token|cvv|(?:^|[^a-z])trn(?:no)?(?:$|[^a-z])|(?:^|[^a-z])evc|^#?uid$',
   flags: 'i',
   /** Element types that are credential inputs whatever their name. */
   types: Object.freeze(['password']),

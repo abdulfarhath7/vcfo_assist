@@ -1,0 +1,48 @@
+<!-- route /registration/ ; ids, names, maxlengths and option values as seen live 2026-11-25 -->
+<h2>New Registration</h2>
+<form name="newRegForm" id="newRegForm" action="/registration/verify" method="get" novalidate>
+  <div class="row">
+    <label><input type="radio" id="radionew" name="typ" value="N" checked> New Registration</label>
+    <label><input type="radio" id="radiotrn" name="typ" value="T"> Temporary Reference Number (TRN)</label>
+  </div>
+  <div id="newreg">
+    <div class="fg"><label for="applnType">I am a</label>
+      <select id="applnType" name="applnType" data-ng-model="plogin.applnType" required>
+        <option value="">Select</option>
+        <option value="APLRG">Taxpayer</option>
+        <option value="APLTD">Tax Deductor</option>
+        <option value="APLTC">Tax Collector (e-Commerce)</option>
+        <option value="RTTR1">GST Practitioner</option>
+        <option value="APLNR">Non Resident Taxable Person</option>
+        <option value="APLUN">United Nation Body</option>
+        <option value="APLEM">Consulate or Embassy of Foreign Country</option>
+        <option value="APLOT">Other Notified Person</option>
+        <option value="REGOI">Non-Resident Online Services Provider and/or Non-Resident Online Money Gaming Supplier</option>
+      </select></div>
+    <div class="fg"><label for="applnState">State / UT</label>
+      <select id="applnState" name="applnState" data-ng-model="plogin.stCd" required>
+        <option value="">Select</option>
+        <option value="29">Karnataka</option>
+        <option value="27">Maharashtra</option>
+        <option value="36">Telangana</option>
+        <option value="97">Other Territory</option>
+      </select></div>
+    <div class="fg"><label for="applnDistr">District</label>
+      <select id="applnDistr" name="applnDistr" data-ng-model="plogin.dtCd" required><option value="">Select</option></select></div>
+    <div class="fg"><label for="bnm">Legal Name of the Business (As mentioned in PAN)</label>
+      <input type="text" id="bnm" name="lgnmbzpan" maxlength="99" data-ng-model="plogin.lgBzName"></div>
+    <div class="fg"><label for="pan_card">Permanent Account Number (PAN)</label>
+      <input type="text" id="pan_card" name="pan_card" maxlength="10" data-ng-model="plogin.id"></div>
+    <div class="fg"><label for="email">Email Address</label>
+      <input type="email" id="email" name="email" maxlength="254" data-ng-model="plogin.email"></div>
+    <div class="fg"><label for="mobile">Mobile Number</label>
+      <input type="text" id="mobile" name="mobile" maxlength="10" data-ng-model="plogin.mbno"></div>
+  </div>
+  <div id="trnreg" hidden>
+    <div class="fg"><label for="trnno">Temporary Reference Number (TRN)</label>
+      <input type="text" id="trnno" name="trnno" maxlength="15" data-ng-model="plogin.trn"></div>
+  </div>
+  <div class="fg"><label for="captcha">Type the characters you can see in the image below</label>
+    <input type="text" id="captcha" name="captcha" maxlength="6"><img id="imgCaptcha" alt="captcha" src="data:image/gif;base64,R0lGODlhAQABAAAAACw="></div>
+  <div class="btns"><button type="submit" class="btn btn-primary" id="proceed">PROCEED</button></div>
+</form>

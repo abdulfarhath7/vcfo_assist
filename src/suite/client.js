@@ -359,7 +359,17 @@ export async function fetchDocument(origin, engagementId, doc) {
     if (r.ok && r.value.status === 401) return httpError(401, `the document ${doc.key}`, origin, r.value.tabId);
     tried.push(r.ok ? `Suite attachments route answered ${r.value.status}` : r.error.message);
   }
-  if (doc.url) {
+  // The fall-back reads only an inline data: URL (the development fixture) or a
+  // URL on the Suite origin itself: no network egress except VCFO Suite.
+  let sameSuite = false;
+  try {
+    sameSuite = origin !== '' && new URL(doc.url).origin === origin;
+  } catch {
+    sameSuite = false;
+  }
+  if (doc.url && !doc.url.startsWith('data:') && !sameSuite) {
+    tried.push('the signed URL is not on the Suite origin, so it is not fetched (ask Suite to serve the key on its attachments route)');
+  } else if (doc.url) {
     try {
       const res = await fetch(doc.url, { credentials: 'omit' });
       if (res.ok) {
