@@ -58,6 +58,17 @@ which carries the same source mark per field. Firm policy SBC-STD-AI-02 applies 
 | Captcha | `#captcha` maxlength 6, `img#imgCaptcha` (`/services/captcha`) | Person only |
 | PROCEED | `button[type=submit]` | Person only |
 
+**Verified live on 2026-11-25 (Part A fill run).** The extension's Part A recipe filled all seven
+fields above, from I am a to Mobile, on the real page with dummy data, and each read back:
+type `APLRG`, state `36`, district `TGHYD` (Hyderabad), legal name, PAN, email and mobile.
+Angular marked every field `ng-valid ng-dirty ng-touched` and the page showed no validation
+message. The form was ready about 5.5 s after the tab opened, `/master/states` loaded before the
+fill, and `/master/st/36/activedistrict` loaded about 10 s after the states list, inside the
+district wait. The run halted at the recipe's halt step with the captcha empty and PROCEED not
+pressed; the page saw no click from the extension, the guard refuses the PROCEED button, and no
+non-GET request to any `gst.gov.in` host was made (every one was set to abort). The legal status
+stays `mock-only`: the run used a scratchpad copy with that one value lifted.
+
 Then `/registration/verify` (`otpverify.html`): `#mobile_otp`, `#email-otp` (password inputs).
 The TRN is shown on the next page and sent by SMS and email; it is valid 15 days.
 
