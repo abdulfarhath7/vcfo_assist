@@ -73,7 +73,8 @@ joined with `; ` in `fields` and an array in `profile`. The extension's field ma
 | sourceField | Portal field | Suite source |
 |---|---|---|
 | `business.tradeName` | Trade name | reg-4 client field `trade-name`, else the company name |
-| `business.constitution` | Constitution of business | company type (pre-1) → `GST_CONSTITUTION` |
+| `business.constitution` | Constitution of business | legal form / company name → `GST_CONSTITUTION` |
+| `business.constitutionProofType` | Proof of constitution (document type) | `Certificate of Incorporation` (company, LLP), `Partnership Deed` |
 | `business.jurisdiction.type` | State / Centre jurisdiction | `state` (structural default; Centre fields below) |
 | `business.jurisdiction.stateDistrict` | District (state jurisdiction) | reg-4 sbc `jurisdiction` parts, else office district |
 | `business.jurisdiction.sector` | Sector / Circle / Ward / Charge / Unit | reg-4 sbc `jurisdiction-sector` |
@@ -129,6 +130,8 @@ joined with `; ` in `fields` and an array in `profile`. The extension's field ma
 | `promoterIndex` | "Primary authorised signatory" tick on the promoter, or the same person's details | reg-4 sbc `signatory-index`, else 1 (first director) |
 | every promoter key above | Authorised signatory details | copied from that promoter |
 | `proofOfAppointment` | Proof of details of authorised signatory | document key `signatory.proof` (board resolution / letter of authorisation) |
+| `proofDocType` | Proof document type | `Copy of resolution passed by BoD / Managing Committee` or `Letter of Authorisation` |
+| `isPrimarySignatory` | Primary Authorized Signatory tick | always `true` |
 
 ## Principal place of business (`principalPlace`)
 
@@ -137,8 +140,8 @@ joined with `; ` in `fields` and an array in `profile`. The extension's field ma
 | `address.building`, `address.floor`, `address.premises`, `address.road`, `address.locality`, `address.city`, `address.district`, `address.state`, `address.pincode`, `address.full` | Address | reg-4 client `place`, else the registered office (pre-14) |
 | `latitude`, `longitude` | Geocode (optional on the portal) | reg-4 client `latitude` / `longitude`, else the registered office |
 | `email`, `officePhone`, `mobile` | Contact information | reg-4 client fields, else the signatory's |
-| `possession` | Nature of possession of premises | reg-4 client `possession` → `GST_POSSESSION` (`Own`, `Leased`, `Rented`, `Consent`, `Shared`, `Others`) |
-| `proofDocType` | Document proof | `GST_PROOF_OF_PLACE` (`Electricity Bill`, `Rent / Lease Agreement`, `Consent Letter`, `Legal Ownership Document`, `Municipal Khata Copy`, `Property Tax Receipt`) |
+| `possession` | Nature of possession of premises | reg-4 client `possession` → `GST_POSSESSION` (`Owned`, `Rented/Leased`, `Consent Based`, `Co-working Space`, `In the name of deceased ancestor`, `Special Economic Zone`) |
+| `proofDocType` | Document proof | `GST_PROOF_FOR_POSSESSION` over `GST_PROOF_OF_PLACE` (`Electricity Bill`, `Rent / Lease agreement`, `Consent Letter`, `Legal ownership document`, `Municipal Khata Copy`, `Property Tax Receipt`, `Rent receipt with NOC (In case of no/expired agreement)`, `Water Bill`, `Affidavit`, `Undertaking`, `Membership Agreement`) |
 | `proofDocument` | Upload | document key `place.proof` (rent deed, electricity bill) |
 | `nocDocument` | (consent letter / NOC from owner, when Rented/Consent) | document key `place.noc` |
 | `activities` | Nature of business activity (multi) | reg-4 client `activities` → `GST_ACTIVITY` (`Office / Sale Office`, `Supplier of Services`, `Retail Business`, `Wholesale Business`, `Factory / Manufacturing`, `Warehouse / Depot`, `Export`, `Import`, `Recipient of Goods or Services`, `Bonded Warehouse`, `EOU / STP / EHTP`, `Leasing Business`, `Service Provision`, `Works Contract`, `Others`) |
@@ -197,7 +200,19 @@ sends an Aadhaar number to the extension.
 
 Submit with DSC / EVC / E-Signature is the person's.
 
+## Meta (`meta`)
+
+| key | Meaning |
+|---|---|
+| `subjectKind` | `registration` |
+| `subjectKey` | `reg-4`, the tracker row the result is posted to |
+| `additionalPlacesCount` | number of `additionalPlaces` rows (`#abp_ctr`) |
+
 ## Documents (`documents[]`)
+
+The extension reads each file from `GET {suiteOrigin}{attachmentPath}`
+(`/api/assist/engagements/{id}/attachments/{key}`, base64 JSON, same auth, 6 MB limit), inside
+the Suite tab. The signed `url` is also sent but is not for the extension.
 
 ```ts
 interface GstDocument {
@@ -264,17 +279,17 @@ Keys the extension needs that are not above. Append rows; Suite adopts them into
 
 | Requested key | Portal field | Why | Suite answer |
 |---|---|---|---|
-| `principalPlace.possession`, `additionalPlaces.N.possession` (values) | Nature of possession of premises | The live master (`/master/natpos/aplrg`, 25 Nov 2026) labels are `Owned`, `Rented/Leased`, `Consent Based`, `Co-working Space`, `In the name of deceased ancestor`, `Special Economic Zone`, `E-commerce Operator's Warehouse under Rule 14B`. `GST_POSSESSION` sends `Own`, `Leased`, `Rented`, `Consent`, `Shared`, which match none of them, so the fill fails loud. Please send the live labels. | |
-| `principalPlace.proofDocType` (values) | Document proof | The live list spells `Rent / Lease agreement` and `Legal ownership document` (lower case), and adds `Rent receipt with NOC (In case of no/expired agreement)`, `Water Bill`, `Affidavit`, `Undertaking`, `Membership Agreement` (co-working). Matching is case-insensitive, so the case is fine; the new entries are needed for the new possession types. | |
-| `additionalPlaces.N.proofDocType` | Document proof (additional place) | Same list, per place. | |
-| `business.constitutionProofType` | Proof of Constitution of Business (document type) | The upload is disabled until the type is chosen. Values from `/master/doclist/bd/active`: `Certificate of Incorporation`, `Memorandum of Association and Articles of Association`, `Partnership Deed`, `Registration Certificate`, … (for a company, `Certificate of Incorporation`). | |
-| `signatory.proofDocType` | Proof of details of authorised signatory (document type) | Same reason. Values: `Letter of Authorisation`, `Copy of resolution passed by BoD / Managing Committee`. | |
-| `signatory.isPrimarySignatory` | Primary Authorized Signatory tick | The tab has its own tick; `true` for the primary signatory. | |
-| `principalPlace.activities`, `additionalPlaces.N.activities` (format) | Nature of business activity | The extension reads the flattened `"A; B"` string (as `flattenGstProfile` writes it) and ticks each label. Please keep that separator. | |
-| `meta.subjectKey` (optional) | — | The tracker row the ARN is posted to. The extension sends `subjectKind: 'registration', subjectKey: 'reg-4'` unless the profile names another. | |
-| `meta.additionalPlacesCount` (optional) | Number of additional places | `#abp_ctr` on the additional places tab. | |
-| `arn`, `arnDate` on the result route | — | `handleAssistIngest` must accept `arn` (and `arnDate`) for `form: 'gst-reg-01'`. The extension sends the ARN as `arn`, and also as `srn` and `reference` for the older schema, with `subjectKind` and `subjectKey`, and each mismatch with `field`. | |
-| ARN format check | — | This file says "AA + 2-digit state + 6-digit date + 7 alphanumerics (15 characters)", which is 17 characters. The portal's own message says "15 digit ARN" (AA + state + MMYY + 7). The extension accepts both; please check Suite's validator against a real ARN. | |
-| Attachments route for GST keys | — | `GET /api/assist/engagements/{id}/attachments/{key}` must serve `company.coi`, `company.pan`, `promoter.N.photo`, `promoter.N.pan`, `signatory.proof`, `place.proof`, `place.noc`, `place.N.proof`, `bank.proof` (the key pattern already allows the dots). The extension asks this route, inside the Suite tab. It does not fetch the signed S3 `url` (CLAUDE.md: no network egress except Suite), unless the URL is on the Suite origin. | |
-| `authorisedRepresentative.*` | Authorized Representative tab | Not needed now (the person fills it); listed so it is a decision, not an omission. | |
-| `bank.*` | Bank Accounts tab | The tab is back in REG-01 (optional) from November 2026, but its template was not captured, so the extension leaves it to the person. Keep the keys. | |
+| `principalPlace.possession`, `additionalPlaces.N.possession` (values) | Nature of possession of premises | The live master (`/master/natpos/aplrg`, 25 Nov 2026) labels are `Owned`, `Rented/Leased`, `Consent Based`, `Co-working Space`, `In the name of deceased ancestor`, `Special Economic Zone`, `E-commerce Operator's Warehouse under Rule 14B`. `GST_POSSESSION` sends `Own`, `Leased`, `Rented`, `Consent`, `Shared`, which match none of them, so the fill fails loud. Please send the live labels. || Adopted 25 Nov: `GST_POSSESSION` now sends the live labels (`Owned`, `Rented/Leased`, `Consent Based`, `Co-working Space`, `In the name of deceased ancestor`, `Special Economic Zone`). The e-commerce warehouse label is not mapped (no Suite case yet). |
+| `principalPlace.proofDocType` (values) | Document proof | The live list spells `Rent / Lease agreement` and `Legal ownership document` (lower case), and adds `Rent receipt with NOC (In case of no/expired agreement)`, `Water Bill`, `Affidavit`, `Undertaking`, `Membership Agreement` (co-working). Matching is case-insensitive, so the case is fine; the new entries are needed for the new possession types. || Adopted: `GST_PROOF_OF_PLACE` carries the live spellings and the new entries; `GST_PROOF_FOR_POSSESSION` picks Membership Agreement for co-working and Affidavit for a deceased ancestor's premises. |
+| `additionalPlaces.N.proofDocType` | Document proof (additional place) | Same list, per place. || Adopted: in the vocabulary; Suite sends it when the place's possession is known (additional places are one address line each today, so usually omitted). |
+| `business.constitutionProofType` | Proof of Constitution of Business (document type) | The upload is disabled until the type is chosen. Values from `/master/doclist/bd/active`: `Certificate of Incorporation`, `Memorandum of Association and Articles of Association`, `Partnership Deed`, `Registration Certificate`, … (for a company, `Certificate of Incorporation`). || Adopted: `Certificate of Incorporation` for a company or LLP, `Partnership Deed` for a partnership. |
+| `signatory.proofDocType` | Proof of details of authorised signatory (document type) | Same reason. Values: `Letter of Authorisation`, `Copy of resolution passed by BoD / Managing Committee`. || Adopted: `Copy of resolution passed by BoD / Managing Committee` when the uploaded proof reads as a resolution, else `Letter of Authorisation`. |
+| `signatory.isPrimarySignatory` | Primary Authorized Signatory tick | The tab has its own tick; `true` for the primary signatory. || Adopted: always `true` on `signatory`. |
+| `principalPlace.activities`, `additionalPlaces.N.activities` (format) | Nature of business activity | The extension reads the flattened `"A; B"` string (as `flattenGstProfile` writes it) and ticks each label. Please keep that separator. || Kept: `; ` is the separator for every multi-value leaf. |
+| `meta.subjectKey` (optional) | — | The tracker row the ARN is posted to. The extension sends `subjectKind: 'registration', subjectKey: 'reg-4'` unless the profile names another. || Adopted: `meta.subjectKind` = `registration`, `meta.subjectKey` = `reg-4`. |
+| `meta.additionalPlacesCount` (optional) | Number of additional places | `#abp_ctr` on the additional places tab. || Adopted: the number of `additionalPlaces` rows. |
+| `arn`, `arnDate` on the result route | — | `handleAssistIngest` must accept `arn` (and `arnDate`) for `form: 'gst-reg-01'`. The extension sends the ARN as `arn`, and also as `srn` and `reference` for the older schema, with `subjectKind` and `subjectKey`, and each mismatch with `field`. || Adopted: a `form: 'gst-reg-01'` body is routed before `handleAssistIngest`; `arn`, `arnDate`, `srn`, `gstin`, `registeredOn`, `aadhaar`, `subjectKind` (`registration`), `subjectKey` (`reg-4`; any other is 400), `reference` (ignored) and `mismatches[]` are accepted. An `srn` equal to the `arn` is the older-schema copy and is not recorded as an SRN. |
+| ARN format check | — | This file says "AA + 2-digit state + 6-digit date + 7 alphanumerics (15 characters)", which is 17 characters. The portal's own message says "15 digit ARN" (AA + state + MMYY + 7). The extension accepts both; please check Suite's validator against a real ARN. || Fixed: Suite accepts 15 characters (AA + state + 11) and 17 characters. No real ARN was available to check against. |
+| Attachments route for GST keys | — | `GET /api/assist/engagements/{id}/attachments/{key}` must serve `company.coi`, `company.pan`, `promoter.N.photo`, `promoter.N.pan`, `signatory.proof`, `place.proof`, `place.noc`, `place.N.proof`, `bank.proof` (the key pattern already allows the dots). The extension asks this route, inside the Suite tab. It does not fetch the signed S3 `url` (CLAUDE.md: no network egress except Suite), unless the URL is on the Suite origin. || Adopted: `GET /api/assist/engagements/{id}/attachments/{key}` serves every GST document key through the GST profile (same staff auth, 6 MB limit, audited). Each `documents[]` entry also carries `attachmentPath`. |
+| `authorisedRepresentative.*` | Authorized Representative tab | Not needed now (the person fills it); listed so it is a decision, not an omission. || Agreed: not sent; the person fills that tab. |
+| `bank.*` | Bank Accounts tab | The tab is back in REG-01 (optional) from November 2026, but its template was not captured, so the extension leaves it to the person. Keep the keys. || Kept. |
